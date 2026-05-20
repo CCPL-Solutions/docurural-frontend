@@ -22,7 +22,7 @@ export class LoginComponent {
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required]],
   });
 
   protected readonly loading = signal(false);
@@ -44,7 +44,6 @@ export class LoginComponent {
     const ctrl = this.form.controls.password;
     if (!ctrl.touched || ctrl.valid) return null;
     if (ctrl.hasError('required')) return 'Ingrese su contraseña';
-    if (ctrl.hasError('minlength')) return 'La contraseña debe tener al menos 8 caracteres';
     if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }

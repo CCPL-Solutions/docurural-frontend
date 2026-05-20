@@ -25,6 +25,7 @@ import {
   UserFormDialogResult,
 } from '../../../core/models/user-form.models';
 import { passwordMatchValidator } from './validators/password-match.validator';
+import { passwordComplexityValidator } from './validators/password-complexity.validator';
 
 @Component({
   selector: 'app-user-form-dialog',
@@ -72,14 +73,14 @@ export class UserFormDialogComponent implements OnInit {
       password: [
         '',
         this.isEdit()
-          ? [Validators.minLength(8)]
-          : [Validators.required, Validators.minLength(8)],
+          ? [passwordComplexityValidator()]
+          : [Validators.required, passwordComplexityValidator()],
       ],
       confirmPassword: [
         '',
         this.isEdit()
-          ? [Validators.minLength(8)]
-          : [Validators.required, Validators.minLength(8)],
+          ? [passwordComplexityValidator()]
+          : [Validators.required, passwordComplexityValidator()],
       ],
     },
     { validators: passwordMatchValidator() },
@@ -127,7 +128,12 @@ export class UserFormDialogComponent implements OnInit {
     const ctrl = this.form.controls.password;
     if (!ctrl.touched || ctrl.valid) return null;
     if (ctrl.hasError('required')) return 'Ingrese una contraseña';
-    if (ctrl.hasError('minlength')) return 'La contraseña debe tener al menos 8 caracteres';
+    if (ctrl.hasError('minLength')) return 'Debe tener al menos 12 caracteres';
+    if (ctrl.hasError('maxLength')) return 'No puede superar los 128 caracteres';
+    if (ctrl.hasError('noLowercase')) return 'Debe incluir al menos una letra minúscula';
+    if (ctrl.hasError('noUppercase')) return 'Debe incluir al menos una letra mayúscula';
+    if (ctrl.hasError('noDigit')) return 'Debe incluir al menos un número';
+    if (ctrl.hasError('noSymbol')) return 'Debe incluir al menos un símbolo (ej: !, @, #, $)';
     if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
@@ -136,7 +142,12 @@ export class UserFormDialogComponent implements OnInit {
     const ctrl = this.form.controls.confirmPassword;
     if (!ctrl.touched) return null;
     if (ctrl.hasError('required')) return 'Confirme su contraseña';
-    if (ctrl.hasError('minlength')) return 'La contraseña debe tener al menos 8 caracteres';
+    if (ctrl.hasError('minLength')) return 'Debe tener al menos 12 caracteres';
+    if (ctrl.hasError('maxLength')) return 'No puede superar los 128 caracteres';
+    if (ctrl.hasError('noLowercase')) return 'Debe incluir al menos una letra minúscula';
+    if (ctrl.hasError('noUppercase')) return 'Debe incluir al menos una letra mayúscula';
+    if (ctrl.hasError('noDigit')) return 'Debe incluir al menos un número';
+    if (ctrl.hasError('noSymbol')) return 'Debe incluir al menos un símbolo (ej: !, @, #, $)';
     if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     if (this.form.hasError('passwordMismatch')) return 'Las contraseñas no coinciden';
     return null;

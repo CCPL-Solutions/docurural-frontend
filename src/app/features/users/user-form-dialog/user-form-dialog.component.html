@@ -146,6 +146,7 @@
       @if (isEdit()) {
         <small class="field__hint">Déjalo en blanco para mantener la contraseña actual</small>
       }
+      <small class="field__hint">Mínimo 12 caracteres, con una mayúscula, una minúscula, un número y un símbolo.</small>
       @if (passwordError(); as msg) {
         <p class="field__error">
           <mat-icon aria-hidden="true">error</mat-icon>
