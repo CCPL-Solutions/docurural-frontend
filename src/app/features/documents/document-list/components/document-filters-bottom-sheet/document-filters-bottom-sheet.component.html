@@ -1,0 +1,31 @@
+<!-- Drag handle -->
+<div class="sheet-handle" aria-hidden="true"></div>
+
+<!-- Header del sheet -->
+<div class="sheet-header">
+  <mat-icon class="sheet-header__icon" aria-hidden="true">tune</mat-icon>
+  <h3 class="sheet-header__title">Filtros</h3>
+  <button
+    type="button"
+    class="sheet-header__close"
+    aria-label="Cerrar filtros"
+    (click)="onClose()"
+  >
+    <mat-icon aria-hidden="true">close</mat-icon>
+  </button>
+</div>
+
+<!-- Panel de filtros (sin cabecera ni footer propios dentro del sheet) -->
+<div class="sheet-body">
+  <app-document-filters-panel
+    [draft]="draft()"
+    [options]="data.options"
+    [canSeeUploadedBy]="data.canSeeUploadedBy"
+    [dateError]="dateRangeError()"
+    [loadingOptions]="data.loadingOptions"
+    (draftChange)="onDraftChange($event)"
+    (apply)="onApply($event)"
+    (reset)="onReset()"
+    (close)="onClose()"
+  />
+</div>

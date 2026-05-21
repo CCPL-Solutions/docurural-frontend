@@ -1,0 +1,39 @@
+<div class="filter-chips" role="region" aria-label="Filtros activos">
+  <span class="filter-chips__label desktop-only" aria-hidden="true">
+    <mat-icon class="filter-chips__label-icon" aria-hidden="true">check_circle</mat-icon>
+    Activos:
+  </span>
+
+  @for (chip of chips; track chip.key) {
+    <span
+      class="filter-chip"
+      [class.filter-chip--search]="chip.kind === 'search'"
+    >
+      @if (chip.kind === 'search') {
+        <mat-icon class="filter-chip__search-icon" aria-hidden="true">search</mat-icon>
+      }
+      <span class="filter-chip__label">{{ chip.label }}:</span>
+      <span class="filter-chip__value">{{ chip.value }}</span>
+      <button
+        type="button"
+        class="filter-chip__close"
+        [attr.aria-label]="'Eliminar filtro ' + chip.label"
+        (click)="remove.emit(chip.key)"
+      >
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+    </span>
+  }
+
+  @if (showClearAll) {
+    <button
+      type="button"
+      class="filter-chips__clear-all"
+      aria-label="Limpiar todos los filtros activos"
+      (click)="clearAll.emit()"
+    >
+      <mat-icon aria-hidden="true">cancel</mat-icon>
+      <span>Limpiar todos los filtros</span>
+    </button>
+  }
+</div>

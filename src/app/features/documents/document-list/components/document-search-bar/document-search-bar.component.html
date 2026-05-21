@@ -1,0 +1,69 @@
+<div class="search-bar">
+
+  <!-- Fila única: input + botón filtros + botón buscar -->
+  <div class="search-bar__row">
+
+    <div class="search-bar__input-wrap" [class.search-bar__input-wrap--error]="!!error">
+      <mat-icon class="search-bar__icon" aria-hidden="true">search</mat-icon>
+      <input
+        class="field__input field__input--with-icon"
+        [class.field__input--error]="!!error"
+        type="search"
+        placeholder="Buscar por título, descripción o nombre del archivo…"
+        [value]="value"
+        [disabled]="disabled"
+        autocomplete="off"
+        aria-label="Campo de búsqueda de documentos"
+        (input)="onInput($event)"
+        (keydown)="onKeyDown($event)"
+      />
+      @if (value.length > 0) {
+        <button
+          type="button"
+          class="search-bar__clear field__toggle"
+          aria-label="Limpiar búsqueda"
+          (click)="clear.emit()"
+        >
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="search-bar__filters-btn"
+      [class.search-bar__filters-btn--active]="filtersOpen"
+      [attr.aria-expanded]="filtersOpen"
+      aria-controls="filters-panel"
+      (click)="toggleFilters.emit()"
+    >
+      <mat-icon aria-hidden="true">tune</mat-icon>
+      <span>Filtros</span>
+      @if (filtersCount > 0) {
+        <span class="search-bar__filters-badge" aria-label="{{ filtersCount }} filtros activos">
+          {{ filtersCount }}
+        </span>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="search-bar__submit"
+      [disabled]="disabled"
+      (click)="submit.emit()"
+    >
+      <mat-icon aria-hidden="true">search</mat-icon>
+      <span>Buscar</span>
+    </button>
+
+  </div>
+
+  <!-- Error de validación (va debajo de la fila) -->
+  @if (error) {
+    <p class="field__error search-bar__validation" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      {{ error }}
+    </p>
+  }
+
+</div>

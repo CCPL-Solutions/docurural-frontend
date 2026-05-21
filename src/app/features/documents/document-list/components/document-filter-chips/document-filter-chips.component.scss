@@ -1,0 +1,123 @@
+@use 'breakpoints' as bp;
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.filter-chips__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.filter-chips__label-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--color-success);
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 5px 4px 5px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: #fff;
+  font-size: var(--text-sm);
+  line-height: 1;
+
+  &--search {
+    background: var(--color-primary-light);
+    border-color: var(--color-primary-border);
+  }
+}
+
+.filter-chip__search-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--color-primary);
+  margin-right: 2px;
+}
+
+.filter-chip__label {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-right: 2px;
+}
+
+.filter-chip__value {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.filter-chip__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: var(--space-1);
+  border: none;
+  border-radius: 50%;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background var(--duration-fast) var(--easing-standard);
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+  &:hover { background: var(--color-border); }
+  &:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+}
+
+.filter-chips__clear-all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 5px var(--space-2);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-error);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--easing-standard);
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &:hover { background: rgba(192, 57, 43, 0.08); }
+  &:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.25); }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────
+
+@include bp.md {
+  .filter-chip {
+    font-size: var(--text-xs);
+    padding: 4px 2px 4px 10px;
+  }
+
+  .filter-chip__close {
+    width: 20px;
+    height: 20px;
+    mat-icon { font-size: 12px; width: 12px; height: 12px; }
+  }
+
+  .filter-chips__clear-all {
+    font-size: var(--text-xs);
+    mat-icon { font-size: 12px; width: 12px; height: 12px; }
+  }
+}
