@@ -1,0 +1,41 @@
+<div class="cat-chart">
+  <div class="cat-chart__header">
+    <h2 class="cat-chart__title">Documentos por categoría</h2>
+    <p class="cat-chart__subtitle">Distribución actual del repositorio</p>
+  </div>
+
+  @if (hasData()) {
+    <div class="cat-chart__body">
+      <div class="cat-chart__canvas-wrap" aria-hidden="true">
+        <canvas baseChart
+                [data]="chartData()"
+                [options]="chartOptions"
+                type="doughnut">
+        </canvas>
+        <div class="cat-chart__center">
+          <span class="cat-chart__center-count">{{ totalCount() }}</span>
+          <span class="cat-chart__center-label">DOCUMENTOS</span>
+        </div>
+      </div>
+
+      <ul class="cat-chart__legend" aria-label="Leyenda de distribución por categoría">
+        @for (item of data(); track item.categoryName; let i = $index) {
+          <li class="cat-chart__legend-item">
+            <span class="cat-chart__legend-dot"
+                  [style.background]="'var(--chart-color-' + (i % 8) + ')'">
+            </span>
+            <span class="cat-chart__legend-label">{{ item.categoryName }}</span>
+            <span class="cat-chart__legend-pct">{{ item.percentage }}%</span>
+            <span class="cat-chart__legend-count">{{ item.count }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  } @else {
+    <div class="cat-chart__empty">
+      <app-empty-state variant="no-results" icon="pie_chart">
+        No hay datos suficientes para mostrar el gráfico.
+      </app-empty-state>
+    </div>
+  }
+</div>
