@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -9,8 +10,16 @@ import { DocumentsService } from '../../../core/services/documents.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Document } from '../../../core/models/document.model';
-import { DocumentSortBy, DocumentSortDir } from '../../../core/models/document-list.models';
+import { ActiveFiltersDto, DocumentSortBy, DocumentSortDir } from '../../../core/models/document-list.models';
 import { ApiError } from '../../../core/models/api-error.model';
+import {
+  DocumentFilters,
+  EMPTY_FILTERS,
+  FilterChipDescriptor,
+  countActiveFilters,
+  hasAnyFilter,
+} from '../../../core/models/document-filters.model';
+import { FilterOptionsResponse } from '../../../core/models/filter-options.model';
 import { canUploadDocument } from './utils/document-permissions';
 import { formatFileSize } from './utils/file-size';
 import {
@@ -42,6 +51,14 @@ import {
 import { DocumentFormatIconComponent } from './components/document-format-icon.component';
 import { DocumentCategoryPillComponent } from './components/document-category-pill.component';
 import { DocumentRowActionsComponent } from './components/document-row-actions.component';
+import { DocumentSearchBarComponent } from './components/document-search-bar/document-search-bar.component';
+import { DocumentFiltersPanelComponent } from './components/document-filters-panel/document-filters-panel.component';
+import { DocumentFilterChipsComponent } from './components/document-filter-chips/document-filter-chips.component';
+import { DocumentEmptyResultsComponent } from './components/document-empty-results/document-empty-results.component';
+import {
+  DocumentFiltersBottomSheetComponent,
+  FiltersBottomSheetResult,
+} from './components/document-filters-bottom-sheet/document-filters-bottom-sheet.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
@@ -74,12 +91,17 @@ const PAGE_SIZE = 10;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
+    MatBottomSheetModule,
     MatIconModule,
     MatMenuModule,
     MatProgressSpinnerModule,
     DocumentFormatIconComponent,
     DocumentCategoryPillComponent,
     DocumentRowActionsComponent,
+    DocumentSearchBarComponent,
+    DocumentFiltersPanelComponent,
+    DocumentFilterChipsComponent,
+    DocumentEmptyResultsComponent,
     PageHeaderComponent,
     EmptyStateComponent,
     ButtonComponent,
@@ -89,13 +111,15 @@ const PAGE_SIZE = 10;
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.scss',
 })
-export class DocumentListComponent {
+export class DocumentListComponent implements OnInit {
   private readonly documentsService = inject(DocumentsService);
   private readonly notifications    = inject(NotificationService);
   private readonly auth             = inject(AuthService);
   private readonly dialog           = inject(MatDialog);
+  private readonly bottomSheet      = inject(MatBottomSheet);
   private readonly router           = inject(Router);
 
+  // ── Signals existentes ──────────────────────────────────────────────
   protected readonly loading          = signal(false);
   protected readonly documents        = signal<Document[]>([]);
   protected readonly totalDocuments   = signal(0);
@@ -104,14 +128,60 @@ export class DocumentListComponent {
   protected readonly selectedSort     = signal<SortOption>('createdAtDesc');
   protected readonly downloadingIds   = signal(new Set<number>());
 
+  // ── Signals de búsqueda y filtros (RF-03) ───────────────────────────
+  protected readonly searchInput          = signal('');
+  protected readonly appliedSearchTerm    = signal<string | null>(null);
+  protected readonly searchError          = signal<string | null>(null);
+  protected readonly filtersDraft         = signal<DocumentFilters>({ ...EMPTY_FILTERS });
+  protected readonly appliedFilters       = signal<DocumentFilters>({ ...EMPTY_FILTERS });
+  protected readonly activeFiltersMeta    = signal<ActiveFiltersDto | null>(null);
+  protected readonly filtersPanelOpen     = signal(false);
+  protected readonly filterOptions        = signal<FilterOptionsResponse | null>(null);
+  protected readonly loadingFilterOptions = signal(false);
+  protected readonly dateRangeError       = signal<string | null>(null);
+
   protected readonly sortOptions      = SORT_OPTIONS;
   protected readonly currentSortLabel = computed(() => this.currentSortConfig().label);
 
   protected readonly currentUser = computed(() => this.auth.currentUser());
   protected readonly role        = computed(() => this.auth.currentUser()?.role ?? 'READER');
 
-  protected readonly canUpload = computed(() => canUploadDocument(this.role()));
-  protected readonly isEmpty   = computed(() => !this.loading() && this.totalDocuments() === 0);
+  protected readonly canUpload             = computed(() => canUploadDocument(this.role()));
+  protected readonly canSeeUploadedByFilter = computed(() => this.role() === 'ADMIN');
+  protected readonly isEmpty               = computed(() => !this.loading() && this.totalDocuments() === 0);
+
+  protected readonly appliedFilterCount = computed(() => countActiveFilters(this.appliedFilters()));
+
+  protected readonly chips = computed<FilterChipDescriptor[]>(() =>
+    this.buildChips(this.appliedSearchTerm(), this.activeFiltersMeta(), this.appliedFilters())
+  );
+
+  protected readonly showClearAll = computed(() => this.chips().length >= 2);
+
+  protected readonly hasActiveSearch = computed(() =>
+    this.appliedSearchTerm() !== null || hasAnyFilter(this.appliedFilters())
+  );
+
+  protected readonly emptyVariant = computed<'search' | 'filters' | 'combined' | null>(() => {
+    if (this.loading() || this.totalDocuments() > 0) return null;
+    const hasTerm   = this.appliedSearchTerm() !== null;
+    const hasFilter = hasAnyFilter(this.appliedFilters());
+    if (hasTerm && hasFilter) return 'combined';
+    if (hasTerm) return 'search';
+    if (hasFilter) return 'filters';
+    return null;
+  });
+
+  protected readonly searchResultLabel = computed(() => {
+    const total     = this.totalDocuments();
+    const term      = this.appliedSearchTerm();
+    const hasFilter = hasAnyFilter(this.appliedFilters());
+    const docWord   = total === 1 ? 'documento' : 'documentos';
+    if (term && hasFilter) return `Se encontraron ${total} ${docWord} para "${term}" con los filtros aplicados`;
+    if (term)              return `Se encontraron ${total} ${docWord} para "${term}"`;
+    if (hasFilter)         return `Se encontraron ${total} ${docWord} con los filtros aplicados`;
+    return null;
+  });
 
   protected readonly pageRangeLabel = computed(() => {
     const page  = this.currentPage();
@@ -148,22 +218,42 @@ export class DocumentListComponent {
   });
 
   constructor() {
-    this.loadDocuments();
+    effect(() => {
+      if (this.searchInput()) this.searchError.set(null);
+    });
   }
 
+  ngOnInit(): void {
+    this.loadDocuments();
+    this.loadFilterOptions();
+  }
+
+  // ── Carga de datos ──────────────────────────────────────────────────
+
   protected loadDocuments(): void {
-    const opt = this.currentSortConfig();
+    const opt     = this.currentSortConfig();
+    const filters = this.appliedFilters();
     this.loading.set(true);
+
+    const uploadedBy = this.canSeeUploadedByFilter() ? (filters.uploadedBy ?? undefined) : undefined;
+
     this.documentsService.list({
-      page: this.currentPage(),
-      size: PAGE_SIZE,
-      sortBy: opt.sortBy,
-      sortDir: opt.sortDir,
+      page:            this.currentPage(),
+      size:            PAGE_SIZE,
+      sortBy:          opt.sortBy,
+      sortDir:         opt.sortDir,
+      q:               this.appliedSearchTerm() ?? undefined,
+      categoryId:      filters.categoryId    ?? undefined,
+      responsibleArea: filters.responsibleArea ?? undefined,
+      dateFrom:        filters.dateFrom       ?? undefined,
+      dateTo:          filters.dateTo         ?? undefined,
+      uploadedBy,
     }).subscribe({
       next: (res) => {
         this.documents.set(res.documents);
         this.totalDocuments.set(res.totalDocuments);
         this.totalPages.set(res.totalPages);
+        this.activeFiltersMeta.set(res.activeFilters ?? null);
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
@@ -176,6 +266,135 @@ export class DocumentListComponent {
       },
     });
   }
+
+  private loadFilterOptions(): void {
+    this.loadingFilterOptions.set(true);
+    this.documentsService.filterOptions().subscribe({
+      next: (opts) => {
+        this.filterOptions.set(opts);
+        this.loadingFilterOptions.set(false);
+      },
+      error: () => {
+        this.loadingFilterOptions.set(false);
+      },
+    });
+  }
+
+  // ── Búsqueda (HU-20) ────────────────────────────────────────────────
+
+  protected onSearchInputChange(value: string): void {
+    this.searchInput.set(value);
+  }
+
+  protected onSearchSubmit(): void {
+    const term = this.searchInput().trim();
+    if (term.length > 0 && term.length < 2) {
+      this.searchError.set('Ingrese al menos 2 caracteres para buscar.');
+      return;
+    }
+    if (term.length > 100) {
+      this.searchError.set('El texto de búsqueda no puede superar los 100 caracteres.');
+      return;
+    }
+    this.searchError.set(null);
+    this.appliedSearchTerm.set(term.length > 0 ? term : null);
+    this.currentPage.set(1);
+    this.loadDocuments();
+  }
+
+  protected onSearchClear(): void {
+    this.searchInput.set('');
+    this.searchError.set(null);
+    this.appliedSearchTerm.set(null);
+    this.currentPage.set(1);
+    this.loadDocuments();
+  }
+
+  // ── Filtros (HU-21, HU-22) ──────────────────────────────────────────
+
+  protected onToggleFiltersPanel(): void {
+    if (window.innerWidth <= 768) {
+      const ref = this.bottomSheet.open(DocumentFiltersBottomSheetComponent, {
+        data: {
+          draft:            { ...this.appliedFilters() },
+          options:          this.filterOptions(),
+          canSeeUploadedBy: this.canSeeUploadedByFilter(),
+          loadingOptions:   this.loadingFilterOptions(),
+        },
+        panelClass: 'filters-bottom-sheet',
+      });
+      ref.afterDismissed().subscribe((result: FiltersBottomSheetResult) => {
+        if (result?.action === 'apply') {
+          this.onFiltersApply(result.draft);
+        }
+      });
+    } else {
+      const willOpen = !this.filtersPanelOpen();
+      if (willOpen) {
+        this.filtersDraft.set({ ...this.appliedFilters() });
+        this.dateRangeError.set(null);
+      }
+      this.filtersPanelOpen.set(willOpen);
+    }
+  }
+
+  protected onDraftChange(draft: DocumentFilters): void {
+    this.filtersDraft.set(draft);
+    if (draft.dateFrom && draft.dateTo) {
+      this.dateRangeError.set(this.validateDateRange(draft.dateFrom, draft.dateTo));
+    } else {
+      this.dateRangeError.set(null);
+    }
+  }
+
+  protected onFiltersApply(draft: DocumentFilters): void {
+    const rangeError = this.validateDateRange(draft.dateFrom, draft.dateTo);
+    if (rangeError) {
+      this.dateRangeError.set(rangeError);
+      return;
+    }
+    this.dateRangeError.set(null);
+    this.appliedFilters.set({ ...draft });
+    this.currentPage.set(1);
+    this.filtersPanelOpen.set(false);
+    this.loadDocuments();
+  }
+
+  protected onFiltersReset(): void {
+    this.filtersDraft.set({ ...EMPTY_FILTERS });
+    this.dateRangeError.set(null);
+  }
+
+  protected onFiltersClose(): void {
+    this.filtersPanelOpen.set(false);
+    this.dateRangeError.set(null);
+  }
+
+  // ── Chips de filtros activos (HU-23) ────────────────────────────────
+
+  protected onRemoveChip(key: FilterChipDescriptor['key']): void {
+    if (key === 'q') {
+      this.appliedSearchTerm.set(null);
+      this.searchInput.set('');
+    } else {
+      this.appliedFilters.update((f) => ({ ...f, [key]: null }));
+    }
+    this.currentPage.set(1);
+    this.loadDocuments();
+  }
+
+  protected onClearAll(): void {
+    this.appliedSearchTerm.set(null);
+    this.searchInput.set('');
+    this.searchError.set(null);
+    this.appliedFilters.set({ ...EMPTY_FILTERS });
+    this.filtersDraft.set({ ...EMPTY_FILTERS });
+    this.filtersPanelOpen.set(false);
+    this.currentPage.set(1);
+    this.loadDocuments();
+  }
+
+  // ── Ordenamiento y paginación ────────────────────────────────────────
 
   protected onSortChange(value: SortOption): void {
     this.selectedSort.set(value);
@@ -383,5 +602,42 @@ export class DocumentListComponent {
       this.currentPage.update((page) => page - 1);
     }
     this.loadDocuments();
+  }
+
+  private validateDateRange(from: string | null, to: string | null): string | null {
+    if (!from || !to) return null;
+    return from > to ? 'La fecha de inicio no puede ser posterior a la fecha de fin.' : null;
+  }
+
+  private formatChipDate(ymd: string): string {
+    const [y, m, d] = ymd.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  private buildChips(
+    term: string | null,
+    meta: ActiveFiltersDto | null,
+    filters: DocumentFilters,
+  ): FilterChipDescriptor[] {
+    const chips: FilterChipDescriptor[] = [];
+    if (term) {
+      chips.push({ key: 'q', label: 'Búsqueda', value: `"${term}"`, kind: 'search' });
+    }
+    if (filters.categoryId !== null) {
+      chips.push({ key: 'categoryId', label: 'Categoría', value: meta?.categoryName ?? `#${filters.categoryId}` });
+    }
+    if (filters.responsibleArea) {
+      chips.push({ key: 'responsibleArea', label: 'Área', value: filters.responsibleArea });
+    }
+    if (filters.dateFrom) {
+      chips.push({ key: 'dateFrom', label: 'Desde', value: this.formatChipDate(filters.dateFrom) });
+    }
+    if (filters.dateTo) {
+      chips.push({ key: 'dateTo', label: 'Hasta', value: this.formatChipDate(filters.dateTo) });
+    }
+    if (filters.uploadedBy !== null) {
+      chips.push({ key: 'uploadedBy', label: 'Subido por', value: meta?.uploadedByName ?? `#${filters.uploadedBy}` });
+    }
+    return chips;
   }
 }

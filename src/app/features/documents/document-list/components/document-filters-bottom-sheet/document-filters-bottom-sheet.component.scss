@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  margin: var(--space-2) auto var(--space-3);
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--color-divider);
+  margin-bottom: var(--space-2);
+}
+
+.sheet-header__icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-dark);
+  flex-shrink: 0;
+}
+
+.sheet-header__title {
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.sheet-header__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background var(--duration-fast) var(--easing-standard);
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+  &:hover { background: var(--color-bg-hover); }
+  &:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+}
+
+.sheet-body {
+  /* Ocultar la cabecera y el borde del panel (el sheet ya tiene su propio header) */
+  ::ng-deep .filters-panel {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  ::ng-deep .filters-panel__header {
+    display: none;
+  }
+}

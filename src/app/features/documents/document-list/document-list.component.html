@@ -18,11 +18,55 @@
   }
 </app-page-header>
 
-<!-- Action bar: contador + ordenamiento -->
+<!-- Barra de búsqueda (HU-20) -->
+<div class="search-section">
+  <app-document-search-bar
+    [value]="searchInput()"
+    [disabled]="loading()"
+    [error]="searchError()"
+    [filtersOpen]="filtersPanelOpen()"
+    [filtersCount]="appliedFilterCount()"
+    (valueChange)="onSearchInputChange($event)"
+    (submit)="onSearchSubmit()"
+    (clear)="onSearchClear()"
+    (toggleFilters)="onToggleFiltersPanel()"
+  />
+
+  <!-- Panel de filtros avanzados (HU-21) -->
+  @if (filtersPanelOpen()) {
+    <app-document-filters-panel
+      [draft]="filtersDraft()"
+      [options]="filterOptions()"
+      [canSeeUploadedBy]="canSeeUploadedByFilter()"
+      [dateError]="dateRangeError()"
+      [loadingOptions]="loadingFilterOptions()"
+      (draftChange)="onDraftChange($event)"
+      (apply)="onFiltersApply($event)"
+      (reset)="onFiltersReset()"
+      (close)="onFiltersClose()"
+    />
+  }
+
+  <!-- Chips de filtros activos (HU-23) -->
+  @if (chips().length > 0) {
+    <app-document-filter-chips
+      [chips]="chips()"
+      [showClearAll]="showClearAll()"
+      (remove)="onRemoveChip($event)"
+      (clearAll)="onClearAll()"
+    />
+  }
+</div>
+
+<!-- Action bar: resultado de búsqueda o contador + ordenamiento -->
 <div class="action-bar" [class.action-bar--disabled]="!loading() && totalDocuments() === 0">
   <span class="counter">
     <mat-icon aria-hidden="true">description</mat-icon>
-    <strong>{{ totalDocuments() }} {{ totalDocuments() === 1 ? 'documento' : 'documentos' }}</strong>
+    @if (searchResultLabel()) {
+      <strong>{{ searchResultLabel() }}</strong>
+    } @else {
+      <strong>{{ totalDocuments() }} {{ totalDocuments() === 1 ? 'documento' : 'documentos' }}</strong>
+    }
   </span>
 
   <app-sort-trigger
@@ -36,7 +80,15 @@
 <!-- State machine principal -->
 @if (loading()) {
   <app-empty-state variant="loading">Cargando documentos…</app-empty-state>
+} @else if (isEmpty() && emptyVariant() !== null) {
+  <!-- Sin resultados para la búsqueda/filtros activos (HU-20, HU-21, HU-22) -->
+  <app-document-empty-results
+    [variant]="emptyVariant()!"
+    [searchTerm]="appliedSearchTerm()"
+    (clearAll)="onClearAll()"
+  />
 } @else if (isEmpty()) {
+  <!-- Repositorio vacío (estado base HU-15) -->
   <app-empty-state
     variant="empty"
     icon="cloud_upload"

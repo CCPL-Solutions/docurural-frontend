@@ -16,20 +16,38 @@ import {
   UpdateDocumentMetadataRequest,
   UpdateDocumentMetadataResponse,
 } from '../models/update-document.models';
+import { FilterOptionsResponse } from '../models/filter-options.model';
 
 @Injectable({ providedIn: 'root' })
 export class DocumentsService {
   private readonly http = inject(HttpClient);
 
   list(params: DocumentListParams): Observable<DocumentListResponse> {
-    const httpParams = new HttpParams()
+    let httpParams = new HttpParams()
       .set('page', params.page)
       .set('size', params.size)
       .set('sortBy', params.sortBy)
       .set('sortDir', params.sortDir);
+
+    httpParams = this.appendOptional(httpParams, 'q', params.q?.trim());
+    httpParams = this.appendOptional(httpParams, 'categoryId', params.categoryId);
+    httpParams = this.appendOptional(httpParams, 'responsibleArea', params.responsibleArea?.trim());
+    httpParams = this.appendOptional(httpParams, 'dateFrom', params.dateFrom);
+    httpParams = this.appendOptional(httpParams, 'dateTo', params.dateTo);
+    httpParams = this.appendOptional(httpParams, 'uploadedBy', params.uploadedBy);
+
     return this.http.get<DocumentListResponse>(`${environment.apiBaseUrl}/documents`, {
       params: httpParams,
     });
+  }
+
+  filterOptions(): Observable<FilterOptionsResponse> {
+    return this.http.get<FilterOptionsResponse>(`${environment.apiBaseUrl}/documents/filter-options`);
+  }
+
+  private appendOptional(params: HttpParams, key: string, value: unknown): HttpParams {
+    if (value === null || value === undefined || value === '') return params;
+    return params.set(key, String(value));
   }
 
   create(formData: FormData): Observable<UploadDocumentResponse> {

@@ -1,0 +1,17 @@
+<div class="empty-results" role="status">
+  <div class="empty-results__icon-wrap" aria-hidden="true">
+    <mat-icon class="empty-results__icon">{{ icon }}</mat-icon>
+  </div>
+
+  <h3 class="empty-results__title">{{ title }}</h3>
+  <p class="empty-results__message">{{ message }}</p>
+
+  <button
+    type="button"
+    class="btn btn--primary empty-results__action"
+    (click)="clearAll.emit()"
+  >
+    <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
+    <span>Limpiar búsqueda y filtros</span>
+  </button>
+</div>

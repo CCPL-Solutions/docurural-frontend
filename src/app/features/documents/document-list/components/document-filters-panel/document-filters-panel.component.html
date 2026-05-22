@@ -1,0 +1,174 @@
+<div id="filters-panel" class="filters-panel" role="region" aria-labelledby="filters-panel-title">
+
+  <!-- Cabecera del panel -->
+  <div class="filters-panel__header">
+    <span class="filters-panel__header-title" id="filters-panel-title">
+      <mat-icon aria-hidden="true">tune</mat-icon>
+      Filtros avanzados
+    </span>
+    <span class="filters-panel__header-note">
+      <mat-icon aria-hidden="true">info_outline</mat-icon>
+      Todos los filtros son opcionales y se combinan con criterio &ldquo;Y&rdquo;
+    </span>
+    <button
+      type="button"
+      class="filters-panel__close"
+      aria-label="Cerrar panel de filtros"
+      (click)="onClose()"
+    >
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Campos de filtro -->
+  <div class="filters-panel__body">
+    <div class="filters-panel__grid" [class.filters-panel__grid--with-uploader]="canSeeUploadedBy">
+
+      <!-- Categoría -->
+      <div class="field">
+        <label class="field__label" id="filter-category-label">Categoría</label>
+        <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
+          <mat-icon matPrefix class="select-icon">local_offer</mat-icon>
+          <mat-select
+            aria-labelledby="filter-category-label"
+            [value]="draft.categoryId"
+            [disabled]="loadingOptions"
+            placeholder="Todas las categorías"
+            (selectionChange)="onCategoryChange($event.value)"
+          >
+            <mat-option [value]="null">Todas las categorías</mat-option>
+            @for (cat of options?.categories ?? []; track cat.id) {
+              <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Área responsable -->
+      <div class="field">
+        <label class="field__label" for="filter-area">Área responsable</label>
+        <div class="field__control">
+          <span class="field__icon">
+            <mat-icon aria-hidden="true">business</mat-icon>
+          </span>
+          <input
+            id="filter-area"
+            type="text"
+            class="field__input field__input--with-icon"
+            placeholder="Ej. Rectoría"
+            [value]="draft.responsibleArea ?? ''"
+            (input)="onResponsibleAreaInput($event)"
+          />
+        </div>
+      </div>
+
+      <!-- Fecha desde -->
+      <div class="field">
+        <label class="field__label" for="filter-date-from">Fecha desde</label>
+        <div class="field__control" [class.field__control--error]="!!dateError">
+          <input
+            id="filter-date-from"
+            class="field__input field__input--with-toggle field__input--datepicker"
+            type="text"
+            [matDatepicker]="pickerFrom"
+            [value]="parseDateStr(draft.dateFrom)"
+            placeholder="DD/MM/AAAA"
+            readonly
+            (click)="pickerFrom.open()"
+            (dateChange)="onDateFromChange($event)"
+          />
+          <button
+            type="button"
+            class="field__toggle"
+            (click)="pickerFrom.open()"
+            aria-label="Abrir calendario fecha desde"
+          >
+            <mat-icon aria-hidden="true">calendar_month</mat-icon>
+          </button>
+          <mat-datepicker #pickerFrom></mat-datepicker>
+        </div>
+      </div>
+
+      <!-- Fecha hasta -->
+      <div class="field">
+        <label class="field__label" for="filter-date-to">Fecha hasta</label>
+        <div class="field__control" [class.field__control--error]="!!dateError">
+          <input
+            id="filter-date-to"
+            class="field__input field__input--with-toggle field__input--datepicker"
+            type="text"
+            [matDatepicker]="pickerTo"
+            [value]="parseDateStr(draft.dateTo)"
+            placeholder="DD/MM/AAAA"
+            readonly
+            (click)="pickerTo.open()"
+            (dateChange)="onDateToChange($event)"
+          />
+          <button
+            type="button"
+            class="field__toggle"
+            (click)="pickerTo.open()"
+            aria-label="Abrir calendario fecha hasta"
+          >
+            <mat-icon aria-hidden="true">calendar_month</mat-icon>
+          </button>
+          <mat-datepicker #pickerTo></mat-datepicker>
+        </div>
+      </div>
+
+      <!-- Subido por (solo ADMIN) -->
+      @if (canSeeUploadedBy) {
+        <div class="field">
+          <div class="field__label-row">
+            <label class="field__label" id="filter-uploader-label">Subido por</label>
+            <span class="field__hint-inline">Solo ADMIN</span>
+          </div>
+          <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
+            <mat-icon matPrefix class="select-icon">person</mat-icon>
+            <mat-select
+              aria-labelledby="filter-uploader-label"
+              [value]="draft.uploadedBy"
+              [disabled]="loadingOptions"
+              placeholder="Cualquier usuario"
+              (selectionChange)="onUploadedByChange($event.value)"
+            >
+              <mat-option [value]="null">Cualquier usuario</mat-option>
+              @for (user of options?.users ?? []; track user.id) {
+                <mat-option [value]="user.id">{{ user.fullName }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      }
+    </div>
+
+    <!-- Error de rango de fechas -->
+    @if (dateError) {
+      <p class="filters-panel__date-error field__error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        {{ dateError }}
+      </p>
+    }
+  </div>
+
+  <!-- Footer con acciones -->
+  <div class="filters-panel__footer">
+    <button
+      type="button"
+      class="filters-panel__reset"
+      (click)="onReset()"
+    >
+      <mat-icon aria-hidden="true">restart_alt</mat-icon>
+      <span>Restablecer</span>
+    </button>
+    <button
+      type="button"
+      class="filters-panel__apply"
+      [disabled]="!!dateError"
+      (click)="onApply()"
+    >
+      <mat-icon aria-hidden="true">check</mat-icon>
+      <span>Aplicar filtros</span>
+    </button>
+  </div>
+</div>
