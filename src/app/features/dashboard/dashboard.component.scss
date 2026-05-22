@@ -1,43 +1,117 @@
-// Tarjeta de bienvenida
-.welcome-card {
-  display: flex;
-  gap: 20px;
-  padding: 24px;
-  background: var(--color-bg-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-divider);
-  max-width: 600px;
-  align-items: flex-start;
+@use '../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+  padding-bottom: var(--space-9);
 }
 
-.welcome-card__icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: var(--color-primary-light);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+// ── Header upload button ──────────────────────────────────────────────────────
 
-  mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+.header-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 12px var(--space-5);
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-family: inherit;
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(46, 109, 164, 0.25);
+  transition: background var(--duration-fast);
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover { background: var(--color-primary-dark); }
+  &:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+
+  // Mobile: ancho completo, alineado debajo del título (page-header tiene flex-wrap)
+  @include bp.sm {
+    width: 100%;
+    justify-content: center;
+    padding: 14px var(--space-5);
   }
 }
 
-.welcome-card__title {
-  margin: 0 0 8px;
-  font-size: 18px;
-  font-weight: 600;
+// ── Error container ───────────────────────────────────────────────────────────
+
+.dashboard__error { margin-top: var(--space-7); }
+
+.retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
   color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: var(--space-4);
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:hover { background: var(--color-bg-hover); }
+  &:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
 }
 
-.welcome-card__text {
-  margin: 0;
-  font-size: 14px;
-  color: var(--color-text-secondary);
-  line-height: 1.6;
+// ── Contenedor del cuerpo del dashboard ──────────────────────────────────────
+
+.dashboard__body {
+  display: flex;
+  flex-direction: column;
+}
+
+// Accesos directos: primero en desktop, últimos en mobile
+.dashboard__qa-block {
+  order: 0;
+
+  @include bp.md {
+    order: 10;
+  }
+}
+
+// ── KPI grid ─────────────────────────────────────────────────────────────────
+
+.dashboard__grid-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-7);
+  order: 1;
+
+  // Tablet: 2 columnas
+  @include bp.md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  // Mobile: 2 columnas, top-category-card ocupa fila completa
+  @include bp.sm {
+    grid-template-columns: 1fr 1fr;
+
+    > app-top-category-card {
+      grid-column: span 2;
+    }
+  }
+}
+
+// ── Grid principal: tabla izq + gráfico der ───────────────────────────────────
+
+.dashboard__grid-main {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+  align-items: start;
+  order: 2;
+
+  // Tablet y mobile: una sola columna (tabla→tarjetas se activa también en lg)
+  @include bp.lg {
+    grid-template-columns: 1fr;
+  }
 }
