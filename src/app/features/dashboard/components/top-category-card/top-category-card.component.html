@@ -1,0 +1,18 @@
+<article class="top-card">
+  <span class="top-card__accent-bar" aria-hidden="true"></span>
+  <div class="top-card__icon-wrap" aria-hidden="true">
+    <mat-icon>trending_up</mat-icon>
+  </div>
+  <div class="top-card__body">
+    <p class="top-card__label">Categoría más activa</p>
+    @if (category(); as cat) {
+      <p class="top-card__category-name">{{ cat.name }}</p>
+      <p class="top-card__hint">
+        <strong>{{ cat.count }} documentos</strong> · {{ percentage() }}% del repositorio
+      </p>
+    } @else {
+      <p class="top-card__empty-value">—</p>
+      <p class="top-card__hint">Sin documentos aún</p>
+    }
+  </div>
+</article>

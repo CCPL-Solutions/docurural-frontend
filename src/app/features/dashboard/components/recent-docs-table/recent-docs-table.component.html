@@ -1,0 +1,116 @@
+<div class="recent-docs">
+  <div class="recent-docs__header">
+    <div>
+      <h2 class="recent-docs__title">Últimos documentos cargados</h2>
+      <p class="recent-docs__subtitle">
+        @if (repoIsEmpty()) {
+          Aún no hay documentos en el sistema
+        } @else {
+          Los 10 más recientes en el repositorio
+        }
+      </p>
+    </div>
+    @if (!repoIsEmpty()) {
+      <span class="recent-docs__order-badge">
+        <mat-icon aria-hidden="true">schedule</mat-icon>
+        Ordenado por fecha de carga
+      </span>
+    }
+  </div>
+
+  @if (repoIsEmpty()) {
+    <div class="recent-docs__empty">
+      <app-empty-state variant="empty" icon="inbox"
+                       title="Aún no hay documentos cargados."
+                       description="Sea el primero en subir un documento.">
+        @if (canUpload()) {
+          <div actions>
+            <button class="recent-docs__upload-cta" (click)="uploadFirst.emit()">
+              <mat-icon>upload</mat-icon>
+              Cargar primer documento
+            </button>
+          </div>
+        }
+      </app-empty-state>
+    </div>
+  } @else {
+    <!-- Vista de tabla — desktop / tablet (≥ 768px) -->
+    <div class="recent-docs__table-wrap">
+      <table class="recent-docs__table" aria-label="Últimos documentos cargados">
+        <thead>
+          <tr>
+            <th class="col--title">Título</th>
+            <th class="col--category">Categoría</th>
+            <th class="col--area">Área responsable</th>
+            <th class="col--date">Fecha de carga</th>
+            <th class="col--actions th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (doc of documents(); track doc.id) {
+            <tr>
+              <td class="col--title">
+                <div class="doc-title-cell">
+                  <app-document-format-icon [format]="doc.fileFormat" />
+                  <div class="doc-title-cell__text">
+                    <span class="doc-title-cell__name" [title]="doc.title">
+                      {{ truncateTitle(doc.title) }}
+                    </span>
+                    <span class="doc-title-cell__meta">
+                      Cargado el {{ formatCreatedAt(doc.createdAt) }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="col--category">
+                <app-document-category-pill [name]="doc.category" />
+              </td>
+              <td class="col--area">{{ doc.responsibleArea }}</td>
+              <td class="col--date">{{ formatCreatedAt(doc.createdAt) }}</td>
+              <td class="col--actions">
+                <div class="actions-cell">
+                  <app-icon-button tooltip="Visualizar" ariaLabel="Visualizar documento"
+                                   (click)="view.emit(doc.id)">
+                    <mat-icon>visibility</mat-icon>
+                  </app-icon-button>
+                  <app-icon-button tooltip="Descargar" ariaLabel="Descargar documento"
+                                   (click)="download.emit(doc)">
+                    <mat-icon>download</mat-icon>
+                  </app-icon-button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Vista de tarjetas — tablet / mobile (≤ 1024px) -->
+    <ul class="rdt-cards">
+      @for (doc of documents(); track doc.id) {
+        <li class="rdt-card">
+          <app-document-format-icon [format]="doc.fileFormat" />
+          <div class="rdt-card__text">
+            <span class="rdt-card__title" [title]="doc.title">{{ doc.title }}</span>
+            <span class="rdt-card__meta">{{ formatCreatedAt(doc.createdAt) }}</span>
+          </div>
+          <div class="rdt-card__actions">
+            <app-icon-button tooltip="Visualizar" ariaLabel="Visualizar documento"
+                             (click)="view.emit(doc.id)">
+              <mat-icon>visibility</mat-icon>
+            </app-icon-button>
+            <app-icon-button tooltip="Descargar" ariaLabel="Descargar documento"
+                             (click)="download.emit(doc)">
+              <mat-icon>download</mat-icon>
+            </app-icon-button>
+          </div>
+        </li>
+      }
+    </ul>
+
+    <a class="recent-docs__view-all" routerLink="/documents">
+      Ver todos los documentos
+      <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+    </a>
+  }
+</div>

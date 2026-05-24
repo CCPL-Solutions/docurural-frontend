@@ -1,0 +1,13 @@
+<article class="kpi-card" [ngClass]="accentClass()">
+  <span class="kpi-card__accent-bar" aria-hidden="true"></span>
+  <div class="kpi-card__icon-wrap" aria-hidden="true">
+    <mat-icon>{{ icon() }}</mat-icon>
+  </div>
+  <div class="kpi-card__body">
+    <p class="kpi-card__label">{{ label() }}</p>
+    <p class="kpi-card__value">{{ value() }}</p>
+    @if (hint()) {
+      <p class="kpi-card__hint">{{ hint() }}</p>
+    }
+  </div>
+</article>
