@@ -21,6 +21,7 @@ import { CategorySortBy, CategorySortDir } from '../../../core/models/category-l
 import { CategoryStatusBadgeComponent } from './components/category-status-badge.component';
 import { CategoryIconBadgeComponent } from './components/category-icon-badge.component';
 import { CategoryRowActionsComponent } from './components/category-row-actions.component';
+import { SensitivityBadgeComponent } from '../../../shared/sensitivity/sensitivity-badge.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
@@ -53,6 +54,7 @@ const SORT_OPTIONS: SortOptionConfig[] = [
     CategoryStatusBadgeComponent,
     CategoryIconBadgeComponent,
     CategoryRowActionsComponent,
+    SensitivityBadgeComponent,
     PageHeaderComponent,
     EmptyStateComponent,
     ButtonComponent,
@@ -120,7 +122,7 @@ export class CategoryListComponent {
       CategoryFormDialogResult
     >(CategoryFormDialogComponent, {
       data: { mode: 'create' },
-      width: '480px',
+      width: '620px',
       maxWidth: '95vw',
       autoFocus: 'first-tabbable',
     });
@@ -136,7 +138,7 @@ export class CategoryListComponent {
       CategoryFormDialogResult
     >(CategoryFormDialogComponent, {
       data: { mode: 'edit', category },
-      width: '480px',
+      width: '620px',
       maxWidth: '95vw',
       autoFocus: 'first-tabbable',
     });

@@ -1,4 +1,5 @@
 import { CategoryStatus } from './category-status.model';
+import { SensitivityLevel } from './sensitivity-level.model';
 
 export interface Category {
   id: number;
@@ -8,4 +9,5 @@ export interface Category {
   documentCount: number;
   createdAt: string;
   createdBy: string;
+  defaultSensitivityLevel: SensitivityLevel;
 }

@@ -42,12 +42,26 @@
   @include dt.styles();
 }
 
-.col-category    { width: 26%; }
-.col-description { width: 32%; }
-.col-documents   { width: 12%; }
-.col-status      { width: 10%; }
-.col-created     { width: 11%; }
+.col-category    { width: 22%; }
+.col-description { width: 27%; }
+.col-sensitivity { width: 15%; }
+.col-documents   { width: 10%; }
+.col-status      { width: 9%;  }
+.col-created     { width: 8%;  }
 .col-actions     { width: 9%;  }
+
+.th-sensitivity {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  mat-icon {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+    opacity: 0.6;
+  }
+}
 
 // ── Celda de categoría ───────────────────────────────────────────────────────
 .cell-category {

@@ -1,7 +1,148 @@
 // Estilos específicos del dialog de creación/edición de categoría.
 // Los estilos de estructura (dialog-shell, form-field) son globales.
 
-// El textarea de descripción de categorías necesita más espacio que el default global (68px).
 .field__textarea {
   min-height: 100px;
+}
+
+// ── Sección de sensibilidad ───────────────────────────────────────────────────
+.sensitivity-field {
+  margin-bottom: 0;
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: var(--space-1);
+  }
+
+  &__label-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    color: var(--color-text-secondary);
+  }
+
+  &__hint {
+    display: block;
+    margin-bottom: var(--space-2);
+  }
+
+  &__control {
+    margin-top: var(--space-3);
+  }
+}
+
+// ── Banners de cambio de nivel (inline, sin diálogo extra) ───────────────────
+.level-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  margin-top: var(--space-3);
+
+  &--warn {
+    background: #FDF3DF;
+    border: 1px solid #F0DDA6;
+
+    .level-banner__icon {
+      background: #fff;
+      color: #8A5E10;
+    }
+  }
+
+  &--info {
+    background: var(--color-primary-light);
+    border: 1px solid #C8DEF1;
+
+    .level-banner__icon {
+      background: #fff;
+      color: var(--color-primary-dark);
+    }
+  }
+
+  &--simple {
+    gap: 10px;
+    padding: 12px 14px;
+    align-items: flex-start;
+
+    > mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: #8A5E10;
+      margin-top: 2px;
+    }
+
+    > p {
+      margin: 0;
+      font-size: var(--text-sm);
+      color: #8A5E10;
+      line-height: 1.5;
+    }
+  }
+}
+
+.level-banner__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.level-banner__body {
+  flex: 1;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.level-banner__title {
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: inherit;
+}
+
+.level-banner__text {
+  margin: 0;
+  color: inherit;
+}
+
+.level-banner--warn .level-banner__title,
+.level-banner--warn .level-banner__text {
+  color: #8A5E10;
+}
+
+.level-banner--info .level-banner__title,
+.level-banner--info .level-banner__text {
+  color: var(--color-primary-dark);
+}
+
+.level-banner__check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: #8A5E10;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-warning);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
 }

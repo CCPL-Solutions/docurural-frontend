@@ -1,0 +1,61 @@
+:host {
+  display: inline-flex;
+}
+
+.sensitivity-badge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  line-height: var(--lh-snug);
+
+  &__icon {
+    flex-shrink: 0;
+  }
+
+  &__dot {
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  // Tamaños
+  &--md {
+    gap: 6px;
+    font-size: var(--text-xs);
+    padding: 3px 10px;
+
+    .sensitivity-badge__icon { font-size: 12px; width: 12px; height: 12px; }
+    .sensitivity-badge__dot  { width: 7px; height: 7px; }
+  }
+
+  &--sm {
+    gap: 4px;
+    font-size: 12px;
+    padding: 2px 8px;
+
+    .sensitivity-badge__icon { font-size: 11px; width: 11px; height: 11px; }
+    .sensitivity-badge__dot  { width: 6px; height: 6px; }
+  }
+
+  // Niveles — colores tomados directamente de _tokens.scss, coinciden con el handoff
+  &--INTERNAL {
+    background: var(--color-bg-app);  // #F4F6F8
+    color: var(--color-neutral);      // #4A5A6E
+    .sensitivity-badge__dot { background: var(--color-neutral-accent); } // #6B7A8D
+  }
+
+  &--RESTRICTED {
+    background: var(--color-warning-light); // #FDF3DF
+    color: var(--color-warning-text);       // #8A5E10
+    .sensitivity-badge__dot { background: var(--color-warning); }        // #E8A020
+  }
+
+  &--CONFIDENTIAL {
+    background: var(--color-error-light); // #FBEAE7
+    color: var(--color-error-text);       // #8F2A20
+    .sensitivity-badge__dot { background: var(--color-error); }          // #C0392B
+  }
+}
