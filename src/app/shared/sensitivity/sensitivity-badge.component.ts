@@ -17,6 +17,11 @@ import {
       class="sensitivity-badge"
       [class]="'sensitivity-badge--' + level() + ' sensitivity-badge--' + size()"
     >
+      @if (withIcon()) {
+        <mat-icon class="sensitivity-badge__icon" aria-hidden="true">{{ icon() }}</mat-icon>
+      } @else {
+        <span class="sensitivity-badge__dot" aria-hidden="true"></span>
+      }
       {{ label() }}
     </span>
   `,

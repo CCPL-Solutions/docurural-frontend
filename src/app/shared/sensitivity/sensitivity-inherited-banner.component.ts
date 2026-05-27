@@ -17,7 +17,7 @@ import {
         El nivel <strong>{{ label() }}</strong> se heredó de la categoría
         <strong>{{ categoryName() }}</strong>.
         @if (canRaise()) {
-          Si el documento contiene datos sensibles, puede subir el nivel.
+          {{ raiseHint() }}
         }
       </p>
     </div>
@@ -28,6 +28,7 @@ export class SensitivityInheritedBannerComponent {
   readonly level        = input.required<SensitivityLevel>();
   readonly categoryName = input.required<string>();
   readonly canRaise     = input(false);
+  readonly raiseHint    = input('Si el documento contiene datos sensibles, puede subir el nivel.');
 
   protected readonly label = computed(() => SENSITIVITY_LABELS[this.level()]);
 }

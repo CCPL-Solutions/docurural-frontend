@@ -1,4 +1,5 @@
 import { DocumentFormat } from './document-format.model';
+import { SensitivityLevel } from './sensitivity-level.model';
 
 export type ResponsibleArea =
   | 'Rectoría'
@@ -37,6 +38,7 @@ export interface UploadDocumentResponse {
   originalFileName: string;
   createdAt: string;
   message: string;
+  sensitivityLevel: SensitivityLevel;
 }
 
 export const MAX_BATCH_FILES = 5;
