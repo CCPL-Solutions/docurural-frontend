@@ -140,7 +140,10 @@
               <div class="cell-title">
                 <app-document-format-icon [format]="doc.fileFormat" />
                 <div class="cell-title__info">
-                  <span class="cell-title__name">{{ doc.title }}</span>
+                  <div class="cell-title__name-row">
+                    <span class="cell-title__name">{{ doc.title }}</span>
+                    <app-sensitivity-badge size="sm" [level]="doc.sensitivityLevel" />
+                  </div>
                   <span class="cell-title__meta">Cargado el {{ formatCreatedAt(doc.createdAt) }}</span>
                 </div>
               </div>
@@ -189,6 +192,7 @@
           </div>
         </div>
         <div class="doc-card__meta">
+          <app-sensitivity-badge size="sm" [level]="doc.sensitivityLevel" />
           <span class="doc-card__meta-item">
             <mat-icon aria-hidden="true">business</mat-icon>
             {{ doc.responsibleArea }}

@@ -165,6 +165,12 @@
           </dd>
         </div>
         <div class="meta-list__item">
+          <dt>Sensibilidad</dt>
+          <dd>
+            <app-sensitivity-badge [level]="metadata()!.sensitivityLevel" />
+          </dd>
+        </div>
+        <div class="meta-list__item">
           <dt>Área responsable</dt>
           <dd>{{ metadata()!.responsibleArea }}</dd>
         </div>
@@ -185,7 +191,14 @@
         </div>
         <div class="meta-list__item">
           <dt>Subido por</dt>
-          <dd>{{ metadata()!.uploadedBy.fullName }}</dd>
+          <dd>
+            <div class="meta-uploader">
+              <div class="meta-uploader__avatar" aria-hidden="true">
+                {{ userInitials(metadata()!.uploadedBy.fullName) }}
+              </div>
+              <span class="meta-uploader__name">{{ metadata()!.uploadedBy.fullName }}</span>
+            </div>
+          </dd>
         </div>
         <div class="meta-list__item">
           <dt>Fecha de carga</dt>

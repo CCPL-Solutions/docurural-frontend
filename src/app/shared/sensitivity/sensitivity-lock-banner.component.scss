@@ -1,0 +1,52 @@
+.lock-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid;
+
+  &__icon-chip {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  }
+
+  &__body {
+    flex: 1;
+    font-size: var(--text-sm);
+    line-height: var(--lh-normal);
+  }
+
+  &__title {
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+
+  &__text {
+    margin: 0;
+  }
+
+  &--RESTRICTED {
+    background: var(--color-warning-light);
+    border-color: var(--color-warning-border);
+    color: var(--color-warning-text);
+
+    .lock-banner__icon-chip { color: var(--color-warning-text); }
+  }
+
+  &--CONFIDENTIAL {
+    background: var(--color-error-light);
+    border-color: var(--color-error-border);
+    color: var(--color-error-text);
+
+    .lock-banner__icon-chip { color: var(--color-error-text); }
+  }
+}

@@ -1,0 +1,61 @@
+<div
+  class="sensitivity-radio"
+  [class.sensitivity-radio--compact]="compact()"
+  role="radiogroup"
+  aria-label="Nivel de sensibilidad"
+>
+  @for (level of levels; track level) {
+    <div
+      class="sensitivity-radio__card"
+      [class]="'sensitivity-radio__card--' + level"
+      [class.is-selected]="_value() === level"
+      [class.is-disabled]="isDisabledLevel(level)"
+      [attr.tabindex]="isDisabledLevel(level) ? -1 : 0"
+      [attr.aria-checked]="(_value() === level).toString()"
+      [attr.aria-disabled]="isDisabledLevel(level) || null"
+      role="radio"
+      (click)="select(level)"
+      (keydown.enter)="select(level)"
+      (keydown.space)="$event.preventDefault(); select(level)"
+    >
+      <!-- Círculo indicador -->
+      <div class="sensitivity-radio__indicator">
+        @if (_value() === level) {
+          <div class="sensitivity-radio__dot"></div>
+        }
+      </div>
+
+      <!-- Chip de ícono -->
+      <div class="sensitivity-radio__icon-chip">
+        <mat-icon aria-hidden="true">{{ icons[level] }}</mat-icon>
+      </div>
+
+      <!-- Texto -->
+      <div class="sensitivity-radio__text">
+        <div class="sensitivity-radio__header">
+          <span class="sensitivity-radio__label">{{ labels[level] }}</span>
+
+          @if (!locked() && isEditorLocked(level)) {
+            <span class="sensitivity-radio__chip">
+              <mat-icon aria-hidden="true">lock</mat-icon>
+              Solo administradores
+            </span>
+          }
+
+          @if (!locked() && isBelowMin(level)) {
+            <span class="sensitivity-radio__chip">
+              No disponible para esta categoría
+            </span>
+          }
+        </div>
+
+        <p class="sensitivity-radio__description">{{ descriptions[level] }}</p>
+
+        <p class="sensitivity-radio__access">
+          <mat-icon aria-hidden="true">group</mat-icon>
+          {{ accessHints[level] }}
+        </p>
+      </div>
+    </div>
+  }
+</div>

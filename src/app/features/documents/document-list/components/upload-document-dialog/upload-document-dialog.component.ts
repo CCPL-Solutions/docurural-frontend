@@ -3,6 +3,7 @@ import {
   Component,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -22,6 +23,7 @@ import { DocumentFormatIconComponent } from '../document-format-icon.component';
 import { CategoriesService } from '../../../../../core/services/categories.service';
 import { DocumentsService } from '../../../../../core/services/documents.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { AuthService } from '../../../../../core/services/auth.service';
 import { Category } from '../../../../../core/models/category.model';
 import { DocumentFormat } from '../../../../../core/models/document-format.model';
 import {
@@ -30,6 +32,15 @@ import {
   RESPONSIBLE_AREAS,
   UploadDocumentResponse,
 } from '../../../../../core/models/upload-document.models';
+import {
+  SensitivityLevel,
+  clampToMin,
+  isAtLeast,
+} from '../../../../../core/models/sensitivity-level.model';
+import { SensitivityLockBannerComponent } from '../../../../../shared/sensitivity/sensitivity-lock-banner.component';
+import { SensitivityInheritedBannerComponent } from '../../../../../shared/sensitivity/sensitivity-inherited-banner.component';
+import { SensitivityRadioComponent } from '../../../../../shared/sensitivity/sensitivity-radio.component';
+import { SensitivityMobileFieldComponent } from '../../../../../shared/sensitivity/sensitivity-mobile-field.component';
 import { formatFileSize } from '../../utils/file-size';
 import { formatYmd } from '../../utils/format-ymd';
 
@@ -65,6 +76,10 @@ export type UploadDocumentDialogResult =
     AlertComponent,
     ButtonComponent,
     DocumentFormatIconComponent,
+    SensitivityLockBannerComponent,
+    SensitivityInheritedBannerComponent,
+    SensitivityRadioComponent,
+    SensitivityMobileFieldComponent,
   ],
   providers: [
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
@@ -81,6 +96,7 @@ export class UploadDocumentDialogComponent implements OnInit {
   private readonly categoriesService = inject(CategoriesService);
   private readonly documentsService  = inject(DocumentsService);
   private readonly notifications     = inject(NotificationService);
+  private readonly auth              = inject(AuthService);
 
   protected readonly loading             = signal(false);
   protected readonly submitError         = signal<string | null>(null);
@@ -95,18 +111,54 @@ export class UploadDocumentDialogComponent implements OnInit {
   protected readonly areas = RESPONSIBLE_AREAS;
 
   protected readonly form = this.fb.group({
-    title:           ['' as string | null,    [Validators.required, Validators.maxLength(255)]],
-    categoryId:      [null as number | null,  [Validators.required]],
-    responsibleArea: ['' as string | null,    [Validators.required, Validators.maxLength(100)]],
-    documentDate:    [null as Date | null,    [Validators.required]],
-    description:     ['' as string | null,    [Validators.maxLength(500)]],
+    title:            ['' as string | null,       [Validators.required, Validators.maxLength(255)]],
+    categoryId:       [null as number | null,     [Validators.required]],
+    responsibleArea:  ['' as string | null,       [Validators.required, Validators.maxLength(100)]],
+    documentDate:     [null as Date | null,       [Validators.required]],
+    description:      ['' as string | null,       [Validators.maxLength(500)]],
+    sensitivityLevel: ['INTERNAL' as SensitivityLevel, [Validators.required]],
   });
 
-  private readonly titleValue = toSignal(this.form.controls.title.valueChanges, { initialValue: '' });
-  private readonly descValue  = toSignal(this.form.controls.description.valueChanges, { initialValue: '' });
+  private readonly titleValue      = toSignal(this.form.controls.title.valueChanges,       { initialValue: '' });
+  private readonly descValue       = toSignal(this.form.controls.description.valueChanges, { initialValue: '' });
+  private readonly categoryIdValue = toSignal(this.form.controls.categoryId.valueChanges,  { initialValue: this.form.controls.categoryId.value });
 
   protected readonly titleLen = computed(() => (this.titleValue() ?? '').length);
   protected readonly descLen  = computed(() => (this.descValue() ?? '').length);
+
+  protected readonly selectedCategory = computed(() =>
+    this.categories().find(c => c.id === this.categoryIdValue()),
+  );
+  protected readonly categoryDefault = computed(() =>
+    this.selectedCategory()?.defaultSensitivityLevel ?? 'INTERNAL',
+  );
+  protected readonly sensitivityLocked = computed(() => this.categoryDefault() !== 'INTERNAL');
+  protected readonly editorRole        = computed(() => this.auth.currentUser()?.role === 'EDITOR');
+  protected readonly minSensitivity    = computed(() => this.categoryDefault());
+
+  constructor() {
+    effect(() => {
+      const locked     = this.sensitivityLocked();
+      const catDefault = this.categoryDefault();
+      const ctrl       = this.form.controls.sensitivityLevel;
+      if (locked) {
+        ctrl.setValue(catDefault, { emitEvent: false });
+        ctrl.disable({ emitEvent: false });
+      } else {
+        const wasLocked = ctrl.disabled;
+        ctrl.enable({ emitEvent: false });
+        if (wasLocked) {
+          ctrl.setValue(catDefault, { emitEvent: false });
+        } else {
+          const current = (ctrl.value as SensitivityLevel | null) ?? 'INTERNAL';
+          if (!isAtLeast(current, catDefault)) {
+            ctrl.setValue(clampToMin(current, catDefault), { emitEvent: false });
+          }
+        }
+      }
+      ctrl.markAsPristine();
+    });
+  }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -228,6 +280,14 @@ export class UploadDocumentDialogComponent implements OnInit {
     return null;
   }
 
+  protected sensitivityError(): string | null {
+    const ctrl = this.form.controls.sensitivityLevel;
+    if (!ctrl.touched || ctrl.valid) return null;
+    if (ctrl.hasError('required')) return 'Debe seleccionar el nivel de sensibilidad del documento.';
+    if (ctrl.hasError('backend'))  return ctrl.getError('backend') as string;
+    return null;
+  }
+
   protected onSubmit(): void {
     if (this.form.invalid || !this.selectedFile()) {
       this.form.markAllAsTouched();
@@ -249,6 +309,7 @@ export class UploadDocumentDialogComponent implements OnInit {
     fd.append('categoryId', String(raw.categoryId));
     fd.append('responsibleArea', raw.responsibleArea ?? '');
     fd.append('documentDate', formatYmd(raw.documentDate!));
+    fd.append('sensitivityLevel', raw.sensitivityLevel!);
     const desc = (raw.description ?? '').trim();
     if (desc) fd.append('description', desc);
 
@@ -256,6 +317,9 @@ export class UploadDocumentDialogComponent implements OnInit {
       .pipe(finalize(() => {
         this.loading.set(false);
         this.form.enable();
+        if (this.sensitivityLocked()) {
+          this.form.controls.sensitivityLevel.disable({ emitEvent: false });
+        }
         this.dialogRef.disableClose = false;
       }))
       .subscribe({

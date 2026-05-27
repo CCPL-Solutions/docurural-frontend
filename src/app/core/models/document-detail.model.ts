@@ -1,4 +1,5 @@
 import { DocumentFormat } from './document-format.model';
+import { SensitivityLevel } from './sensitivity-level.model';
 
 export interface CategoryRef {
   id: number;
@@ -22,6 +23,7 @@ export interface DocumentDetailResponse {
   originalFileName: string;
   uploadedBy: UploadedByRef;
   createdAt: string;
+  sensitivityLevel: SensitivityLevel;
 }
 
 export function isPreviewableFormat(fmt: DocumentFormat): boolean {
