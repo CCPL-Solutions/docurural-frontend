@@ -295,6 +295,46 @@
           </div>
 
         </div>
+
+        <!-- Nivel de sensibilidad (aplica a todo el lote) -->
+        <div class="field">
+          <label class="field__label">
+            Nivel de sensibilidad
+            <strong class="field__required" aria-hidden="true">*</strong>
+          </label>
+          <small class="field__hint">Se aplicará a todos los archivos del lote.</small>
+
+          @if (sensitivityLocked()) {
+            <app-sensitivity-lock-banner
+              [level]="categoryDefault()"
+              [categoryName]="selectedCategory()?.name ?? null"
+            />
+          } @else if (selectedCategory() && form.controls.sensitivityLevel.value === 'INTERNAL') {
+            <app-sensitivity-inherited-banner
+              [level]="categoryDefault()"
+              [categoryName]="selectedCategory()!.name"
+              [canRaise]="true"
+              raiseHint="Si los documentos contienen datos sensibles, puede subir el nivel."
+            />
+          }
+
+          <div class="desktop-only">
+            <app-sensitivity-radio
+              formControlName="sensitivityLevel"
+              [minLevel]="categoryDefault()"
+              [editorRole]="editorRole()"
+              [locked]="sensitivityLocked()"
+            />
+          </div>
+          <div class="mobile-only">
+            <app-sensitivity-mobile-field
+              formControlName="sensitivityLevel"
+              [minLevel]="categoryDefault()"
+              [editorRole]="editorRole()"
+              [locked]="sensitivityLocked()"
+            />
+          </div>
+        </div>
       }
 
     </div><!-- /dialog-fields -->

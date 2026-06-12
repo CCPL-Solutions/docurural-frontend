@@ -64,6 +64,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { IconButtonComponent } from '../../../shared/components/icon-button/icon-button.component';
 import { SortTriggerComponent } from '../../../shared/components/sort-trigger/sort-trigger.component';
+import { SensitivityBadgeComponent } from '../../../shared/sensitivity/sensitivity-badge.component';
 
 type SortOption = 'createdAtDesc' | 'createdAtAsc' | 'titleAsc' | 'titleDesc' | 'documentDateDesc' | 'documentDateAsc';
 
@@ -107,6 +108,7 @@ const PAGE_SIZE = 10;
     ButtonComponent,
     IconButtonComponent,
     SortTriggerComponent,
+    SensitivityBadgeComponent,
   ],
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.scss',
@@ -210,7 +212,7 @@ export class DocumentListComponent implements OnInit {
   });
 
   private readonly docDateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit', month: 'short', year: 'numeric',
+    day: '2-digit', month: '2-digit', year: 'numeric',
   });
   private readonly loadedAtFormatter = new Intl.DateTimeFormat('es-CO', {
     day: '2-digit', month: '2-digit', year: 'numeric',

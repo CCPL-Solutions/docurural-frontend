@@ -1,0 +1,33 @@
+<mat-form-field appearance="outline" class="mat-select-field sensitivity-mf">
+  <mat-label>Nivel de sensibilidad</mat-label>
+
+  <mat-select
+    [value]="_value()"
+    [disabled]="locked() || isFormDisabled()"
+    (valueChange)="onValueChange($event)"
+  >
+    <!-- Trigger personalizado: ícono coloreado + etiqueta + candado/chevron -->
+    <mat-select-trigger>
+      <span class="sensitivity-mf__trigger sensitivity-mf__trigger--{{ _value() }}">
+        <mat-icon class="sensitivity-mf__trigger-icon" aria-hidden="true">{{ icons[_value()] }}</mat-icon>
+        <span class="sensitivity-mf__trigger-label">{{ labels[_value()] }}</span>
+        @if (locked()) {
+          <mat-icon class="sensitivity-mf__trigger-lock" aria-hidden="true">lock</mat-icon>
+        }
+      </span>
+    </mat-select-trigger>
+
+    @for (level of levels; track level) {
+      <mat-option [value]="level" [disabled]="isOptionDisabled(level)">
+        <span class="sensitivity-mf__option sensitivity-mf__option--{{ level }}">
+          <mat-icon aria-hidden="true">{{ icons[level] }}</mat-icon>
+          {{ labels[level] }}
+        </span>
+      </mat-option>
+    }
+  </mat-select>
+
+  @if (locked()) {
+    <mat-icon matSuffix aria-hidden="true" class="sensitivity-mf__suffix-lock">lock</mat-icon>
+  }
+</mat-form-field>

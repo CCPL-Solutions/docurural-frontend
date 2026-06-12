@@ -3,6 +3,7 @@ import {
   Component,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -21,6 +22,7 @@ import { DocumentFormatIconComponent } from '../document-format-icon.component';
 import { CategoriesService } from '../../../../../core/services/categories.service';
 import { DocumentsService } from '../../../../../core/services/documents.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { AuthService } from '../../../../../core/services/auth.service';
 import { Category } from '../../../../../core/models/category.model';
 import { DocumentFormat } from '../../../../../core/models/document-format.model';
 import {
@@ -32,6 +34,15 @@ import {
   MAX_TITLE_LENGTH,
   RESPONSIBLE_AREAS,
 } from '../../../../../core/models/upload-document.models';
+import {
+  SensitivityLevel,
+  clampToMin,
+  isAtLeast,
+} from '../../../../../core/models/sensitivity-level.model';
+import { SensitivityLockBannerComponent } from '../../../../../shared/sensitivity/sensitivity-lock-banner.component';
+import { SensitivityInheritedBannerComponent } from '../../../../../shared/sensitivity/sensitivity-inherited-banner.component';
+import { SensitivityRadioComponent } from '../../../../../shared/sensitivity/sensitivity-radio.component';
+import { SensitivityMobileFieldComponent } from '../../../../../shared/sensitivity/sensitivity-mobile-field.component';
 import { formatFileSize } from '../../utils/file-size';
 import { BatchFileItem, BatchFileStatus } from './batch-file-item.model';
 import { v4 as uuidv4 } from 'uuid';
@@ -58,6 +69,10 @@ type Phase = 'compose' | 'uploading' | 'done';
     AlertComponent,
     ButtonComponent,
     DocumentFormatIconComponent,
+    SensitivityLockBannerComponent,
+    SensitivityInheritedBannerComponent,
+    SensitivityRadioComponent,
+    SensitivityMobileFieldComponent,
   ],
   templateUrl: './upload-documents-batch-dialog.component.html',
   styleUrl: './upload-documents-batch-dialog.component.scss',
@@ -71,6 +86,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   private readonly categoriesService = inject(CategoriesService);
   private readonly documentsService  = inject(DocumentsService);
   private readonly notifications     = inject(NotificationService);
+  private readonly auth              = inject(AuthService);
 
   protected readonly phase              = signal<Phase>('compose');
   protected readonly files              = signal<BatchFileItem[]>([]);
@@ -87,11 +103,44 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   protected readonly maxTitleLength  = MAX_TITLE_LENGTH;
 
   protected readonly form = this.fb.group({
-    categoryId:      [null as number | null, [Validators.required]],
-    responsibleArea: ['' as string | null,   [Validators.required, Validators.maxLength(MAX_AREA_LENGTH)]],
+    categoryId:       [null as number | null,      [Validators.required]],
+    responsibleArea:  ['' as string | null,        [Validators.required, Validators.maxLength(MAX_AREA_LENGTH)]],
+    sensitivityLevel: ['INTERNAL' as SensitivityLevel, [Validators.required]],
   });
 
-  private readonly formStatus = toSignal(this.form.statusChanges, { initialValue: this.form.status });
+  private readonly formStatus      = toSignal(this.form.statusChanges,                                  { initialValue: this.form.status });
+  private readonly categoryIdValue = toSignal(this.form.controls.categoryId.valueChanges,              { initialValue: this.form.controls.categoryId.value });
+
+  protected readonly selectedCategory = computed(() =>
+    this.categories().find(c => c.id === this.categoryIdValue()),
+  );
+  protected readonly categoryDefault   = computed(() => this.selectedCategory()?.defaultSensitivityLevel ?? 'INTERNAL');
+  protected readonly sensitivityLocked = computed(() => this.categoryDefault() !== 'INTERNAL');
+  protected readonly editorRole        = computed(() => this.auth.currentUser()?.role === 'EDITOR');
+
+  constructor() {
+    effect(() => {
+      const locked     = this.sensitivityLocked();
+      const catDefault = this.categoryDefault();
+      const ctrl       = this.form.controls.sensitivityLevel;
+      if (locked) {
+        ctrl.setValue(catDefault, { emitEvent: false });
+        ctrl.disable({ emitEvent: false });
+      } else {
+        const wasLocked = ctrl.disabled;
+        ctrl.enable({ emitEvent: false });
+        if (wasLocked) {
+          ctrl.setValue(catDefault, { emitEvent: false });
+        } else {
+          const current = (ctrl.value as SensitivityLevel | null) ?? 'INTERNAL';
+          if (!isAtLeast(current, catDefault)) {
+            ctrl.setValue(clampToMin(current, catDefault), { emitEvent: false });
+          }
+        }
+      }
+      ctrl.markAsPristine();
+    });
+  }
 
   protected readonly summary = computed(() => {
     const items = this.files();
@@ -226,11 +275,15 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     this.files().forEach(item => fd.append('files', item.file, item.file.name));
     fd.append('categoryId', String(raw.categoryId));
     fd.append('responsibleArea', raw.responsibleArea ?? '');
+    fd.append('sensitivityLevel', raw.sensitivityLevel!);
     this.files().forEach(item => fd.append('titles', item.title.trim() || item.file.name));
 
     this.documentsService.createBatch(fd)
       .pipe(finalize(() => {
         this.form.enable();
+        if (this.sensitivityLocked()) {
+          this.form.controls.sensitivityLevel.disable({ emitEvent: false });
+        }
         this.dialogRef.disableClose = false;
       }))
       .subscribe({

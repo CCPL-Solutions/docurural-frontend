@@ -24,92 +24,173 @@
     </app-alert>
   }
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
-    <!-- Nombre de la categoría -->
-    <div class="field">
-      <div class="field__label-row">
-        <label class="field__label" for="name">
-          Nombre de la categoría
+    <div class="dialog-fields">
+
+      <!-- Nombre de la categoría -->
+      <div class="field">
+        <div class="field__label-row">
+          <label class="field__label" for="name">
+            Nombre de la categoría
+            <strong class="field__required" aria-hidden="true">*</strong>
+          </label>
+          <span
+            class="field__counter"
+            [class.field__counter--over]="nameLen() > 100"
+            aria-hidden="true"
+          >{{ nameLen() }}/100</span>
+        </div>
+        <div
+          class="field__control"
+          [class.field__control--error]="form.controls.name.invalid && form.controls.name.touched"
+        >
+          <input
+            class="field__input"
+            id="name"
+            type="text"
+            formControlName="name"
+            maxlength="100"
+            autocomplete="off"
+            placeholder="Ej. Proyectos Biotecnología"
+            [attr.aria-required]="true"
+            [attr.aria-invalid]="form.controls.name.invalid && form.controls.name.touched || null"
+            aria-describedby="name-error name-hint"
+          />
+        </div>
+        @if (nameError(); as msg) {
+          <p class="field__error" id="name-error">
+            <mat-icon aria-hidden="true">error</mat-icon>
+            {{ msg }}
+          </p>
+        } @else {
+          <small class="field__hint" id="name-hint">Entre 3 y 100 caracteres. Debe ser único en el sistema.</small>
+        }
+      </div>
+
+      <!-- Descripción -->
+      <div class="field">
+        <div class="field__label-row">
+          <label class="field__label" for="description">
+            Descripción
+            <span class="field__optional">(opcional)</span>
+          </label>
+          <span
+            class="field__counter"
+            [class.field__counter--over]="descLen() > 500"
+            aria-hidden="true"
+          >{{ descLen() }}/500</span>
+        </div>
+        <div
+          class="field__control"
+          [class.field__control--error]="form.controls.description.invalid && form.controls.description.touched"
+        >
+          <textarea
+            class="field__textarea"
+            id="description"
+            formControlName="description"
+            rows="4"
+            maxlength="500"
+            autocomplete="off"
+            placeholder="Describa brevemente qué tipo de documentos agrupa esta categoría (opcional)."
+            [attr.aria-invalid]="form.controls.description.invalid && form.controls.description.touched || null"
+            aria-describedby="desc-error desc-hint"
+          ></textarea>
+        </div>
+        @if (descriptionError(); as msg) {
+          <p class="field__error" id="desc-error">
+            <mat-icon aria-hidden="true">error</mat-icon>
+            {{ msg }}
+          </p>
+        } @else {
+          <small class="field__hint" id="desc-hint">Máximo 500 caracteres. Ayuda a otros administradores a clasificar correctamente.</small>
+        }
+      </div>
+
+      <!-- Sensibilidad por defecto -->
+      <div class="field sensitivity-field">
+        <label class="field__label sensitivity-field__label">
+          <mat-icon class="sensitivity-field__label-icon" aria-hidden="true">verified_user</mat-icon>
+          Sensibilidad por defecto
           <strong class="field__required" aria-hidden="true">*</strong>
         </label>
-        <span
-          class="field__counter"
-          [class.field__counter--over]="nameLen() > 100"
-          aria-hidden="true"
-        >{{ nameLen() }}/100</span>
-      </div>
-      <div
-        class="field__control"
-        [class.field__control--error]="form.controls.name.invalid && form.controls.name.touched"
-      >
-        <input
-          class="field__input"
-          id="name"
-          type="text"
-          formControlName="name"
-          maxlength="100"
-          autocomplete="off"
-          placeholder="Ej. Proyectos Biotecnología"
-          [attr.aria-required]="true"
-          [attr.aria-invalid]="form.controls.name.invalid && form.controls.name.touched || null"
-          aria-describedby="name-error name-hint"
-        />
-      </div>
-      @if (nameError(); as msg) {
-        <p class="field__error" id="name-error">
-          <mat-icon aria-hidden="true">error</mat-icon>
-          {{ msg }}
-        </p>
-      } @else {
-        <small class="field__hint" id="name-hint">Entre 3 y 100 caracteres. Debe ser único en el sistema.</small>
-      }
-    </div>
+        <small class="field__hint sensitivity-field__hint">
+          Nivel mínimo que heredan automáticamente los documentos cargados en esta categoría.
+          Solo administradores pueden modificarlo.
+        </small>
 
-    <!-- Descripción -->
-    <div class="field">
-      <div class="field__label-row">
-        <label class="field__label" for="description">
-          Descripción
-          <span class="field__optional">(opcional)</span>
-        </label>
-        <span
-          class="field__counter"
-          [class.field__counter--over]="descLen() > 500"
-          aria-hidden="true"
-        >{{ descLen() }}/500</span>
+        @if (warningKind() === 'edit-raise') {
+          <div class="level-banner level-banner--warn" role="alert">
+            <div class="level-banner__icon">
+              <mat-icon aria-hidden="true">warning</mat-icon>
+            </div>
+            <div class="level-banner__body">
+              <p class="level-banner__title">Está subiendo el nivel: {{ levelLabelFrom() }} → {{ levelLabelTo() }}</p>
+              <p class="level-banner__text">
+                Al guardar, los <strong>{{ documentCount() }} documentos</strong> de esta categoría
+                que tengan un nivel inferior serán <strong>actualizados automáticamente</strong>
+                al nuevo nivel mínimo. Los documentos pasarán a ser visibles únicamente para administradores.
+                Esta acción no se puede deshacer desde la interfaz.
+              </p>
+              <label class="level-banner__check">
+                <input
+                  type="checkbox"
+                  [checked]="confirmChecked()"
+                  (change)="confirmChecked.set($any($event.target).checked)"
+                />
+                Confirmo que entiendo el alcance de este cambio.
+              </label>
+            </div>
+          </div>
+        } @else if (warningKind() === 'edit-lower') {
+          <div class="level-banner level-banner--info" role="status">
+            <div class="level-banner__icon">
+              <mat-icon aria-hidden="true">info</mat-icon>
+            </div>
+            <div class="level-banner__body">
+              <p class="level-banner__title">Está bajando el nivel: {{ levelLabelFrom() }} → {{ levelLabelTo() }}</p>
+              <p class="level-banner__text">
+                Esta acción no modificará automáticamente los documentos existentes.
+                Cada documento conservará su nivel actual. Solo los <strong>nuevos documentos</strong>
+                que se carguen heredarán el nuevo nivel inferior.
+              </p>
+            </div>
+          </div>
+        } @else if (warningKind() === 'create-sensitive') {
+          <div class="level-banner level-banner--warn level-banner--simple" role="status">
+            <mat-icon aria-hidden="true">warning</mat-icon>
+            <p>
+              Esta categoría queda marcada como <strong>{{ levelLabelTo() }}</strong>.
+              Todos los documentos que se carguen en ella serán visibles únicamente para administradores.
+            </p>
+          </div>
+        }
+
+        <div class="sensitivity-field__control">
+          <app-sensitivity-radio
+            formControlName="defaultSensitivityLevel"
+            [compact]="true"
+          />
+        </div>
+
+        @if (sensitivityError(); as msg) {
+          <p class="field__error">
+            <mat-icon aria-hidden="true">error</mat-icon>
+            {{ msg }}
+          </p>
+        }
       </div>
-      <div
-        class="field__control"
-        [class.field__control--error]="form.controls.description.invalid && form.controls.description.touched"
-      >
-        <textarea
-          class="field__textarea"
-          id="description"
-          formControlName="description"
-          rows="4"
-          maxlength="500"
-          autocomplete="off"
-          placeholder="Describa brevemente qué tipo de documentos agrupa esta categoría (opcional)."
-          [attr.aria-invalid]="form.controls.description.invalid && form.controls.description.touched || null"
-          aria-describedby="desc-error desc-hint"
-        ></textarea>
-      </div>
-      @if (descriptionError(); as msg) {
-        <p class="field__error" id="desc-error">
-          <mat-icon aria-hidden="true">error</mat-icon>
-          {{ msg }}
-        </p>
-      } @else {
-        <small class="field__hint" id="desc-hint">Máximo 500 caracteres. Ayuda a otros administradores a clasificar correctamente.</small>
-      }
-    </div>
+
+    </div><!-- /dialog-fields -->
 
     <div class="dialog-footer">
       <app-button variant="secondary" type="button" [disabled]="loading()" (click)="cancel()">
         Cancelar
       </app-button>
-      <app-button variant="primary" type="submit" [loading]="loading()">
+      <app-button [variant]="primaryVariant()" type="submit" [loading]="loading()" [disabled]="!canSubmit()">
+        @if (warningKind() === 'edit-raise' && !loading()) {
+          <mat-icon>verified_user</mat-icon>
+        }
         {{ loading() ? loadingLabel() : primaryLabel() }}
       </app-button>
     </div>

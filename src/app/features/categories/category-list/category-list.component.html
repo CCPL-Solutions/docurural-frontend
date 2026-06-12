@@ -57,6 +57,7 @@
       <colgroup>
         <col class="col-category" />
         <col class="col-description" />
+        <col class="col-sensitivity" />
         <col class="col-documents" />
         <col class="col-status" />
         <col class="col-created" />
@@ -66,6 +67,11 @@
         <tr>
           <th>Categoría</th>
           <th>Descripción</th>
+          <th>
+            <span class="th-sensitivity">
+              Sensibilidad por defecto
+            </span>
+          </th>
           <th class="th-right">Documentos</th>
           <th>Estado</th>
           <th>Fecha de creación</th>
@@ -86,6 +92,12 @@
             </td>
             <td>
               <span class="cell-description">{{ category.description }}</span>
+            </td>
+            <td>
+              <app-sensitivity-badge
+                [level]="category.defaultSensitivityLevel"
+                size="sm"
+              />
             </td>
             <td class="td-right">
               <span class="doc-count-pill" [class.doc-count-pill--muted]="isMuted(category)">
@@ -124,6 +136,10 @@
         <div class="category-card__bottom">
           <div class="category-card__meta">
             <app-category-status-badge [status]="category.status" />
+            <app-sensitivity-badge
+              [level]="category.defaultSensitivityLevel"
+              size="sm"
+            />
             <span class="doc-count-pill" [class.doc-count-pill--muted]="isMuted(category)">
               <mat-icon aria-hidden="true">description</mat-icon>
               {{ category.documentCount }} doc.

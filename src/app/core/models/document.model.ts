@@ -1,4 +1,5 @@
 import { DocumentFormat } from './document-format.model';
+import { SensitivityLevel } from './sensitivity-level.model';
 
 export interface Document {
   id: number;
@@ -10,4 +11,5 @@ export interface Document {
   fileSizeBytes: number;
   uploadedBy: string;
   createdAt: string;
+  sensitivityLevel: SensitivityLevel;
 }

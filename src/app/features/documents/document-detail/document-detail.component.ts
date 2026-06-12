@@ -38,6 +38,7 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { IconButtonComponent } from '../../../shared/components/icon-button/icon-button.component';
 import { DocumentFormatIconComponent } from '../document-list/components/document-format-icon.component';
 import { DocumentCategoryPillComponent } from '../document-list/components/document-category-pill.component';
+import { SensitivityBadgeComponent } from '../../../shared/sensitivity/sensitivity-badge.component';
 
 type ErrorKind = 'not-found' | 'file-missing' | 'network';
 
@@ -55,6 +56,7 @@ type ErrorKind = 'not-found' | 'file-missing' | 'network';
     IconButtonComponent,
     DocumentFormatIconComponent,
     DocumentCategoryPillComponent,
+    SensitivityBadgeComponent,
   ],
   templateUrl: './document-detail.component.html',
   styleUrl: './document-detail.component.scss',
@@ -101,8 +103,17 @@ export class DocumentDetailComponent implements OnDestroy {
 
   protected readonly formatFileSize = formatFileSize;
 
+  protected userInitials(fullName: string): string {
+    return fullName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(p => p[0].toUpperCase())
+      .join('');
+  }
+
   private readonly docDateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit', month: 'short', year: 'numeric',
+    day: '2-digit', month: '2-digit', year: 'numeric',
   });
   private readonly loadedAtFormatter = new Intl.DateTimeFormat('es-CO', {
     day: '2-digit', month: '2-digit', year: 'numeric',
