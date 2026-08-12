@@ -1,0 +1,50 @@
+name: CI — Integración Continua
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+  pull_request:
+    branches:
+      - develop
+      - main
+      - 'release/**'
+      - 'hotfix/**'
+
+jobs:
+  build-and-test:
+    name: Compilar y ejecutar pruebas
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Verificar formato (Prettier)
+        run: npm run format:check
+
+      - name: Ejecutar pruebas
+        run: npm run test:ci
+
+      - name: Compilar (producción)
+        run: npx ng build --configuration production
+
+      - name: Publicar reporte de cobertura
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-cobertura
+          path: coverage/
+          retention-days: 7

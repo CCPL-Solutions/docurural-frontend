@@ -1,0 +1,225 @@
+name: _Deploy — Construir y desplegar (reutilizable)
+
+# Workflow reutilizable: encapsula los pasos comunes a los tres pipelines de
+# despliegue (Desarrollo, QA, Producción) para no triplicar la lógica de
+# build + deploy + health check + rollback. No se dispara directamente;
+# lo invocan cd-dev.yml, cd-qa.yml y cd-prod.yml vía `workflow_call`.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "GitHub Environment a usar (development | qa | production)"
+        required: true
+        type: string
+      runner_label:
+        description: "Etiqueta adicional del runner self-hosted (dev | qa | prod)"
+        required: true
+        type: string
+      version:
+        description: "Versión efectiva a fijar en el package.json antes de construir (ej. 1.4.0-rc.3)"
+        required: true
+        type: string
+      build_configuration:
+        description: "Configuración de Angular a usar en el build (production | development)"
+        required: false
+        type: string
+        default: 'production'
+      create_release:
+        description: "Si es true, crea una GitHub Release con el build empaquetado (solo producción)"
+        required: false
+        type: boolean
+        default: false
+      project_status_on_start:
+        description: "Estado destino del issue padre al arrancar el despliegue (vacío = no hacer nada)"
+        required: false
+        type: string
+        default: ''
+      project_status_from_on_start:
+        description: "Estado origen esperado del issue padre al arrancar el despliegue"
+        required: false
+        type: string
+        default: ''
+      project_status_on_success:
+        description: "Estado destino del issue padre cuando el despliegue termina exitosamente (vacío = no hacer nada)"
+        required: false
+        type: string
+        default: ''
+      project_status_from_on_success:
+        description: "Estado origen esperado del issue padre cuando el despliegue termina exitosamente"
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Construir y desplegar en ${{ inputs.environment }}
+    runs-on: [self-hosted, "${{ inputs.runner_label }}", docurural-frontend]
+    environment: ${{ inputs.environment }}
+    # Con workflow_dispatch sumado a los triggers de push, dos despliegues al mismo
+    # ambiente pueden solaparse en el mismo host y corromper WEB_ROOT_BACKUP (el
+    # segundo respaldaría los archivos que el primero acaba de reemplazar). Se
+    # encolan en vez de cancelarse para no interrumpir un despliegue a medio camino.
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+
+    env:
+      WEB_ROOT: /opt/docurural/frontend/dist/browser
+      WEB_ROOT_BACKUP: /opt/docurural/frontend/dist/browser.bak
+      BUILD_OUTPUT: dist/docurural-frontend/browser
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Marcar inicio de despliegue en el tablero
+        if: ${{ inputs.project_status_on_start != '' }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+          TO_STATUS: ${{ inputs.project_status_on_start }}
+          FROM_STATUS: ${{ inputs.project_status_from_on_start }}
+          DEPLOY_VERSION: ${{ inputs.version }}
+        run: python3 .github/scripts/update_project_status.py
+
+      - name: Configurar Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Fijar versión de build
+        if: ${{ success() && !endsWith(inputs.version, '-SNAPSHOT') }}
+        run: npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
+
+      - name: Construir el bundle
+        run: npx ng build --configuration ${{ inputs.build_configuration }}
+
+      - name: Generar version.json
+        run: |
+          BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat > "$BUILD_OUTPUT/version.json" <<JSON
+          {
+            "version": "${{ inputs.version }}",
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "buildTime": "$BUILD_TIME"
+          }
+          JSON
+
+      - name: Respaldar el despliegue actual
+        run: |
+          rm -rf "$WEB_ROOT_BACKUP"
+          if [ -d "$WEB_ROOT" ] && [ "$(ls -A "$WEB_ROOT" 2>/dev/null)" ]; then
+            cp -a "$WEB_ROOT" "$WEB_ROOT_BACKUP"
+          else
+            echo "No hay despliegue previo — primer despliegue en este ambiente."
+          fi
+
+      - name: Reemplazar los archivos estáticos
+        id: replace_files
+        run: |
+          mkdir -p "$WEB_ROOT"
+          rm -rf "${WEB_ROOT:?}"/*
+          cp -a "$BUILD_OUTPUT"/. "$WEB_ROOT"/
+
+      - name: Recargar Nginx
+        id: reload_nginx
+        run: sudo nginx -t && sudo nginx -s reload
+
+      - name: Verificar salud del sitio y de la versión desplegada
+        id: health_check
+        run: |
+          set -e
+          DOMAIN=$(grep -m1 -E '^\s*server_name' /etc/nginx/sites-available/docurural \
+                   | awk '{print $2}' | tr -d ';')
+          CURL="curl -sS -L --resolve $DOMAIN:443:127.0.0.1 --resolve $DOMAIN:80:127.0.0.1"
+
+          ATTEMPTS=10
+          for i in $(seq 1 $ATTEMPTS); do
+            sleep 3
+            STATUS=$($CURL -s -o /dev/null -w "%{http_code}" "https://$DOMAIN/" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Health check OK en el intento $i."
+              break
+            fi
+            echo "Intento $i/$ATTEMPTS — health check retornó $STATUS, reintentando..."
+            if [ "$i" = "$ATTEMPTS" ]; then
+              echo "Health check nunca respondió 200."
+              exit 1
+            fi
+          done
+
+          DEPLOYED_VERSION=$($CURL -s "https://$DOMAIN/version.json" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+          echo "Versión reportada por /version.json: $DEPLOYED_VERSION (esperada: ${{ inputs.version }})"
+          if [ "$DEPLOYED_VERSION" != "${{ inputs.version }}" ]; then
+            echo "La versión desplegada no coincide con la esperada."
+            exit 1
+          fi
+
+      - name: Marcar fin de despliegue en el tablero
+        if: ${{ success() && inputs.project_status_on_success != '' }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+          TO_STATUS: ${{ inputs.project_status_on_success }}
+          FROM_STATUS: ${{ inputs.project_status_from_on_success }}
+          DEPLOY_VERSION: ${{ inputs.version }}
+        run: python3 .github/scripts/update_project_status.py
+
+      - name: Empaquetar build para la Release
+        if: ${{ success() && inputs.create_release }}
+        run: tar -czf "docurural-frontend-${{ inputs.version }}.tar.gz" -C "$BUILD_OUTPUT" .
+
+      - name: Crear GitHub Release
+        if: ${{ success() && inputs.create_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ inputs.version }}
+          files: docurural-frontend-${{ inputs.version }}.tar.gz
+          generate_release_notes: true
+
+      - name: Rollback automático ante fallo de verificación
+        # Se limita a los pasos que pueden dejar el host en un estado roto (archivos
+        # reemplazados pero Nginx no recargó, o recargó con una versión que no pasa
+        # el health check). Un fallo anterior (build) nunca tocó el sitio servido,
+        # así que no dispara un reload innecesario.
+        if: >
+          failure() &&
+          (steps.replace_files.outcome == 'failure' ||
+           steps.reload_nginx.outcome == 'failure' ||
+           steps.health_check.outcome == 'failure')
+        run: |
+          echo "Revirtiendo al despliegue anterior..."
+          if [ -d "$WEB_ROOT_BACKUP" ]; then
+            rm -rf "${WEB_ROOT:?}"/*
+            cp -a "$WEB_ROOT_BACKUP"/. "$WEB_ROOT"/
+            sudo nginx -t && sudo nginx -s reload
+            echo "Rollback completado — sitio servido con el build anterior."
+          else
+            echo "No existe backup previo — no es posible hacer rollback automático."
+          fi
+          echo "----- Contenido actual de $WEB_ROOT -----"
+          ls -la "$WEB_ROOT" || true
+
+      - name: Resumen del despliegue
+        if: always()
+        run: |
+          echo "====================================================="
+          echo "Despliegue ${{ inputs.environment }} — $(date)"
+          echo "Versión:       ${{ inputs.version }}"
+          echo "Configuración: ${{ inputs.build_configuration }}"
+          echo "Commit:        ${{ github.sha }}"
+          echo "Rama:          ${{ github.ref_name }}"
+          echo "Actor:         ${{ github.actor }}"
+          echo "====================================================="
+          ls -la "$WEB_ROOT" | head -20 || true

@@ -1,59 +1,38 @@
-# DocururalFrontend
+# DocuRural Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.8.
+Interfaz web de DocuRural — gestión documental y archivo digital para la IERD Mina y
+Ticha (escuela rural en Guachetá, Cundinamarca). Aplicación Angular que consume la
+API de [`docurural-backend`](https://github.com/CCPL-Solutions/docurural-backend).
 
-## Development server
+## Stack
 
-To start a local development server, run:
+Angular 21 (standalone, sin zone.js), Angular Material, Vitest como test runner,
+Prettier para formato.
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Comandos esenciales
 
 ```bash
-ng generate component component-name
+npm ci                 # Instalar dependencias
+npm start               # Servidor de desarrollo en http://localhost:4200
+npm run build            # Build de producción en dist/docurural-frontend/browser
+npm test                 # Pruebas en modo watch
+npm run test:ci          # Pruebas en modo CI (sin watch, con cobertura)
+npm run format:check     # Verificar formato con Prettier
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Configuración por entorno
 
-```bash
-ng generate --help
-```
+`src/environments/environment.ts` (desarrollo) y `environment.prod.ts` (producción)
+definen `apiBaseUrl`. En producción es relativo (`/api`): Nginx en el servidor
+proxea `/api/` hacia el backend de Spring Boot en `localhost:8080`.
 
-## Building
+## CI/CD
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+El pipeline de GitHub Actions replica el del backend: `ci.yml` compila y prueba en
+cada push/PR; `cd-dev.yml`, `cd-qa.yml` y `cd-prod.yml` despliegan a Desarrollo, QA
+y Producción sobre runners self-hosted (provistos por
+[`docurural-infra-test`](https://github.com/CCPL-Solutions/docurural-infra-test)),
+con health check y rollback automático. La estrategia de ramas, el esquema de
+versionado (`x.y.z-rc.N`) y las transiciones del tablero de GitHub Projects están
+documentadas en `docurural-backend/docs/ci-cd.md` — front y back siguen el mismo
+flujo, cada uno moviendo su propia issue en el Project.

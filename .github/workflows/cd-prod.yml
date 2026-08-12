@@ -1,0 +1,135 @@
+name: CD — Despliegue a Producción
+
+# Se dispara al crear un tag semántico (ej. v1.4.0), típicamente inmediatamente
+# después de mergear la release certificada a main. El GitHub Environment
+# "production" tiene required reviewers configurados — el job de despliegue
+# queda en espera de aprobación manual antes de tocar el servidor.
+#
+# Tras el despliegue, el Environment "production-verification" pausa el
+# pipeline para que alguien confirme manualmente que todo funciona: si
+# aprueba, el issue padre pasa a "Deployed to Production"; si rechaza (o la
+# aprobación vence), se revierte automáticamente al build anterior.
+#
+# También se puede disparar a mano (workflow_dispatch) eligiendo un tag existente
+# en "Use workflow from", ej. para reponer el componente tras recrear la infra
+# con Terraform. En ese modo se mantiene la aprobación del Environment
+# "production", pero se salta la verificación manual post-despliegue y el
+# tablero de GitHub Projects no se toca.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: "Crear/actualizar la GitHub Release del tag"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  verify-tag:
+    name: Verificar que el tag proviene de main
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.compute.outputs.version }}
+    steps:
+      - name: Checkout del código (historial completo)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Confirmar que el commit del tag está en main
+        run: |
+          git fetch origin main --quiet
+          if ! git merge-base --is-ancestor "${{ github.sha }}" origin/main; then
+            echo "El tag ${{ github.ref_name }} no apunta a un commit de main — abortando."
+            exit 1
+          fi
+
+      - name: Calcular versión a partir del tag
+        id: compute
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "El tag '${{ github.ref_name }}' no sigue el patrón vX.Y.Z."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Desplegar en Producción
+    needs: verify-tag
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      environment: production
+      runner_label: prod
+      version: ${{ needs.verify-tag.outputs.version }}
+      build_configuration: production
+      create_release: ${{ github.event_name == 'push' || inputs.create_release }}
+      # Un despliegue manual (workflow_dispatch) nunca mueve el tablero de GitHub
+      # Projects — solo repone el componente, no representa avance de la release.
+      project_status_on_start: ${{ github.event_name == 'push' && 'Deploying to Production' || '' }}
+      project_status_from_on_start: ${{ github.event_name == 'push' && 'Ready for Production Deployment' || '' }}
+      project_status_on_success: ${{ github.event_name == 'push' && 'Verifying in Production' || '' }}
+      project_status_from_on_success: ${{ github.event_name == 'push' && 'Deploying to Production' || '' }}
+    secrets: inherit
+
+  verify-production:
+    name: Verificar despliegue en Producción
+    needs: [verify-tag, deploy]
+    # En manual (workflow_dispatch) se salta la verificación post-despliegue para
+    # no dejar la reposición de infra pausada esperando una segunda aprobación.
+    if: github.event_name == 'push' && needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    environment: production-verification
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Marcar verificación aprobada en el tablero
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+          TO_STATUS: "Deployed to Production"
+          FROM_STATUS: "Verifying in Production"
+          DEPLOY_VERSION: ${{ needs.verify-tag.outputs.version }}
+        run: python3 .github/scripts/update_project_status.py
+
+  rollback-production:
+    name: Rollback en Producción (verificación rechazada)
+    needs: [deploy, verify-production]
+    if: >
+      always() &&
+      needs.deploy.result == 'success' &&
+      (needs.verify-production.result == 'failure' || needs.verify-production.result == 'cancelled')
+    runs-on: [self-hosted, "prod", docurural-frontend]
+
+    env:
+      WEB_ROOT: /opt/docurural/frontend/dist/browser
+      WEB_ROOT_BACKUP: /opt/docurural/frontend/dist/browser.bak
+
+    steps:
+      - name: Revertir al build anterior
+        # La verificación en el Environment "production-verification" fue rechazada
+        # o venció sin respuesta — se revierte al respaldo que _deploy.yml dejó en
+        # WEB_ROOT_BACKUP antes de reemplazar los archivos. El issue padre se queda
+        # en "Verifying in Production" para que quede visible que la release no
+        # llegó a producción.
+        run: |
+          echo "Verificación en producción rechazada o vencida — revirtiendo al build anterior..."
+          if [ -d "$WEB_ROOT_BACKUP" ]; then
+            rm -rf "${WEB_ROOT:?}"/*
+            cp -a "$WEB_ROOT_BACKUP"/. "$WEB_ROOT"/
+            sudo nginx -t && sudo nginx -s reload
+            echo "Rollback completado — sitio servido con el build anterior."
+          else
+            echo "No existe backup previo — no es posible hacer rollback automático."
+            exit 1
+          fi
+          echo "----- Contenido actual de $WEB_ROOT -----"
+          ls -la "$WEB_ROOT" || true

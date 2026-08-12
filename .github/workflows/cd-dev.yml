@@ -1,0 +1,57 @@
+name: CD — Despliegue a Desarrollo
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión a desplegar (vacío = la del package.json del ref seleccionado)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  read-version:
+    name: Leer versión del package.json
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.pkg-version.outputs.version }}
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+      - name: Configurar Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      - name: Resolver versión a desplegar
+        # En workflow_dispatch, inputs.version permite fijar exactamente qué versión
+        # reponer (ej. tras recrear la infra con Terraform). Vacío = comportamiento
+        # de siempre: la versión SNAPSHOT del package.json del ref seleccionado.
+        id: pkg-version
+        run: |
+          VERSION="${{ inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION=$(node -p "require('./package.json').version")
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Desplegar en Desarrollo
+    needs: read-version
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      environment: development
+      runner_label: develop
+      version: ${{ needs.read-version.outputs.version }}
+      build_configuration: production
+      # Un despliegue manual (workflow_dispatch) nunca mueve el tablero de GitHub
+      # Projects — solo repone el componente, no representa avance de la release.
+      project_status_on_success: ${{ github.event_name == 'push' && 'Ready for installation in certification' || '' }}
+      project_status_from_on_success: ${{ github.event_name == 'push' && 'Development Completed' || '' }}
+    secrets: inherit
