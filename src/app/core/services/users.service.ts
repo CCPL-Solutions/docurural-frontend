@@ -21,9 +21,7 @@ export class UsersService {
   private readonly http = inject(HttpClient);
 
   list(sortBy: SortBy = 'fullName', sortDir: SortDir = 'asc'): Observable<UserListResponse> {
-    const params = new HttpParams()
-      .set('sortBy', sortBy)
-      .set('sortDir', sortDir);
+    const params = new HttpParams().set('sortBy', sortBy).set('sortDir', sortDir);
     return this.http.get<UserListResponse>(`${environment.apiBaseUrl}/users`, { params });
   }
 

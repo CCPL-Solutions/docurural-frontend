@@ -13,19 +13,25 @@ import { avatarColor, avatarInitials } from '../utils/avatar-color';
         [class.identity__avatar--lg]="size() === 'lg'"
         [style]="avatarStyle()"
         aria-hidden="true"
-      >{{ initials() }}</div>
+      >
+        {{ initials() }}
+      </div>
       <div class="identity__text">
-        <div class="identity__name" [class.identity__name--muted]="muted()">{{ user().fullName }}</div>
-        <div class="identity__email" [class.identity__email--muted]="muted()">{{ user().email }}</div>
+        <div class="identity__name" [class.identity__name--muted]="muted()">
+          {{ user().fullName }}
+        </div>
+        <div class="identity__email" [class.identity__email--muted]="muted()">
+          {{ user().email }}
+        </div>
       </div>
     </div>
   `,
   styleUrl: './user-identity.component.scss',
 })
 export class UserIdentityComponent {
-  readonly user  = input.required<User>();
+  readonly user = input.required<User>();
   readonly muted = input(false);
-  readonly size  = input<'sm' | 'lg'>('sm');
+  readonly size = input<'sm' | 'lg'>('sm');
 
   protected readonly initials = computed(() => avatarInitials(this.user().fullName));
   protected readonly avatarStyle = computed(() => {

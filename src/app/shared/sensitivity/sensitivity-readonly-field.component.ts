@@ -38,11 +38,11 @@ import {
   styleUrl: './sensitivity-readonly-field.component.scss',
 })
 export class SensitivityReadonlyFieldComponent {
-  readonly level        = input.required<SensitivityLevel>();
-  readonly inherited    = input(false);
+  readonly level = input.required<SensitivityLevel>();
+  readonly inherited = input(false);
   readonly categoryName = input<string | null>(null);
 
-  protected readonly label      = computed(() => SENSITIVITY_LABELS[this.level()]);
-  protected readonly icon       = computed(() => SENSITIVITY_ICONS[this.level()]);
+  protected readonly label = computed(() => SENSITIVITY_LABELS[this.level()]);
+  protected readonly icon = computed(() => SENSITIVITY_ICONS[this.level()]);
   protected readonly accessHint = computed(() => SENSITIVITY_ACCESS_HINTS[this.level()]);
 }

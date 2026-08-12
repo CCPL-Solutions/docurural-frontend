@@ -76,10 +76,19 @@
   flex-shrink: 0;
   transition: background var(--duration-fast) var(--easing-standard);
 
-  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
 
-  &:hover { background: var(--color-border); }
-  &:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  &:hover {
+    background: var(--color-border);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
 }
 
 .filter-chips__clear-all {
@@ -96,10 +105,19 @@
   cursor: pointer;
   transition: background var(--duration-fast) var(--easing-standard);
 
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
 
-  &:hover { background: rgba(192, 57, 43, 0.08); }
-  &:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.25); }
+  &:hover {
+    background: rgba(192, 57, 43, 0.08);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.25);
+  }
 }
 
 // ── Responsive ────────────────────────────────────────────────────────
@@ -113,11 +131,19 @@
   .filter-chip__close {
     width: 20px;
     height: 20px;
-    mat-icon { font-size: 12px; width: 12px; height: 12px; }
+    mat-icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+    }
   }
 
   .filter-chips__clear-all {
     font-size: var(--text-xs);
-    mat-icon { font-size: 12px; width: 12px; height: 12px; }
+    mat-icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+    }
   }
 }

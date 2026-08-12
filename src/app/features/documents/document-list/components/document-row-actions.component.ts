@@ -18,7 +18,11 @@ import { canEditDocument, canDeleteDocument } from '../utils/document-permission
       </app-icon-button>
       <app-icon-button
         [tooltip]="downloading() ? 'Descargando…' : 'Descargar'"
-        [ariaLabel]="downloading() ? 'Descargando documento ' + doc().title : 'Descargar documento ' + doc().title"
+        [ariaLabel]="
+          downloading()
+            ? 'Descargando documento ' + doc().title
+            : 'Descargar documento ' + doc().title
+        "
         [disabled]="downloading()"
         (click)="download.emit(doc())"
       >
@@ -48,17 +52,17 @@ import { canEditDocument, canDeleteDocument } from '../utils/document-permission
   styleUrl: './document-row-actions.component.scss',
 })
 export class DocumentRowActionsComponent {
-  readonly doc             = input.required<Document>();
-  readonly role            = input.required<Role>();
+  readonly doc = input.required<Document>();
+  readonly role = input.required<Role>();
   readonly currentUserName = input.required<string>();
-  readonly downloading     = input(false);
+  readonly downloading = input(false);
 
-  readonly view     = output<Document>();
+  readonly view = output<Document>();
   readonly download = output<Document>();
-  readonly edit     = output<Document>();
-  readonly delete   = output<Document>();
+  readonly edit = output<Document>();
+  readonly delete = output<Document>();
 
-  protected readonly canEdit   = computed(() =>
+  protected readonly canEdit = computed(() =>
     canEditDocument(this.role(), this.currentUserName(), this.doc().uploadedBy),
   );
   protected readonly canDelete = computed(() => canDeleteDocument(this.role()));

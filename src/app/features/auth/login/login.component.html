@@ -1,6 +1,5 @@
 <div class="page">
   <div class="card">
-
     <!-- Logo + subtítulo institucional -->
     <div class="logo-block">
       <img src="logo-docurural.svg" alt="DocuRural" class="logo" />
@@ -14,15 +13,19 @@
 
     <!-- Banner de cuenta desactivada (403) -->
     @if (submitError() && submitErrorVariant() === 'warning') {
-      <app-alert variant="warning" title="Cuenta desactivada" class="login-alert">{{ submitError() }}</app-alert>
+      <app-alert variant="warning" title="Cuenta desactivada" class="login-alert">{{
+        submitError()
+      }}</app-alert>
     }
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-
       <!-- Campo correo electrónico -->
       <div class="field">
         <label class="field__label" for="email">Correo electrónico</label>
-        <div class="field__control" [class.field__control--error]="form.controls.email.invalid && form.controls.email.touched">
+        <div
+          class="field__control"
+          [class.field__control--error]="form.controls.email.invalid && form.controls.email.touched"
+        >
           <span class="field__icon" aria-hidden="true">
             <mat-icon>mail</mat-icon>
           </span>
@@ -47,7 +50,12 @@
       <!-- Campo contraseña -->
       <div class="field field--password">
         <label class="field__label" for="password">Contraseña</label>
-        <div class="field__control" [class.field__control--error]="form.controls.password.invalid && form.controls.password.touched">
+        <div
+          class="field__control"
+          [class.field__control--error]="
+            form.controls.password.invalid && form.controls.password.touched
+          "
+        >
           <span class="field__icon" aria-hidden="true">
             <mat-icon>lock</mat-icon>
           </span>
@@ -87,11 +95,9 @@
       >
         {{ loading() ? 'Iniciando sesión…' : 'Iniciar sesión' }}
       </app-button>
-
     </form>
 
     <!-- Pie de tarjeta -->
     <div class="card__footer">Guachetá, Cundinamarca</div>
-
   </div>
 </div>

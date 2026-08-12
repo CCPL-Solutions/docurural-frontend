@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -22,9 +16,9 @@ export class DocumentSearchBarComponent {
   @Input() filtersOpen = false;
   @Input() filtersCount = 0;
 
-  @Output() readonly valueChange   = new EventEmitter<string>();
-  @Output() readonly submit        = new EventEmitter<void>();
-  @Output() readonly clear         = new EventEmitter<void>();
+  @Output() readonly valueChange = new EventEmitter<string>();
+  @Output() readonly submit = new EventEmitter<void>();
+  @Output() readonly clear = new EventEmitter<void>();
   @Output() readonly toggleFilters = new EventEmitter<void>();
 
   onInput(event: Event): void {

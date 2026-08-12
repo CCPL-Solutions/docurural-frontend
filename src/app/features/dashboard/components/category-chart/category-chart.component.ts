@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { BaseChartDirective, provideCharts } from 'ng2-charts';
 import {
   ArcElement,
@@ -41,9 +36,7 @@ export class CategoryChartComponent {
 
   protected readonly hasData = computed(() => this.data().length > 0);
 
-  protected readonly totalCount = computed(() =>
-    this.data().reduce((sum, d) => sum + d.count, 0)
-  );
+  protected readonly totalCount = computed(() => this.data().reduce((sum, d) => sum + d.count, 0));
 
   protected readonly chartData = computed<ChartData<'doughnut'>>(() => {
     const items = this.data();

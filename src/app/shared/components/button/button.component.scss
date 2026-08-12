@@ -17,9 +17,10 @@
   // --btn-width can be set on the <app-button> host element to override width
   // (CSS custom properties pierce Angular's emulated encapsulation via inheritance).
   width: var(--btn-width, auto);
-  transition: background var(--duration-fast) var(--easing-standard),
-              border-color var(--duration-fast) var(--easing-standard),
-              color var(--duration-fast) var(--easing-standard);
+  transition:
+    background var(--duration-fast) var(--easing-standard),
+    border-color var(--duration-fast) var(--easing-standard),
+    color var(--duration-fast) var(--easing-standard);
 
   &--full {
     width: 100%;
@@ -134,10 +135,18 @@
   &--loading {
     cursor: progress;
 
-    &.btn--primary  { background: var(--color-primary-dark); }
-    &.btn--danger   { background: var(--color-error-text); }
-    &.btn--success  { background: var(--color-success-dark); }
-    &.btn--warning  { background: var(--color-warning-text); }
+    &.btn--primary {
+      background: var(--color-primary-dark);
+    }
+    &.btn--danger {
+      background: var(--color-error-text);
+    }
+    &.btn--success {
+      background: var(--color-success-dark);
+    }
+    &.btn--warning {
+      background: var(--color-warning-text);
+    }
   }
 }
 

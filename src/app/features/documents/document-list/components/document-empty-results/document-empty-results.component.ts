@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -27,9 +21,12 @@ export class DocumentEmptyResultsComponent {
 
   get title(): string {
     switch (this.variant) {
-      case 'search':   return 'No se encontraron documentos';
-      case 'filters':  return 'Sin documentos con los filtros aplicados';
-      case 'combined': return 'Sin resultados para la búsqueda y los filtros';
+      case 'search':
+        return 'No se encontraron documentos';
+      case 'filters':
+        return 'Sin documentos con los filtros aplicados';
+      case 'combined':
+        return 'Sin resultados para la búsqueda y los filtros';
     }
   }
 

@@ -17,11 +17,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success' | 'wa
       [attr.aria-busy]="loading() || null"
     >
       @if (loading()) {
-        <mat-progress-spinner
-          class="btn__spinner"
-          [diameter]="18"
-          mode="indeterminate"
-        />
+        <mat-progress-spinner class="btn__spinner" [diameter]="18" mode="indeterminate" />
       }
       <ng-content />
     </button>
@@ -29,15 +25,15 @@ export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success' | 'wa
   styleUrl: './button.component.scss',
 })
 export class ButtonComponent {
-  readonly variant  = input<ButtonVariant>('primary');
-  readonly type     = input<'button' | 'submit' | 'reset'>('button');
-  readonly loading  = input(false);
+  readonly variant = input<ButtonVariant>('primary');
+  readonly type = input<'button' | 'submit' | 'reset'>('button');
+  readonly loading = input(false);
   readonly disabled = input(false);
   readonly fullWidth = input(false);
 
   protected readonly btnClass = computed(() => {
     const classes = [`btn--${this.variant()}`];
-    if (this.loading())   classes.push('btn--loading');
+    if (this.loading()) classes.push('btn--loading');
     if (this.fullWidth()) classes.push('btn--full');
     return classes.join(' ');
   });

@@ -82,58 +82,64 @@ export type EditDocumentMetadataDialogResult =
     SensitivityRadioComponent,
     SensitivityMobileFieldComponent,
   ],
-  providers: [
-    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-  ],
+  providers: [{ provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }],
   templateUrl: './edit-document-metadata-dialog.component.html',
   styleUrl: './edit-document-metadata-dialog.component.scss',
 })
 export class EditDocumentMetadataDialogComponent implements OnInit {
   protected readonly data = inject<EditDocumentMetadataDialogData>(MAT_DIALOG_DATA);
   private readonly dialogRef =
-    inject<MatDialogRef<EditDocumentMetadataDialogComponent, EditDocumentMetadataDialogResult>>(MatDialogRef);
+    inject<MatDialogRef<EditDocumentMetadataDialogComponent, EditDocumentMetadataDialogResult>>(
+      MatDialogRef,
+    );
 
-  private readonly fb                = inject(FormBuilder);
+  private readonly fb = inject(FormBuilder);
   private readonly categoriesService = inject(CategoriesService);
-  private readonly documentsService  = inject(DocumentsService);
-  private readonly notifications     = inject(NotificationService);
-  private readonly auth              = inject(AuthService);
+  private readonly documentsService = inject(DocumentsService);
+  private readonly notifications = inject(NotificationService);
+  private readonly auth = inject(AuthService);
 
-  protected readonly loading             = signal(false);
-  protected readonly submitError         = signal<string | null>(null);
-  protected readonly categories          = signal<Category[]>([]);
-  protected readonly categoriesLoading   = signal(false);
+  protected readonly loading = signal(false);
+  protected readonly submitError = signal<string | null>(null);
+  protected readonly categories = signal<Category[]>([]);
+  protected readonly categoriesLoading = signal(false);
   protected readonly categoriesLoadError = signal(false);
 
   protected readonly areas = RESPONSIBLE_AREAS;
 
   protected readonly form = this.fb.group({
-    title:            ['' as string,              [Validators.required, Validators.maxLength(255)]],
-    categoryId:       [null as number | null,     [Validators.required]],
-    responsibleArea:  ['' as string,              [Validators.required, Validators.maxLength(100)]],
-    documentDate:     [null as Date | null,       [Validators.required]],
-    description:      ['' as string,              [Validators.maxLength(500)]],
+    title: ['' as string, [Validators.required, Validators.maxLength(255)]],
+    categoryId: [null as number | null, [Validators.required]],
+    responsibleArea: ['' as string, [Validators.required, Validators.maxLength(100)]],
+    documentDate: [null as Date | null, [Validators.required]],
+    description: ['' as string, [Validators.maxLength(500)]],
     sensitivityLevel: ['INTERNAL' as SensitivityLevel, [Validators.required]],
   });
 
-  private readonly titleValue      = toSignal(this.form.controls.title.valueChanges,       { initialValue: '' });
-  private readonly descValue       = toSignal(this.form.controls.description.valueChanges, { initialValue: '' });
-  private readonly categoryIdValue = toSignal(this.form.controls.categoryId.valueChanges,  { initialValue: this.form.controls.categoryId.value });
+  private readonly titleValue = toSignal(this.form.controls.title.valueChanges, {
+    initialValue: '',
+  });
+  private readonly descValue = toSignal(this.form.controls.description.valueChanges, {
+    initialValue: '',
+  });
+  private readonly categoryIdValue = toSignal(this.form.controls.categoryId.valueChanges, {
+    initialValue: this.form.controls.categoryId.value,
+  });
 
   protected readonly titleLen = computed(() => (this.titleValue() ?? '').length);
-  protected readonly descLen  = computed(() => (this.descValue() ?? '').length);
+  protected readonly descLen = computed(() => (this.descValue() ?? '').length);
 
   private readonly docOriginalSensitivity = signal<SensitivityLevel>('INTERNAL');
 
   protected readonly selectedCategory = computed(() =>
-    this.categories().find(c => c.id === this.categoryIdValue()),
+    this.categories().find((c) => c.id === this.categoryIdValue()),
   );
-  protected readonly categoryDefault = computed(() =>
-    this.selectedCategory()?.defaultSensitivityLevel ?? 'INTERNAL',
+  protected readonly categoryDefault = computed(
+    () => this.selectedCategory()?.defaultSensitivityLevel ?? 'INTERNAL',
   );
   protected readonly sensitivityLocked = computed(() => this.categoryDefault() !== 'INTERNAL');
-  protected readonly editorRole        = computed(() => this.auth.currentUser()?.role === 'EDITOR');
-  protected readonly minSensitivity    = computed(() => {
+  protected readonly editorRole = computed(() => this.auth.currentUser()?.role === 'EDITOR');
+  protected readonly minSensitivity = computed(() => {
     const catMin = this.categoryDefault();
     const docMin = this.docOriginalSensitivity();
     if (this.editorRole()) {
@@ -144,10 +150,10 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const locked     = this.sensitivityLocked();
+      const locked = this.sensitivityLocked();
       const catDefault = this.categoryDefault();
-      const min        = this.minSensitivity();
-      const ctrl       = this.form.controls.sensitivityLevel;
+      const min = this.minSensitivity();
+      const ctrl = this.form.controls.sensitivityLevel;
       if (locked) {
         ctrl.setValue(catDefault, { emitEvent: false });
         ctrl.disable({ emitEvent: false });
@@ -170,8 +176,11 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   protected readonly formatFileSize = formatFileSize;
 
   private readonly createdAtFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
   ngOnInit(): void {
@@ -179,11 +188,11 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
     const doc = this.data.document;
     this.docOriginalSensitivity.set(doc.sensitivityLevel);
     this.form.patchValue({
-      title:            doc.title,
-      categoryId:       doc.category.id,
-      responsibleArea:  doc.responsibleArea,
-      documentDate:     new Date(doc.documentDate + 'T00:00:00'),
-      description:      doc.description ?? '',
+      title: doc.title,
+      categoryId: doc.category.id,
+      responsibleArea: doc.responsibleArea,
+      documentDate: new Date(doc.documentDate + 'T00:00:00'),
+      description: doc.description ?? '',
       sensitivityLevel: doc.sensitivityLevel,
     });
   }
@@ -191,7 +200,8 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   protected loadCategories(): void {
     this.categoriesLoading.set(true);
     this.categoriesLoadError.set(false);
-    this.categoriesService.list('name', 'asc')
+    this.categoriesService
+      .list('name', 'asc')
       .pipe(finalize(() => this.categoriesLoading.set(false)))
       .subscribe({
         next: (res) => {
@@ -211,33 +221,33 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   protected titleError(): string | null {
     const ctrl = this.form.controls.title;
     if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required'))  return 'El título es obligatorio.';
+    if (ctrl.hasError('required')) return 'El título es obligatorio.';
     if (ctrl.hasError('maxlength')) return 'El título no puede superar los 255 caracteres.';
-    if (ctrl.hasError('backend'))   return ctrl.getError('backend') as string;
+    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
 
   protected categoryError(): string | null {
     const ctrl = this.form.controls.categoryId;
     if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required'))  return 'Seleccione una categoría.';
-    if (ctrl.hasError('backend'))   return ctrl.getError('backend') as string;
+    if (ctrl.hasError('required')) return 'Seleccione una categoría.';
+    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
 
   protected areaError(): string | null {
     const ctrl = this.form.controls.responsibleArea;
     if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required'))  return 'El área responsable es obligatoria.';
-    if (ctrl.hasError('backend'))   return ctrl.getError('backend') as string;
+    if (ctrl.hasError('required')) return 'El área responsable es obligatoria.';
+    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
 
   protected dateError(): string | null {
     const ctrl = this.form.controls.documentDate;
     if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required'))  return 'La fecha del documento es obligatoria.';
-    if (ctrl.hasError('backend'))   return ctrl.getError('backend') as string;
+    if (ctrl.hasError('required')) return 'La fecha del documento es obligatoria.';
+    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
 
@@ -245,15 +255,16 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
     const ctrl = this.form.controls.description;
     if (!ctrl.touched || ctrl.valid) return null;
     if (ctrl.hasError('maxlength')) return 'La descripción no puede superar los 500 caracteres.';
-    if (ctrl.hasError('backend'))   return ctrl.getError('backend') as string;
+    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
 
   protected sensitivityError(): string | null {
     const ctrl = this.form.controls.sensitivityLevel;
     if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Debe seleccionar el nivel de sensibilidad del documento.';
-    if (ctrl.hasError('backend'))  return ctrl.getError('backend') as string;
+    if (ctrl.hasError('required'))
+      return 'Debe seleccionar el nivel de sensibilidad del documento.';
+    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
 
@@ -271,23 +282,26 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
     const raw = this.form.getRawValue();
     const desc = (raw.description ?? '').trim();
     const payload: UpdateDocumentMetadataRequest = {
-      title:            (raw.title ?? '').trim(),
-      categoryId:       raw.categoryId!,
-      responsibleArea:  raw.responsibleArea ?? '',
-      documentDate:     formatYmd(raw.documentDate!),
+      title: (raw.title ?? '').trim(),
+      categoryId: raw.categoryId!,
+      responsibleArea: raw.responsibleArea ?? '',
+      documentDate: formatYmd(raw.documentDate!),
       sensitivityLevel: raw.sensitivityLevel!,
       ...(desc ? { description: desc } : {}),
     };
 
-    this.documentsService.update(this.data.document.id, payload)
-      .pipe(finalize(() => {
-        this.loading.set(false);
-        this.form.enable();
-        if (this.sensitivityLocked()) {
-          this.form.controls.sensitivityLevel.disable({ emitEvent: false });
-        }
-        this.dialogRef.disableClose = false;
-      }))
+    this.documentsService
+      .update(this.data.document.id, payload)
+      .pipe(
+        finalize(() => {
+          this.loading.set(false);
+          this.form.enable();
+          if (this.sensitivityLocked()) {
+            this.form.controls.sensitivityLevel.disable({ emitEvent: false });
+          }
+          this.dialogRef.disableClose = false;
+        }),
+      )
       .subscribe({
         next: (res) => this.handleSuccess(res),
         error: (err: HttpErrorResponse) => this.handleError(err),
@@ -328,7 +342,9 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
         this.submitError.set('No tiene permisos para editar este documento.');
         break;
       case 404:
-        this.submitError.set('El documento ya no existe o fue eliminado. Cierre el formulario y recargue el listado.');
+        this.submitError.set(
+          'El documento ya no existe o fue eliminado. Cierre el formulario y recargue el listado.',
+        );
         break;
       default:
         this.submitError.set('No fue posible guardar los cambios. Intente de nuevo.');

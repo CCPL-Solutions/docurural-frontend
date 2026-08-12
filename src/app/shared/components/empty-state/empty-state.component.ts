@@ -44,8 +44,8 @@ export type EmptyStateVariant = 'loading' | 'empty' | 'no-results';
   styleUrl: './empty-state.component.scss',
 })
 export class EmptyStateComponent {
-  readonly variant     = input<EmptyStateVariant>('empty');
-  readonly icon        = input('');
-  readonly title       = input('');
+  readonly variant = input<EmptyStateVariant>('empty');
+  readonly icon = input('');
+  readonly title = input('');
   readonly description = input('');
 }

@@ -10,7 +10,8 @@
     <div class="dialog__copy">
       <h2 class="dialog__title" mat-dialog-title>¿Eliminar este documento?</h2>
       <p class="dialog__message">
-        Esta acción no se puede deshacer. El documento se eliminará del repositorio y no podrá recuperarse.
+        Esta acción no se puede deshacer. El documento se eliminará del repositorio y no podrá
+        recuperarse.
       </p>
     </div>
   </div>
@@ -23,7 +24,8 @@
     <div class="dialog__doc-copy">
       <div class="dialog__doc-title">{{ data.document.title }}</div>
       <div class="dialog__doc-meta">
-        {{ data.document.fileFormat }} · {{ formatSize(data.document.fileSizeBytes) }} · subido por {{ data.document.uploadedBy }}
+        {{ data.document.fileFormat }} · {{ formatSize(data.document.fileSizeBytes) }} · subido por
+        {{ data.document.uploadedBy }}
       </div>
     </div>
   </div>
@@ -49,7 +51,12 @@
     <app-button variant="secondary" [disabled]="loading()" (click)="cancel()">
       Cancelar
     </app-button>
-    <app-button variant="danger" [loading]="loading()" [disabled]="actionDisabled()" (click)="confirm()">
+    <app-button
+      variant="danger"
+      [loading]="loading()"
+      [disabled]="actionDisabled()"
+      (click)="confirm()"
+    >
       <mat-icon aria-hidden="true">delete_outline</mat-icon>
       Sí, eliminar documento
     </app-button>

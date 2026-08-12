@@ -50,9 +50,7 @@ export class UserFormDialogComponent implements OnInit {
   protected readonly hideConfirmPassword = signal(true);
 
   protected readonly isEdit = computed(() => this.data.mode === 'edit');
-  protected readonly title = computed(() =>
-    this.isEdit() ? 'Editar usuario' : 'Nuevo usuario',
-  );
+  protected readonly title = computed(() => (this.isEdit() ? 'Editar usuario' : 'Nuevo usuario'));
   protected readonly primaryLabel = computed(() =>
     this.isEdit() ? 'Guardar cambios' : 'Crear usuario',
   );

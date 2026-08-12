@@ -1,13 +1,7 @@
 <div class="dialog-container">
-
   <div class="dialog-header">
     <h2 class="dialog-title">{{ title() }}</h2>
-    <button
-      class="dialog-close"
-      type="button"
-      (click)="cancel()"
-      aria-label="Cerrar formulario"
-    >
+    <button class="dialog-close" type="button" (click)="cancel()" aria-label="Cerrar formulario">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -17,7 +11,6 @@
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-
     <!-- Nombre completo -->
     <div class="field">
       <label class="field__label" for="fullName">
@@ -26,7 +19,9 @@
       </label>
       <div
         class="field__control"
-        [class.field__control--error]="form.controls.fullName.invalid && form.controls.fullName.touched"
+        [class.field__control--error]="
+          form.controls.fullName.invalid && form.controls.fullName.touched
+        "
       >
         <input
           class="field__input"
@@ -36,7 +31,9 @@
           autocomplete="name"
           placeholder="Nombre y apellidos"
           [attr.aria-required]="true"
-          [attr.aria-invalid]="form.controls.fullName.invalid && form.controls.fullName.touched || null"
+          [attr.aria-invalid]="
+            (form.controls.fullName.invalid && form.controls.fullName.touched) || null
+          "
         />
       </div>
       @if (fullNameError(); as msg) {
@@ -65,7 +62,7 @@
           autocomplete="email"
           placeholder="correo@minayticha.edu.co"
           [attr.aria-required]="true"
-          [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched || null"
+          [attr.aria-invalid]="(form.controls.email.invalid && form.controls.email.touched) || null"
         />
       </div>
       @if (emailError(); as msg) {
@@ -94,7 +91,7 @@
           id="role"
           formControlName="role"
           [attr.aria-required]="true"
-          [attr.aria-invalid]="form.controls.role.invalid && form.controls.role.touched || null"
+          [attr.aria-invalid]="(form.controls.role.invalid && form.controls.role.touched) || null"
         >
           <option value="" disabled hidden>Seleccione un rol</option>
           @for (opt of roleOptions; track opt[0]) {
@@ -122,7 +119,9 @@
       </label>
       <div
         class="field__control"
-        [class.field__control--error]="form.controls.password.invalid && form.controls.password.touched"
+        [class.field__control--error]="
+          form.controls.password.invalid && form.controls.password.touched
+        "
       >
         <input
           class="field__input field__input--with-toggle"
@@ -132,7 +131,9 @@
           autocomplete="new-password"
           placeholder="••••••••"
           [attr.aria-required]="!isEdit()"
-          [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched || null"
+          [attr.aria-invalid]="
+            (form.controls.password.invalid && form.controls.password.touched) || null
+          "
         />
         <button
           class="field__toggle"
@@ -146,7 +147,9 @@
       @if (isEdit()) {
         <small class="field__hint">Déjalo en blanco para mantener la contraseña actual</small>
       }
-      <small class="field__hint">Mínimo 12 caracteres, con una mayúscula, una minúscula, un número y un símbolo.</small>
+      <small class="field__hint"
+        >Mínimo 12 caracteres, con una mayúscula, una minúscula, un número y un símbolo.</small
+      >
       @if (passwordError(); as msg) {
         <p class="field__error">
           <mat-icon aria-hidden="true">error</mat-icon>
@@ -165,7 +168,10 @@
       </label>
       <div
         class="field__control"
-        [class.field__control--error]="(form.controls.confirmPassword.invalid || form.hasError('passwordMismatch')) && form.controls.confirmPassword.touched"
+        [class.field__control--error]="
+          (form.controls.confirmPassword.invalid || form.hasError('passwordMismatch')) &&
+          form.controls.confirmPassword.touched
+        "
       >
         <input
           class="field__input field__input--with-toggle"
@@ -175,13 +181,19 @@
           autocomplete="new-password"
           placeholder="••••••••"
           [attr.aria-required]="!isEdit()"
-          [attr.aria-invalid]="(form.controls.confirmPassword.invalid || form.hasError('passwordMismatch')) && form.controls.confirmPassword.touched || null"
+          [attr.aria-invalid]="
+            ((form.controls.confirmPassword.invalid || form.hasError('passwordMismatch')) &&
+              form.controls.confirmPassword.touched) ||
+            null
+          "
         />
         <button
           class="field__toggle"
           type="button"
           (click)="hideConfirmPassword.set(!hideConfirmPassword())"
-          [attr.aria-label]="hideConfirmPassword() ? 'Mostrar confirmación' : 'Ocultar confirmación'"
+          [attr.aria-label]="
+            hideConfirmPassword() ? 'Mostrar confirmación' : 'Ocultar confirmación'
+          "
         >
           <mat-icon>{{ hideConfirmPassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
         </button>
@@ -202,7 +214,5 @@
         {{ loading() ? loadingLabel() : primaryLabel() }}
       </app-button>
     </div>
-
   </form>
-
 </div>

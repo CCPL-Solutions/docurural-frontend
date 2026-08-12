@@ -7,10 +7,12 @@
 
   <div class="qa-section__grid" [style.--qa-cols]="actions().length">
     @for (action of actions(); track action.id) {
-      <a class="qa-btn"
-         [ngClass]="variantClass(action.variant)"
-         [routerLink]="action.routerLink"
-         [queryParams]="action.queryParams ?? {}">
+      <a
+        class="qa-btn"
+        [ngClass]="variantClass(action.variant)"
+        [routerLink]="action.routerLink"
+        [queryParams]="action.queryParams ?? {}"
+      >
         <div class="qa-btn__icon-wrap" aria-hidden="true">
           <mat-icon>{{ action.icon }}</mat-icon>
         </div>

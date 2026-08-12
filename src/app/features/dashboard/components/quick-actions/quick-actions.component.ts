@@ -15,7 +15,7 @@ import { Role } from '../../../../core/models/role.model';
   styleUrl: './quick-actions.component.scss',
 })
 export class QuickActionsComponent {
-  readonly role    = input.required<Role>();
+  readonly role = input.required<Role>();
   readonly actions = input.required<QuickAction[]>();
 
   protected readonly roleLabels = ROLE_LABELS;

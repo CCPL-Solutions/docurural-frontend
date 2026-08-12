@@ -20,9 +20,12 @@
 
   @if (repoIsEmpty()) {
     <div class="recent-docs__empty">
-      <app-empty-state variant="empty" icon="inbox"
-                       title="Aún no hay documentos cargados."
-                       description="Sea el primero en subir un documento.">
+      <app-empty-state
+        variant="empty"
+        icon="inbox"
+        title="Aún no hay documentos cargados."
+        description="Sea el primero en subir un documento."
+      >
         @if (canUpload()) {
           <div actions>
             <button class="recent-docs__upload-cta" (click)="uploadFirst.emit()">
@@ -69,12 +72,18 @@
               <td class="col--date">{{ formatCreatedAt(doc.createdAt) }}</td>
               <td class="col--actions">
                 <div class="actions-cell">
-                  <app-icon-button tooltip="Visualizar" ariaLabel="Visualizar documento"
-                                   (click)="view.emit(doc.id)">
+                  <app-icon-button
+                    tooltip="Visualizar"
+                    ariaLabel="Visualizar documento"
+                    (click)="view.emit(doc.id)"
+                  >
                     <mat-icon>visibility</mat-icon>
                   </app-icon-button>
-                  <app-icon-button tooltip="Descargar" ariaLabel="Descargar documento"
-                                   (click)="download.emit(doc)">
+                  <app-icon-button
+                    tooltip="Descargar"
+                    ariaLabel="Descargar documento"
+                    (click)="download.emit(doc)"
+                  >
                     <mat-icon>download</mat-icon>
                   </app-icon-button>
                 </div>
@@ -95,12 +104,18 @@
             <span class="rdt-card__meta">{{ formatCreatedAt(doc.createdAt) }}</span>
           </div>
           <div class="rdt-card__actions">
-            <app-icon-button tooltip="Visualizar" ariaLabel="Visualizar documento"
-                             (click)="view.emit(doc.id)">
+            <app-icon-button
+              tooltip="Visualizar"
+              ariaLabel="Visualizar documento"
+              (click)="view.emit(doc.id)"
+            >
               <mat-icon>visibility</mat-icon>
             </app-icon-button>
-            <app-icon-button tooltip="Descargar" ariaLabel="Descargar documento"
-                             (click)="download.emit(doc)">
+            <app-icon-button
+              tooltip="Descargar"
+              ariaLabel="Descargar documento"
+              (click)="download.emit(doc)"
+            >
               <mat-icon>download</mat-icon>
             </app-icon-button>
           </div>

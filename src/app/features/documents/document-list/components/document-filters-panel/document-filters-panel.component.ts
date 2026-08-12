@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatDatepickerModule, MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,16 +30,22 @@ const FILTER_DATE_FORMATS = {
   styleUrl: './document-filters-panel.component.scss',
 })
 export class DocumentFiltersPanelComponent {
-  @Input() draft: DocumentFilters = { categoryId: null, responsibleArea: null, dateFrom: null, dateTo: null, uploadedBy: null };
+  @Input() draft: DocumentFilters = {
+    categoryId: null,
+    responsibleArea: null,
+    dateFrom: null,
+    dateTo: null,
+    uploadedBy: null,
+  };
   @Input() options: FilterOptionsResponse | null = null;
   @Input() canSeeUploadedBy = false;
   @Input() dateError: string | null = null;
   @Input() loadingOptions = false;
 
   @Output() readonly draftChange = new EventEmitter<DocumentFilters>();
-  @Output() readonly apply       = new EventEmitter<DocumentFilters>();
-  @Output() readonly reset       = new EventEmitter<void>();
-  @Output() readonly close       = new EventEmitter<void>();
+  @Output() readonly apply = new EventEmitter<DocumentFilters>();
+  @Output() readonly reset = new EventEmitter<void>();
+  @Output() readonly close = new EventEmitter<void>();
 
   onCategoryChange(value: number | null): void {
     this.draftChange.emit({ ...this.draft, categoryId: value });

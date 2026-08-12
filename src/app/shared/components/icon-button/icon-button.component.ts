@@ -23,9 +23,9 @@ export type IconButtonVariant = 'default' | 'danger';
   styleUrl: './icon-button.component.scss',
 })
 export class IconButtonComponent {
-  readonly variant   = input<IconButtonVariant>('default');
-  readonly type      = input<'button' | 'submit'>('button');
-  readonly disabled  = input(false);
-  readonly tooltip   = input('');
+  readonly variant = input<IconButtonVariant>('default');
+  readonly type = input<'button' | 'submit'>('button');
+  readonly disabled = input(false);
+  readonly tooltip = input('');
   readonly ariaLabel = input('');
 }

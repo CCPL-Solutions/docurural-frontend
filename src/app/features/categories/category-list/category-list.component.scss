@@ -33,8 +33,12 @@
   border-radius: 50%;
   flex-shrink: 0;
 
-  &--active   { background: var(--color-success); }
-  &--inactive { background: var(--color-text-muted); }
+  &--active {
+    background: var(--color-success);
+  }
+  &--inactive {
+    background: var(--color-text-muted);
+  }
 }
 
 // ── Tabla (escritorio) ───────────────────────────────────────────────────────
@@ -42,13 +46,27 @@
   @include dt.styles();
 }
 
-.col-category    { width: 22%; }
-.col-description { width: 27%; }
-.col-sensitivity { width: 15%; }
-.col-documents   { width: 10%; }
-.col-status      { width: 9%;  }
-.col-created     { width: 8%;  }
-.col-actions     { width: 9%;  }
+.col-category {
+  width: 22%;
+}
+.col-description {
+  width: 27%;
+}
+.col-sensitivity {
+  width: 15%;
+}
+.col-documents {
+  width: 10%;
+}
+.col-status {
+  width: 9%;
+}
+.col-created {
+  width: 8%;
+}
+.col-actions {
+  width: 9%;
+}
 
 .th-sensitivity {
   display: inline-flex;
@@ -131,10 +149,20 @@
 
 // ── Filas inactivas ──────────────────────────────────────────────────────────
 .row--muted {
-  .cell-category__name { color: var(--color-text-muted); }
-  .cell-category__meta { color: var(--color-text-muted); opacity: 0.7; }
-  .cell-description    { color: var(--color-text-muted); opacity: 0.6; }
-  .cell-date           { color: var(--color-text-muted); }
+  .cell-category__name {
+    color: var(--color-text-muted);
+  }
+  .cell-category__meta {
+    color: var(--color-text-muted);
+    opacity: 0.7;
+  }
+  .cell-description {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+  }
+  .cell-date {
+    color: var(--color-text-muted);
+  }
 }
 
 // ── Tarjetas (móvil) ─────────────────────────────────────────────────────────
@@ -198,6 +226,11 @@
 }
 
 .category-card--muted {
-  .category-card__name { color: var(--color-text-muted); }
-  .category-card__desc { color: var(--color-text-muted); opacity: 0.6; }
+  .category-card__name {
+    color: var(--color-text-muted);
+  }
+  .category-card__desc {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+  }
 }

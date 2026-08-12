@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,13 +32,15 @@ export class DeleteDocumentDialogComponent {
 
   protected readonly data = inject<DeleteDocumentDialogData>(MAT_DIALOG_DATA);
   private readonly dialogRef =
-    inject<MatDialogRef<DeleteDocumentDialogComponent, DeleteDocumentDialogResult | undefined>>(MatDialogRef);
+    inject<MatDialogRef<DeleteDocumentDialogComponent, DeleteDocumentDialogResult | undefined>>(
+      MatDialogRef,
+    );
   private readonly documentsService = inject(DocumentsService);
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly errorBlocksAction = signal(false);
-  protected readonly confirmationText = signal("");
+  protected readonly confirmationText = signal('');
 
   protected readonly confirmPhrase = DeleteDocumentDialogComponent.CONFIRM_PHRASE;
 

@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { FilterChipDescriptor } from '../../../../../core/models/document-filters.model';
 
@@ -20,6 +14,6 @@ export class DocumentFilterChipsComponent {
   @Input() chips: FilterChipDescriptor[] = [];
   @Input() showClearAll = false;
 
-  @Output() readonly remove   = new EventEmitter<FilterChipDescriptor['key']>();
+  @Output() readonly remove = new EventEmitter<FilterChipDescriptor['key']>();
   @Output() readonly clearAll = new EventEmitter<void>();
 }

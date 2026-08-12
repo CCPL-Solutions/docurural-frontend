@@ -18,5 +18,5 @@ export type BadgeVariant = 'primary' | 'success' | 'neutral' | 'warning' | 'dang
 })
 export class BadgeComponent {
   readonly variant = input<BadgeVariant>('neutral');
-  readonly dot     = input(false);
+  readonly dot = input(false);
 }

@@ -4,10 +4,8 @@
 }
 
 <div class="layout">
-
   <!-- ── Sidebar ────────────────────────────────────────────────── -->
   <aside class="sidebar" [class.sidebar--open]="sidebarOpen()">
-
     <!-- Logo -->
     <div class="sb-logo">
       <div class="sb-logo__icon" aria-hidden="true">
@@ -22,23 +20,44 @@
     <!-- Navegación -->
     <nav class="sb-nav" aria-label="Navegación principal">
       <div class="sb-nav__section">Principal</div>
-      <a class="sb-nav__item" routerLink="/dashboard" routerLinkActive="sb-nav__item--active" (click)="sidebarOpen.set(false)">
+      <a
+        class="sb-nav__item"
+        routerLink="/dashboard"
+        routerLinkActive="sb-nav__item--active"
+        (click)="sidebarOpen.set(false)"
+      >
         <mat-icon>dashboard</mat-icon>
         <span class="sb-nav__label">Dashboard</span>
       </a>
-      <a class="sb-nav__item" routerLink="/documents" routerLinkActive="sb-nav__item--active" [routerLinkActiveOptions]="{ exact: false }" (click)="sidebarOpen.set(false)">
+      <a
+        class="sb-nav__item"
+        routerLink="/documents"
+        routerLinkActive="sb-nav__item--active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        (click)="sidebarOpen.set(false)"
+      >
         <mat-icon>description</mat-icon>
         <span class="sb-nav__label">Documentos</span>
       </a>
 
       @if (isAdmin()) {
         <div class="sb-nav__section sb-nav__section--admin">Administración</div>
-        <button class="sb-nav__item" routerLink="/users" routerLinkActive="sb-nav__item--active" (click)="sidebarOpen.set(false)">
+        <button
+          class="sb-nav__item"
+          routerLink="/users"
+          routerLinkActive="sb-nav__item--active"
+          (click)="sidebarOpen.set(false)"
+        >
           <mat-icon>group</mat-icon>
           <span class="sb-nav__label">Usuarios</span>
           <span class="sb-admin-badge">ADMIN</span>
         </button>
-        <button class="sb-nav__item" routerLink="/categories" routerLinkActive="sb-nav__item--active" (click)="sidebarOpen.set(false)">
+        <button
+          class="sb-nav__item"
+          routerLink="/categories"
+          routerLinkActive="sb-nav__item--active"
+          (click)="sidebarOpen.set(false)"
+        >
           <mat-icon>local_offer</mat-icon>
           <span class="sb-nav__label">Categorías</span>
           <span class="sb-admin-badge">ADMIN</span>
@@ -64,10 +83,14 @@
 
   <!-- ── Área principal ─────────────────────────────────────────── -->
   <div class="main-wrap">
-
     <!-- Top bar móvil -->
     <header class="topbar">
-      <button class="topbar__menu" type="button" (click)="sidebarOpen.set(!sidebarOpen())" aria-label="Abrir menú">
+      <button
+        class="topbar__menu"
+        type="button"
+        (click)="sidebarOpen.set(!sidebarOpen())"
+        aria-label="Abrir menú"
+      >
         <mat-icon>menu</mat-icon>
       </button>
       <div class="topbar__brand">
@@ -84,5 +107,4 @@
       <router-outlet />
     </main>
   </div>
-
 </div>

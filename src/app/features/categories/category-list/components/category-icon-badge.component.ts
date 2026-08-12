@@ -15,7 +15,7 @@ import { categoryColor } from '../utils/category-color';
   styleUrl: './category-icon-badge.component.scss',
 })
 export class CategoryIconBadgeComponent {
-  readonly name  = input.required<string>();
+  readonly name = input.required<string>();
   readonly muted = input(false);
 
   protected readonly colors = computed(() => categoryColor(this.name(), this.muted()));

@@ -37,14 +37,14 @@ function formatCreatedAt(iso: string): string {
   styleUrl: './recent-docs-table.component.scss',
 })
 export class RecentDocsTableComponent {
-  readonly documents   = input.required<RecentDocumentItem[]>();
+  readonly documents = input.required<RecentDocumentItem[]>();
   readonly repoIsEmpty = input(false);
-  readonly canUpload   = input(false);
+  readonly canUpload = input(false);
 
-  readonly view        = output<number>();
-  readonly download    = output<RecentDocumentItem>();
+  readonly view = output<number>();
+  readonly download = output<RecentDocumentItem>();
   readonly uploadFirst = output<void>();
 
-  protected readonly truncateTitle   = truncateTitle;
+  protected readonly truncateTitle = truncateTitle;
   protected readonly formatCreatedAt = formatCreatedAt;
 }

@@ -41,13 +41,9 @@ export class ToggleStatusDialogComponent {
       : 'El usuario podrá volver a acceder al sistema.',
   );
 
-  protected readonly actionLabel = computed(() =>
-    this.isDeactivate() ? 'Desactivar' : 'Activar',
-  );
+  protected readonly actionLabel = computed(() => (this.isDeactivate() ? 'Desactivar' : 'Activar'));
 
-  protected readonly actionDisabled = computed(
-    () => this.loading() || this.errorBlocksAction(),
-  );
+  protected readonly actionDisabled = computed(() => this.loading() || this.errorBlocksAction());
 
   confirm(): void {
     this.loading.set(true);
@@ -75,14 +71,10 @@ export class ToggleStatusDialogComponent {
   private handleError(err: HttpErrorResponse): void {
     const apiError = err.error as ApiError | undefined;
     if (err.status === 403) {
-      this.errorMessage.set(
-        apiError?.message ?? 'No puedes desactivar tu propia cuenta',
-      );
+      this.errorMessage.set(apiError?.message ?? 'No puedes desactivar tu propia cuenta');
       this.errorBlocksAction.set(true);
     } else {
-      this.errorMessage.set(
-        'Ocurrió un error inesperado. Por favor, inténtalo de nuevo',
-      );
+      this.errorMessage.set('Ocurrió un error inesperado. Por favor, inténtalo de nuevo');
       this.errorBlocksAction.set(false);
     }
   }

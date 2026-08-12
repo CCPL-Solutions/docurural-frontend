@@ -1,8 +1,6 @@
 <div class="search-bar">
-
   <!-- Fila única: input + botón filtros + botón buscar -->
   <div class="search-bar__row">
-
     <div class="search-bar__input-wrap" [class.search-bar__input-wrap--error]="!!error">
       <mat-icon class="search-bar__icon" aria-hidden="true">search</mat-icon>
       <input
@@ -46,16 +44,10 @@
       }
     </button>
 
-    <button
-      type="button"
-      class="search-bar__submit"
-      [disabled]="disabled"
-      (click)="submit.emit()"
-    >
+    <button type="button" class="search-bar__submit" [disabled]="disabled" (click)="submit.emit()">
       <mat-icon aria-hidden="true">search</mat-icon>
       <span>Buscar</span>
     </button>
-
   </div>
 
   <!-- Error de validación (va debajo de la fila) -->
@@ -65,5 +57,4 @@
       {{ error }}
     </p>
   }
-
 </div>

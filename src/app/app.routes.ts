@@ -23,9 +23,7 @@ export const routes: Routes = [
         path: 'users',
         canActivate: [roleGuard(['ADMIN'])],
         loadComponent: () =>
-          import('./features/users/user-list/user-list.component').then(
-            (m) => m.UserListComponent,
-          ),
+          import('./features/users/user-list/user-list.component').then((m) => m.UserListComponent),
         title: 'Usuarios — DocuRural',
       },
       {

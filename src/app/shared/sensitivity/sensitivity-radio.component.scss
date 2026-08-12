@@ -14,9 +14,9 @@
     background: var(--color-bg-card);
     cursor: pointer;
     transition:
-      background     var(--duration-fast) var(--easing-standard),
-      border-color   var(--duration-fast) var(--easing-standard),
-      box-shadow     var(--duration-fast) var(--easing-standard);
+      background var(--duration-fast) var(--easing-standard),
+      border-color var(--duration-fast) var(--easing-standard),
+      box-shadow var(--duration-fast) var(--easing-standard);
     outline: none;
     user-select: none;
 
@@ -28,26 +28,28 @@
       cursor: not-allowed;
       pointer-events: none;
 
-      &:not(.is-selected) { opacity: 0.55; }
+      &:not(.is-selected) {
+        opacity: 0.55;
+      }
     }
 
     // Estados seleccionados por nivel
     &--INTERNAL.is-selected {
-      border-color: var(--color-neutral-accent);    // #6B7A8D
-      background:   var(--color-neutral-light);     // #EEF1F4
-      box-shadow:   0 0 0 3px rgba(107, 122, 141, 0.13);
+      border-color: var(--color-neutral-accent); // #6B7A8D
+      background: var(--color-neutral-light); // #EEF1F4
+      box-shadow: 0 0 0 3px rgba(107, 122, 141, 0.13);
     }
 
     &--RESTRICTED.is-selected {
-      border-color: var(--color-warning);           // #E8A020
-      background:   #FBEACC;                        // bgSel del handoff (no tiene token)
-      box-shadow:   0 0 0 3px rgba(232, 160, 32, 0.13);
+      border-color: var(--color-warning); // #E8A020
+      background: #fbeacc; // bgSel del handoff (no tiene token)
+      box-shadow: 0 0 0 3px rgba(232, 160, 32, 0.13);
     }
 
     &--CONFIDENTIAL.is-selected {
-      border-color: var(--color-error);             // #C0392B
-      background:   #F5D2CC;                        // bgSel del handoff (no tiene token)
-      box-shadow:   0 0 0 3px rgba(192, 57, 43, 0.13);
+      border-color: var(--color-error); // #C0392B
+      background: #f5d2cc; // bgSel del handoff (no tiene token)
+      box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.13);
     }
   }
 
@@ -70,9 +72,15 @@
     transition: border-color var(--duration-fast);
   }
 
-  &__card--INTERNAL.is-selected    &__indicator { border-color: var(--color-neutral-accent); }
-  &__card--RESTRICTED.is-selected  &__indicator { border-color: var(--color-warning); }
-  &__card--CONFIDENTIAL.is-selected &__indicator { border-color: var(--color-error); }
+  &__card--INTERNAL.is-selected &__indicator {
+    border-color: var(--color-neutral-accent);
+  }
+  &__card--RESTRICTED.is-selected &__indicator {
+    border-color: var(--color-warning);
+  }
+  &__card--CONFIDENTIAL.is-selected &__indicator {
+    border-color: var(--color-error);
+  }
 
   &__dot {
     width: 8px;
@@ -80,9 +88,15 @@
     border-radius: 50%;
   }
 
-  &__card--INTERNAL    &__dot { background: var(--color-neutral-accent); }
-  &__card--RESTRICTED  &__dot { background: var(--color-warning); }
-  &__card--CONFIDENTIAL &__dot { background: var(--color-error); }
+  &__card--INTERNAL &__dot {
+    background: var(--color-neutral-accent);
+  }
+  &__card--RESTRICTED &__dot {
+    background: var(--color-warning);
+  }
+  &__card--CONFIDENTIAL &__dot {
+    background: var(--color-error);
+  }
 
   // ── Chip de ícono ─────────────────────────────────────────────────────────────
   &__icon-chip {
@@ -94,18 +108,35 @@
     align-items: center;
     justify-content: center;
 
-    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
   }
 
   &--compact &__icon-chip {
     width: 32px;
     height: 32px;
-    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
   }
 
-  &__card--INTERNAL    &__icon-chip { background: var(--color-bg-app);        color: var(--color-neutral); }
-  &__card--RESTRICTED  &__icon-chip { background: var(--color-warning-light); color: var(--color-warning-text); }
-  &__card--CONFIDENTIAL &__icon-chip{ background: var(--color-error-light);   color: var(--color-error-text); }
+  &__card--INTERNAL &__icon-chip {
+    background: var(--color-bg-app);
+    color: var(--color-neutral);
+  }
+  &__card--RESTRICTED &__icon-chip {
+    background: var(--color-warning-light);
+    color: var(--color-warning-text);
+  }
+  &__card--CONFIDENTIAL &__icon-chip {
+    background: var(--color-error-light);
+    color: var(--color-error-text);
+  }
 
   // ── Texto ─────────────────────────────────────────────────────────────────────
   &__text {
@@ -127,7 +158,9 @@
     letter-spacing: var(--ls-tight);
   }
 
-  &--compact &__label { font-size: var(--text-md); }
+  &--compact &__label {
+    font-size: var(--text-md);
+  }
 
   &__chip {
     display: inline-flex;
@@ -140,7 +173,11 @@
     border-radius: var(--radius-pill);
     background: var(--color-bg-app);
 
-    mat-icon { font-size: 10px; width: 10px; height: 10px; }
+    mat-icon {
+      font-size: 10px;
+      width: 10px;
+      height: 10px;
+    }
   }
 
   &__description {
@@ -150,7 +187,9 @@
     line-height: var(--lh-snug);
   }
 
-  &--compact &__description { font-size: var(--text-xs); }
+  &--compact &__description {
+    font-size: var(--text-xs);
+  }
 
   &__access {
     font-size: var(--text-xs);

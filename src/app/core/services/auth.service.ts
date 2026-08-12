@@ -38,21 +38,17 @@ export class AuthService {
   login(req: LoginRequest): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${environment.apiBaseUrl}/auth/login`, req)
-      .pipe(
-        tap((res) => this._setSession(res)),
-      );
+      .pipe(tap((res) => this._setSession(res)));
   }
 
   logout(): Observable<LogoutResponse> {
-    return this.http
-      .post<LogoutResponse>(`${environment.apiBaseUrl}/auth/logout`, {})
-      .pipe(
-        catchError(() => EMPTY),
-        finalize(() => {
-          this._clearLocal();
-          this.router.navigateByUrl('/login');
-        }),
-      );
+    return this.http.post<LogoutResponse>(`${environment.apiBaseUrl}/auth/logout`, {}).pipe(
+      catchError(() => EMPTY),
+      finalize(() => {
+        this._clearLocal();
+        this.router.navigateByUrl('/login');
+      }),
+    );
   }
 
   forceLogout(reason: 'expired' | 'silent'): void {

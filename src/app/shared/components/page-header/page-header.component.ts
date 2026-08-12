@@ -21,7 +21,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   styleUrl: './page-header.component.scss',
 })
 export class PageHeaderComponent {
-  readonly kicker   = input('');
-  readonly title    = input.required<string>();
+  readonly kicker = input('');
+  readonly title = input.required<string>();
   readonly subtitle = input('');
 }

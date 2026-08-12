@@ -1,13 +1,7 @@
 <div class="dialog-container">
-
   <div class="dialog-header">
     <h2 class="dialog-title">Editar metadatos</h2>
-    <button
-      class="dialog-close"
-      type="button"
-      (click)="cancel()"
-      aria-label="Cerrar formulario"
-    >
+    <button class="dialog-close" type="button" (click)="cancel()" aria-label="Cerrar formulario">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -23,18 +17,16 @@
       <div class="readonly-block__file-meta">
         <span class="readonly-block__filename">{{ data.document.originalFileName }}</span>
         <span class="readonly-block__filemeta">
-          {{ data.document.fileFormat }} · {{ formatFileSize(data.document.fileSizeBytes) }}
-          · Cargado por {{ data.document.uploadedBy.fullName }}
-          · {{ formatCreatedAt(data.document.createdAt) }}
+          {{ data.document.fileFormat }} · {{ formatFileSize(data.document.fileSizeBytes) }} ·
+          Cargado por {{ data.document.uploadedBy.fullName }} ·
+          {{ formatCreatedAt(data.document.createdAt) }}
         </span>
       </div>
     </div>
   </div>
 
   <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-
     <div class="dialog-fields">
-
       <!-- Título -->
       <div class="field">
         <div class="field__label-row">
@@ -46,7 +38,8 @@
             class="field__counter"
             [class.field__counter--over]="titleLen() > 255"
             aria-hidden="true"
-          >{{ titleLen() }}/255</span>
+            >{{ titleLen() }}/255</span
+          >
         </div>
         <div
           class="field__control"
@@ -61,7 +54,9 @@
             autocomplete="off"
             placeholder="Ej. Acta Consejo Directivo Marzo 2026"
             [attr.aria-required]="true"
-            [attr.aria-invalid]="form.controls.title.invalid && form.controls.title.touched || null"
+            [attr.aria-invalid]="
+              (form.controls.title.invalid && form.controls.title.touched) || null
+            "
             aria-describedby="edit-title-error"
           />
         </div>
@@ -75,7 +70,6 @@
 
       <!-- Categoría y Área (fila de dos columnas) -->
       <div class="field-row">
-
         <!-- Categoría -->
         <div class="field">
           <label class="field__label" id="edit-category-label">
@@ -88,7 +82,9 @@
               formControlName="categoryId"
               aria-labelledby="edit-category-label"
               aria-describedby="edit-category-error edit-category-hint"
-              [placeholder]="categoriesLoading() ? 'Cargando categorías...' : 'Seleccione una categoría'"
+              [placeholder]="
+                categoriesLoading() ? 'Cargando categorías...' : 'Seleccione una categoría'
+              "
             >
               @for (cat of categories(); track cat.id) {
                 <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
@@ -112,7 +108,9 @@
               {{ msg }}
             </p>
           } @else if (!categoriesLoadError()) {
-            <small class="field__hint" id="edit-category-hint">Solo aparecen las categorías activas.</small>
+            <small class="field__hint" id="edit-category-hint"
+              >Solo aparecen las categorías activas.</small
+            >
           }
         </div>
 
@@ -142,7 +140,6 @@
             </p>
           }
         </div>
-
       </div>
 
       <!-- Fecha del documento -->
@@ -153,7 +150,9 @@
         </label>
         <div
           class="field__control"
-          [class.field__control--error]="form.controls.documentDate.invalid && form.controls.documentDate.touched"
+          [class.field__control--error]="
+            form.controls.documentDate.invalid && form.controls.documentDate.touched
+          "
         >
           <input
             class="field__input field__input--with-toggle field__input--datepicker"
@@ -165,7 +164,9 @@
             readonly
             (click)="picker.open()"
             [attr.aria-required]="true"
-            [attr.aria-invalid]="form.controls.documentDate.invalid && form.controls.documentDate.touched || null"
+            [attr.aria-invalid]="
+              (form.controls.documentDate.invalid && form.controls.documentDate.touched) || null
+            "
             aria-describedby="edit-date-error edit-date-hint"
           />
           <button
@@ -185,7 +186,9 @@
             {{ msg }}
           </p>
         } @else {
-          <small class="field__hint" id="edit-date-hint">Fecha real del documento original, no la fecha de carga.</small>
+          <small class="field__hint" id="edit-date-hint"
+            >Fecha real del documento original, no la fecha de carga.</small
+          >
         }
       </div>
 
@@ -245,11 +248,14 @@
             class="field__counter"
             [class.field__counter--over]="descLen() > 500"
             aria-hidden="true"
-          >{{ descLen() }}/500</span>
+            >{{ descLen() }}/500</span
+          >
         </div>
         <div
           class="field__control"
-          [class.field__control--error]="form.controls.description.invalid && form.controls.description.touched"
+          [class.field__control--error]="
+            form.controls.description.invalid && form.controls.description.touched
+          "
         >
           <textarea
             class="field__textarea"
@@ -259,7 +265,9 @@
             maxlength="500"
             autocomplete="off"
             placeholder="Información adicional sobre el contenido del documento (opcional)."
-            [attr.aria-invalid]="form.controls.description.invalid && form.controls.description.touched || null"
+            [attr.aria-invalid]="
+              (form.controls.description.invalid && form.controls.description.touched) || null
+            "
             aria-describedby="edit-desc-error"
           ></textarea>
         </div>
@@ -270,8 +278,8 @@
           </p>
         }
       </div>
-
-    </div><!-- /dialog-fields -->
+    </div>
+    <!-- /dialog-fields -->
 
     <div class="dialog-footer">
       <app-button variant="secondary" type="button" [disabled]="loading()" (click)="cancel()">
@@ -282,7 +290,5 @@
         <span>{{ loading() ? 'Guardando...' : 'Guardar cambios' }}</span>
       </app-button>
     </div>
-
   </form>
-
 </div>

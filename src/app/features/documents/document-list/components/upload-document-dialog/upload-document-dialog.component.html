@@ -1,13 +1,7 @@
 <div class="dialog-container">
-
   <div class="dialog-header">
     <h2 class="dialog-title">Subir documento</h2>
-    <button
-      class="dialog-close"
-      type="button"
-      (click)="cancel()"
-      aria-label="Cerrar formulario"
-    >
+    <button class="dialog-close" type="button" (click)="cancel()" aria-label="Cerrar formulario">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -17,9 +11,7 @@
   }
 
   <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-
     <div class="dialog-fields">
-
       <!-- Archivo -->
       <div class="field">
         <label class="field__label">
@@ -47,7 +39,10 @@
               <app-document-format-icon [format]="inferFormat(selectedFile()!.name)" />
               <div class="dropzone__file-meta">
                 <span class="dropzone__file-name">{{ selectedFile()!.name }}</span>
-                <span class="dropzone__file-size">{{ inferFormat(selectedFile()!.name) }} · {{ formatSize(selectedFile()!.size) }}</span>
+                <span class="dropzone__file-size"
+                  >{{ inferFormat(selectedFile()!.name) }} ·
+                  {{ formatSize(selectedFile()!.size) }}</span
+                >
               </div>
               <div class="dropzone__file-actions">
                 <button
@@ -73,8 +68,12 @@
             <div class="dropzone__icon-circle dropzone__icon-circle--error">
               <mat-icon aria-hidden="true">error</mat-icon>
             </div>
-            <div class="dropzone__prompt">Arrastre el archivo aquí o <span class="dropzone__link">seleccione del equipo</span></div>
-            <div class="dropzone__subtitle">PDF, DOCX, XLSX, JPG o PNG. Máximo 10 MB por archivo.</div>
+            <div class="dropzone__prompt">
+              Arrastre el archivo aquí o <span class="dropzone__link">seleccione del equipo</span>
+            </div>
+            <div class="dropzone__subtitle">
+              PDF, DOCX, XLSX, JPG o PNG. Máximo 10 MB por archivo.
+            </div>
             <div class="dropzone__error-text">
               <mat-icon aria-hidden="true">error</mat-icon>
               {{ fileError() }}
@@ -83,8 +82,12 @@
             <div class="dropzone__icon-circle">
               <mat-icon aria-hidden="true">cloud_upload</mat-icon>
             </div>
-            <div class="dropzone__prompt">Arrastre el archivo aquí o <span class="dropzone__link">seleccione del equipo</span></div>
-            <div class="dropzone__subtitle">PDF, DOCX, XLSX, JPG o PNG. Máximo 10 MB por archivo.</div>
+            <div class="dropzone__prompt">
+              Arrastre el archivo aquí o <span class="dropzone__link">seleccione del equipo</span>
+            </div>
+            <div class="dropzone__subtitle">
+              PDF, DOCX, XLSX, JPG o PNG. Máximo 10 MB por archivo.
+            </div>
           }
         </div>
 
@@ -98,7 +101,9 @@
         />
 
         @if (!fileError()) {
-          <small class="field__hint">El sistema valida el tipo real del archivo, no solo la extensión.</small>
+          <small class="field__hint"
+            >El sistema valida el tipo real del archivo, no solo la extensión.</small
+          >
         }
       </div>
 
@@ -113,7 +118,8 @@
             class="field__counter"
             [class.field__counter--over]="titleLen() > 255"
             aria-hidden="true"
-          >{{ titleLen() }}/255</span>
+            >{{ titleLen() }}/255</span
+          >
         </div>
         <div
           class="field__control"
@@ -129,7 +135,9 @@
             placeholder="Ej. Acta Consejo Directivo Marzo 2026"
             (input)="onTitleInput()"
             [attr.aria-required]="true"
-            [attr.aria-invalid]="form.controls.title.invalid && form.controls.title.touched || null"
+            [attr.aria-invalid]="
+              (form.controls.title.invalid && form.controls.title.touched) || null
+            "
             aria-describedby="title-error title-hint"
           />
         </div>
@@ -139,13 +147,14 @@
             {{ msg }}
           </p>
         } @else {
-          <small class="field__hint" id="title-hint">Use un título descriptivo. Si lo deja en blanco se usará el nombre del archivo.</small>
+          <small class="field__hint" id="title-hint"
+            >Use un título descriptivo. Si lo deja en blanco se usará el nombre del archivo.</small
+          >
         }
       </div>
 
       <!-- Categoría y Área (fila de dos columnas) -->
       <div class="field-row">
-
         <!-- Categoría -->
         <div class="field">
           <label class="field__label" id="category-label">
@@ -158,7 +167,9 @@
               formControlName="categoryId"
               aria-labelledby="category-label"
               aria-describedby="category-error category-hint"
-              [placeholder]="categoriesLoading() ? 'Cargando categorías...' : 'Seleccione una categoría'"
+              [placeholder]="
+                categoriesLoading() ? 'Cargando categorías...' : 'Seleccione una categoría'
+              "
             >
               @for (cat of categories(); track cat.id) {
                 <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
@@ -182,7 +193,9 @@
               {{ msg }}
             </p>
           } @else if (!categoriesLoadError()) {
-            <small class="field__hint" id="category-hint">Solo aparecen las categorías activas.</small>
+            <small class="field__hint" id="category-hint"
+              >Solo aparecen las categorías activas.</small
+            >
           }
         </div>
 
@@ -212,7 +225,6 @@
             </p>
           }
         </div>
-
       </div>
 
       <!-- Fecha del documento -->
@@ -223,7 +235,9 @@
         </label>
         <div
           class="field__control"
-          [class.field__control--error]="form.controls.documentDate.invalid && form.controls.documentDate.touched"
+          [class.field__control--error]="
+            form.controls.documentDate.invalid && form.controls.documentDate.touched
+          "
         >
           <input
             class="field__input field__input--with-toggle field__input--datepicker"
@@ -235,7 +249,9 @@
             readonly
             (click)="picker.open()"
             [attr.aria-required]="true"
-            [attr.aria-invalid]="form.controls.documentDate.invalid && form.controls.documentDate.touched || null"
+            [attr.aria-invalid]="
+              (form.controls.documentDate.invalid && form.controls.documentDate.touched) || null
+            "
             aria-describedby="date-error date-hint"
           />
           <button
@@ -255,7 +271,9 @@
             {{ msg }}
           </p>
         } @else {
-          <small class="field__hint" id="date-hint">Fecha real del documento original, no la fecha de carga.</small>
+          <small class="field__hint" id="date-hint"
+            >Fecha real del documento original, no la fecha de carga.</small
+          >
         }
       </div>
 
@@ -315,11 +333,14 @@
             class="field__counter"
             [class.field__counter--over]="descLen() > 500"
             aria-hidden="true"
-          >{{ descLen() }}/500</span>
+            >{{ descLen() }}/500</span
+          >
         </div>
         <div
           class="field__control"
-          [class.field__control--error]="form.controls.description.invalid && form.controls.description.touched"
+          [class.field__control--error]="
+            form.controls.description.invalid && form.controls.description.touched
+          "
         >
           <textarea
             class="field__textarea"
@@ -329,7 +350,9 @@
             maxlength="500"
             autocomplete="off"
             placeholder="Información adicional sobre el contenido del documento (opcional)."
-            [attr.aria-invalid]="form.controls.description.invalid && form.controls.description.touched || null"
+            [attr.aria-invalid]="
+              (form.controls.description.invalid && form.controls.description.touched) || null
+            "
             aria-describedby="desc-error"
           ></textarea>
         </div>
@@ -340,8 +363,8 @@
           </p>
         }
       </div>
-
-    </div><!-- /dialog-fields -->
+    </div>
+    <!-- /dialog-fields -->
 
     <div class="dialog-footer">
       <app-button variant="secondary" type="button" [disabled]="loading()" (click)="cancel()">
@@ -352,7 +375,5 @@
         <span>{{ loading() ? 'Cargando...' : 'Cargar documento' }}</span>
       </app-button>
     </div>
-
   </form>
-
 </div>

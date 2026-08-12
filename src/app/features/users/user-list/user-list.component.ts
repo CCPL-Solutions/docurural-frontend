@@ -76,17 +76,14 @@ export class UserListComponent {
 
   protected readonly sortOptions = SORT_OPTIONS;
 
-  protected readonly currentSortLabel = computed(
-    () => this.currentSortConfig().label,
-  );
+  protected readonly currentSortLabel = computed(() => this.currentSortConfig().label);
 
   protected readonly filteredUsers = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     const all = this.users();
     if (!term) return all;
     return all.filter(
-      (u) =>
-        u.fullName.toLowerCase().includes(term) || u.email.toLowerCase().includes(term),
+      (u) => u.fullName.toLowerCase().includes(term) || u.email.toLowerCase().includes(term),
     );
   });
 
@@ -168,7 +165,12 @@ export class UserListComponent {
   protected goToEdit(user: User): void {
     const ref = this.dialog.open<UserFormDialogComponent, UserFormDialogData, UserFormDialogResult>(
       UserFormDialogComponent,
-      { data: { mode: 'edit', user }, width: '480px', maxWidth: '95vw', autoFocus: 'first-tabbable' },
+      {
+        data: { mode: 'edit', user },
+        width: '480px',
+        maxWidth: '95vw',
+        autoFocus: 'first-tabbable',
+      },
     );
     ref.afterClosed().subscribe((result) => {
       if (result?.kind === 'updated') this.loadUsers();

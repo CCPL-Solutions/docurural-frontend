@@ -28,8 +28,8 @@ import {
   styleUrl: './sensitivity-badge.component.scss',
 })
 export class SensitivityBadgeComponent {
-  readonly level    = input.required<SensitivityLevel>();
-  readonly size     = input<'sm' | 'md'>('md');
+  readonly level = input.required<SensitivityLevel>();
+  readonly size = input<'sm' | 'md'>('md');
   readonly withIcon = input(true);
 
   protected readonly label = computed(() =>

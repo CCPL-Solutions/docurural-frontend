@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  forwardRef,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,28 +18,28 @@ import {
   imports: [MatFormFieldModule, MatSelectModule, MatIconModule],
   providers: [
     {
-      provide:     NG_VALUE_ACCESSOR,
+      provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => SensitivityMobileFieldComponent),
-      multi:       true,
+      multi: true,
     },
   ],
   templateUrl: './sensitivity-mobile-field.component.html',
-  styleUrl:    './sensitivity-mobile-field.component.scss',
+  styleUrl: './sensitivity-mobile-field.component.scss',
 })
 export class SensitivityMobileFieldComponent implements ControlValueAccessor {
-  readonly minLevel   = input<SensitivityLevel>('INTERNAL');
+  readonly minLevel = input<SensitivityLevel>('INTERNAL');
   readonly editorRole = input(false);
-  readonly locked     = input(false);
+  readonly locked = input(false);
 
-  protected readonly _value         = signal<SensitivityLevel>('INTERNAL');
+  protected readonly _value = signal<SensitivityLevel>('INTERNAL');
   protected readonly isFormDisabled = signal(false);
 
   protected readonly levels = SENSITIVITY_LEVELS;
   protected readonly labels = SENSITIVITY_LABELS;
-  protected readonly icons  = SENSITIVITY_ICONS;
+  protected readonly icons = SENSITIVITY_ICONS;
 
   private onChange: (value: SensitivityLevel) => void = () => {};
-  private onTouched: () => void                       = () => {};
+  private onTouched: () => void = () => {};
 
   protected isOptionDisabled(level: SensitivityLevel): boolean {
     if (compareSensitivity(level, this.minLevel()) < 0) return true;

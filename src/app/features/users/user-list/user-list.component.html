@@ -1,5 +1,9 @@
 <!-- Cabecera de página -->
-<app-page-header kicker="Administración" title="Usuarios" subtitle="Gestione las cuentas del personal de la institución.">
+<app-page-header
+  kicker="Administración"
+  title="Usuarios"
+  subtitle="Gestione las cuentas del personal de la institución."
+>
   <app-button actions variant="primary" class="header-action" (click)="goToCreate()">
     <mat-icon>add</mat-icon>
     <span>Nuevo usuario</span>
@@ -43,14 +47,21 @@
 @if (loading()) {
   <app-empty-state variant="loading">Cargando usuarios…</app-empty-state>
 } @else if (totalUsers() === 0) {
-  <app-empty-state variant="empty" icon="group" title="No hay usuarios registrados en el sistema" description="Cree el primer usuario para que el personal de la institución pueda acceder a DocuRural.">
+  <app-empty-state
+    variant="empty"
+    icon="group"
+    title="No hay usuarios registrados en el sistema"
+    description="Cree el primer usuario para que el personal de la institución pueda acceder a DocuRural."
+  >
     <app-button actions variant="primary" (click)="goToCreate()">
       <mat-icon>add</mat-icon>
       <span>Nuevo usuario</span>
     </app-button>
   </app-empty-state>
 } @else if (filteredUsers().length === 0) {
-  <app-empty-state variant="no-results" icon="search_off">No se encontraron usuarios que coincidan con la búsqueda.</app-empty-state>
+  <app-empty-state variant="no-results" icon="search_off"
+    >No se encontraron usuarios que coincidan con la búsqueda.</app-empty-state
+  >
 } @else {
   <!-- Tabla (≥ 768px) -->
   <div class="users-table desktop-only">

@@ -37,10 +37,10 @@ interface SortOptionConfig {
 }
 
 const SORT_OPTIONS: SortOptionConfig[] = [
-  { value: 'nameAsc',      label: 'Nombre A–Z',   sortBy: 'name',      sortDir: 'asc'  },
-  { value: 'nameDesc',     label: 'Nombre Z–A',   sortBy: 'name',      sortDir: 'desc' },
+  { value: 'nameAsc', label: 'Nombre A–Z', sortBy: 'name', sortDir: 'asc' },
+  { value: 'nameDesc', label: 'Nombre Z–A', sortBy: 'name', sortDir: 'desc' },
   { value: 'createdAtDesc', label: 'Más recientes', sortBy: 'createdAt', sortDir: 'desc' },
-  { value: 'createdAtAsc',  label: 'Más antiguos',  sortBy: 'createdAt', sortDir: 'asc'  },
+  { value: 'createdAtAsc', label: 'Más antiguos', sortBy: 'createdAt', sortDir: 'asc' },
 ];
 
 @Component({
@@ -65,23 +65,23 @@ const SORT_OPTIONS: SortOptionConfig[] = [
 })
 export class CategoryListComponent {
   private readonly categoriesService = inject(CategoriesService);
-  private readonly notifications     = inject(NotificationService);
-  private readonly dialog            = inject(MatDialog);
+  private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
-  protected readonly loading            = signal(false);
-  protected readonly categories         = signal<Category[]>([]);
-  protected readonly totalCategories    = signal(0);
-  protected readonly activeCategories   = signal(0);
+  protected readonly loading = signal(false);
+  protected readonly categories = signal<Category[]>([]);
+  protected readonly totalCategories = signal(0);
+  protected readonly activeCategories = signal(0);
   protected readonly inactiveCategories = signal(0);
-  protected readonly selectedSort       = signal<SortOption>('nameAsc');
+  protected readonly selectedSort = signal<SortOption>('nameAsc');
 
-  protected readonly sortOptions      = SORT_OPTIONS;
+  protected readonly sortOptions = SORT_OPTIONS;
   protected readonly currentSortLabel = computed(() => this.currentSortConfig().label);
 
   private readonly dateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day:   '2-digit',
+    day: '2-digit',
     month: '2-digit',
-    year:  'numeric',
+    year: 'numeric',
   });
 
   constructor() {

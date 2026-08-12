@@ -14,7 +14,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { DocumentsService } from '../../core/services/documents.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { DashboardStatsResponse, RecentDocumentItem } from '../../core/models/dashboard-stats.model';
+import {
+  DashboardStatsResponse,
+  RecentDocumentItem,
+} from '../../core/models/dashboard-stats.model';
 import { ApiError } from '../../core/models/api-error.model';
 import { getQuickActionsForRole } from './utils/quick-action.model';
 import {
@@ -55,26 +58,26 @@ import { QuickActionsComponent } from './components/quick-actions/quick-actions.
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
-  private readonly auth          = inject(AuthService);
-  private readonly dashboardSvc  = inject(DashboardService);
-  private readonly documentsSvc  = inject(DocumentsService);
+  private readonly auth = inject(AuthService);
+  private readonly dashboardSvc = inject(DashboardService);
+  private readonly documentsSvc = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
-  private readonly router        = inject(Router);
-  private readonly dialog        = inject(MatDialog);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   protected readonly loading = signal(true);
-  protected readonly error   = signal<string | null>(null);
-  protected readonly stats   = signal<DashboardStatsResponse | null>(null);
+  protected readonly error = signal<string | null>(null);
+  protected readonly stats = signal<DashboardStatsResponse | null>(null);
 
-  protected readonly role         = computed(() => this.auth.currentUser()?.role ?? 'READER');
-  protected readonly firstName    = computed(() =>
-    this.auth.currentUser()?.fullName?.split(' ')[0] ?? '',
+  protected readonly role = computed(() => this.auth.currentUser()?.role ?? 'READER');
+  protected readonly firstName = computed(
+    () => this.auth.currentUser()?.fullName?.split(' ')[0] ?? '',
   );
-  protected readonly canUpload    = computed(() =>
-    this.role() === 'ADMIN' || this.role() === 'EDITOR',
+  protected readonly canUpload = computed(
+    () => this.role() === 'ADMIN' || this.role() === 'EDITOR',
   );
   protected readonly quickActions = computed(() => getQuickActionsForRole(this.role()));
-  protected readonly isEmptyRepo  = computed(
+  protected readonly isEmptyRepo = computed(
     () => (this.stats()?.summary.totalActiveDocuments ?? 0) === 0,
   );
   protected readonly currentMonthLabel = new Intl.DateTimeFormat('es-CO', {

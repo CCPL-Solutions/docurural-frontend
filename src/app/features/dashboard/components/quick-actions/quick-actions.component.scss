@@ -58,8 +58,9 @@
   cursor: pointer;
   text-decoration: none;
   color: inherit;
-  transition: border-color var(--duration-fast) var(--easing-standard),
-              box-shadow var(--duration-fast) var(--easing-standard);
+  transition:
+    border-color var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard);
 
   &:hover {
     border-color: var(--color-border-strong);
@@ -146,8 +147,8 @@
 }
 
 .qa-btn--info .qa-btn__icon-wrap {
-  background: #E5F1F7;
-  color: #1A5570;
+  background: #e5f1f7;
+  color: #1a5570;
 }
 
 .qa-btn--warning .qa-btn__icon-wrap {
@@ -156,6 +157,6 @@
 }
 
 .qa-btn--purple .qa-btn__icon-wrap {
-  background: #F3EAF8;
-  color: #5B2779;
+  background: #f3eaf8;
+  color: #5b2779;
 }

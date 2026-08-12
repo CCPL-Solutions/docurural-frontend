@@ -1,19 +1,12 @@
 <!-- Cabecera de página -->
-<app-page-header
-  kicker="Documentos"
-  [title]="metadata()?.title ?? 'Cargando documento…'"
->
+<app-page-header kicker="Documentos" [title]="metadata()?.title ?? 'Cargando documento…'">
   <div actions class="header-actions">
     <app-button class="header-actions-buttons" variant="secondary" (click)="onBack()">
       <span>Volver</span>
     </app-button>
     @if (metadata() && !loadingBlob()) {
       @if (canEdit()) {
-        <app-button
-          class="header-actions-buttons"
-          variant="secondary"
-          (click)="onEdit()"
-        >
+        <app-button class="header-actions-buttons" variant="secondary" (click)="onEdit()">
           <mat-icon>edit</mat-icon>
           <span>Editar metadatos</span>
         </app-button>
@@ -35,7 +28,7 @@
 @if (loadingMetadata()) {
   <app-empty-state variant="loading">Cargando documento…</app-empty-state>
 
-<!-- Estado: documento no encontrado -->
+  <!-- Estado: documento no encontrado -->
 } @else if (errorKind() === 'not-found') {
   <app-empty-state
     variant="empty"
@@ -50,7 +43,7 @@
     </div>
   </app-empty-state>
 
-<!-- Estado: error de red al cargar metadatos -->
+  <!-- Estado: error de red al cargar metadatos -->
 } @else if (errorKind() === 'network' && !metadata()) {
   <app-empty-state
     variant="empty"
@@ -59,16 +52,13 @@
     description="Verifique su conexión e intente nuevamente."
   />
 
-<!-- Vista principal: metadatos cargados -->
+  <!-- Vista principal: metadatos cargados -->
 } @else if (metadata()) {
   <section class="doc-detail">
-
     <!-- Área del visor -->
     <div class="doc-detail__viewer">
-
       @if (loadingBlob()) {
         <app-empty-state variant="loading">Cargando archivo…</app-empty-state>
-
       } @else if (errorKind() === 'file-missing') {
         <app-empty-state
           variant="empty"
@@ -76,7 +66,6 @@
           title="Archivo no disponible"
           description="El archivo no está disponible. Contacte al administrador."
         />
-
       } @else if (metadata()!.fileFormat === 'PDF') {
         @if (safeUrl()) {
           <iframe
@@ -85,7 +74,6 @@
             title="Visor de documento PDF"
           ></iframe>
         }
-
       } @else if (metadata()!.fileFormat === 'JPG' || metadata()!.fileFormat === 'PNG') {
         @if (objectUrl()) {
           <div class="doc-detail__image-wrapper">
@@ -125,14 +113,17 @@
             </div>
           </div>
         }
-
       } @else {
         <!-- DOCX / XLSX: sin preview -->
         <app-empty-state
           variant="empty"
           icon="description"
           title="Vista previa no disponible"
-          [description]="'Los archivos ' + formatLabel() + ' se pueden descargar pero no se previsualizan en el navegador.'"
+          [description]="
+            'Los archivos ' +
+            formatLabel() +
+            ' se pueden descargar pero no se previsualizan en el navegador.'
+          "
         >
           <div actions>
             <app-button variant="primary" [loading]="downloading()" (click)="onDownload()">
@@ -206,6 +197,5 @@
         </div>
       </dl>
     </aside>
-
   </section>
 }

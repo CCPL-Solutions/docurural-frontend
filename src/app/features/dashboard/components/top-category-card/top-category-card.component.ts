@@ -12,7 +12,7 @@ import { TopCategory } from '../../../../core/models/dashboard-stats.model';
 })
 export class TopCategoryCardComponent {
   readonly category = input<TopCategory | null>(null);
-  readonly total    = input.required<number>();
+  readonly total = input.required<number>();
 
   protected readonly percentage = computed(() => {
     const cat = this.category();

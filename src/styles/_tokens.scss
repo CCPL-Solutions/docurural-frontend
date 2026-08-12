@@ -5,100 +5,102 @@
 // ─────────────────────────────────────────────────────────────────────────────
 :root {
   // ── Color · Marca (azul institucional) ────────────────────────────────────
-  --color-primary:        #2E6DA4;
-  --color-primary-dark:   #1E4F7A;
-  --color-primary-light:  #EBF3FB;
-  --color-primary-border: #C8DDF1;
+  --color-primary: #2e6da4;
+  --color-primary-dark: #1e4f7a;
+  --color-primary-light: #ebf3fb;
+  --color-primary-border: #c8ddf1;
 
   // ── Color · Semánticos ────────────────────────────────────────────────────
-  --color-success:        #3A8A3F;
-  --color-success-light:  #E6F4E7;
-  --color-success-border: #B7DDB9;
-  --color-success-text:   #276B2B;
+  --color-success: #3a8a3f;
+  --color-success-light: #e6f4e7;
+  --color-success-border: #b7ddb9;
+  --color-success-text: #276b2b;
 
-  --color-error:          #C0392B;
-  --color-error-light:    #FBEAE7;
-  --color-error-border:   #EFC4BE;
-  --color-error-text:     #8F2A20;
+  --color-error: #c0392b;
+  --color-error-light: #fbeae7;
+  --color-error-border: #efc4be;
+  --color-error-text: #8f2a20;
 
-  --color-warning:        #E8A020;
-  --color-warning-light:  #FDF3DF;
-  --color-warning-border: #F3DDA5;
-  --color-warning-text:   #8A5E10;
+  --color-warning: #e8a020;
+  --color-warning-light: #fdf3df;
+  --color-warning-border: #f3dda5;
+  --color-warning-text: #8a5e10;
 
   // ── Color · Sidebar (superficie oscura) ───────────────────────────────────
-  --color-sidebar:        #133A5E;
-  --color-sidebar-deep:   #0E2D4A;
+  --color-sidebar: #133a5e;
+  --color-sidebar-deep: #0e2d4a;
 
   // Overlays sobre superficie sidebar (orden ascendente de prominencia).
   --sidebar-overlay-1: rgba(255, 255, 255, 0.06); // hover sutil
   --sidebar-overlay-2: rgba(255, 255, 255, 0.08); // bordes / divisores
   --sidebar-overlay-3: rgba(255, 255, 255, 0.12); // estado activo / badges
-  --sidebar-fg-muted:  rgba(255, 255, 255, 0.45);
-  --sidebar-fg-soft:   rgba(255, 255, 255, 0.65);
+  --sidebar-fg-muted: rgba(255, 255, 255, 0.45);
+  --sidebar-fg-soft: rgba(255, 255, 255, 0.65);
   --sidebar-fg-strong: rgba(255, 255, 255, 0.85);
 
   // ── Color · Superficies ───────────────────────────────────────────────────
-  --color-bg-app:         #F4F6F8;
-  --color-bg-card:        #FFFFFF;
-  --color-bg-hover:       rgba(0, 0, 0, 0.04);
-  --color-bg-subtle:      #FAFBFC; // table thead, zebra strips
+  --color-bg-app: #f4f6f8;
+  --color-bg-card: #ffffff;
+  --color-bg-hover: rgba(0, 0, 0, 0.04);
+  --color-bg-subtle: #fafbfc; // table thead, zebra strips
 
   // ── Color · Bordes y divisores ────────────────────────────────────────────
-  --color-border:         #D1D9E0;
-  --color-border-strong:  #B4C0CC;
-  --color-divider:        #E5EAF0;
+  --color-border: #d1d9e0;
+  --color-border-strong: #b4c0cc;
+  --color-divider: #e5eaf0;
 
   // ── Color · Texto ─────────────────────────────────────────────────────────
-  --color-text-primary:   #1A1A2E;
-  --color-text-secondary: #6B7A8D;
-  --color-text-muted:     #9AA8B8;
-  --color-text-inverse:   #FFFFFF;
-  --color-text-on-dark:   #FFFFFF; // alias explícito para superficies oscuras
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #6b7a8d;
+  --color-text-muted: #9aa8b8;
+  --color-text-inverse: #ffffff;
+  --color-text-on-dark: #ffffff; // alias explícito para superficies oscuras
 
   // ── Color · Info (feedback informativo) ───────────────────────────────────
-  --color-info:           #1E6FA5;
-  --color-info-light:     #EBF4FB;
-  --color-info-border:    #AACCEC;
-  --color-info-text:      #174E76;
+  --color-info: #1e6fa5;
+  --color-info-light: #ebf4fb;
+  --color-info-border: #aaccec;
+  --color-info-text: #174e76;
 
   // ── Color · Neutral (badges de rol, estado inactivo) ─────────────────────
-  --color-neutral:        #4A5A6E;
-  --color-neutral-light:  #EEF1F4;
-  --color-neutral-border: #C8D0D9;
-  --color-neutral-text:   #4A5A6E;
-  --color-neutral-accent: #8898AB; // dot de badges inactivos / rol lector
+  --color-neutral: #4a5a6e;
+  --color-neutral-light: #eef1f4;
+  --color-neutral-border: #c8d0d9;
+  --color-neutral-text: #4a5a6e;
+  --color-neutral-accent: #8898ab; // dot de badges inactivos / rol lector
 
   // ── Color · Success dark (hover de botón success) ─────────────────────────
-  --color-success-dark: #2D6E31;
+  --color-success-dark: #2d6e31;
 
   // ── Tipografía · Familia ──────────────────────────────────────────────────
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
 
   // ── Tipografía · Escala ───────────────────────────────────────────────────
   // 16 px (--text-base) es el mínimo de cuerpo establecido en CLAUDE.md §UI.
   // No reducir el cuerpo por debajo de --text-base. Tokens más pequeños son
   // para captions, badges y etiquetas en mayúsculas.
-  --text-2xs:   11px; // labels en mayúsculas (sb-nav__section, table thead)
-  --text-xs:    12px; // captions, badges, meta
-  --text-sm:    13px; // texto pequeño, kickers, footers
-  --text-md:    14px; // cuerpo denso, celdas de tabla, items de nav
+  --text-2xs: 11px; // labels en mayúsculas (sb-nav__section, table thead)
+  --text-xs: 12px; // captions, badges, meta
+  --text-sm: 13px; // texto pequeño, kickers, footers
+  --text-md: 14px; // cuerpo denso, celdas de tabla, items de nav
   --text-md-15: 15px; // tamaño intermedio (nav items, sidebar secundario)
-  --text-base:  16px; // ⭐ cuerpo por defecto, inputs, botones
-  --text-lg:    18px; // h3, título de diálogo
-  --text-xl:    20px; // h2, título de diálogo grande
-  --text-2xl:   24px; // h1 móvil
-  --text-3xl:   28px; // h1 desktop (page hero)
+  --text-base: 16px; // ⭐ cuerpo por defecto, inputs, botones
+  --text-lg: 18px; // h3, título de diálogo
+  --text-xl: 20px; // h2, título de diálogo grande
+  --text-2xl: 24px; // h1 móvil
+  --text-3xl: 28px; // h1 desktop (page hero)
 
   // ── Tipografía · Line-heights ─────────────────────────────────────────────
-  --lh-tight:   1.3;
-  --lh-snug:    1.4;
-  --lh-normal:  1.5;
+  --lh-tight: 1.3;
+  --lh-snug: 1.4;
+  --lh-normal: 1.5;
   --lh-relaxed: 1.6;
 
   // ── Tipografía · Letter-spacings ──────────────────────────────────────────
   --ls-tight: -0.02em;
-  --ls-caps:   0.06em;
+  --ls-caps: 0.06em;
 
   // ── Espaciado · Escala (múltiplos de 4) ──────────────────────────────────
   --space-1: 4px;
@@ -112,22 +114,22 @@
   --space-9: 48px;
 
   // ── Border radius ─────────────────────────────────────────────────────────
-  --radius-sm:   6px;     // toggles, icon buttons, badges pequeños
-  --radius-md:   8px;     // botones, inputs, banners
-  --radius-lg:   12px;    // cards, dialogs, contenedores
-  --radius-pill: 9999px;  // badges con dot, chips redondeados
-  --radius-full: 9999px;  // alias explícito de pill (chips de estado)
+  --radius-sm: 6px; // toggles, icon buttons, badges pequeños
+  --radius-md: 8px; // botones, inputs, banners
+  --radius-lg: 12px; // cards, dialogs, contenedores
+  --radius-pill: 9999px; // badges con dot, chips redondeados
+  --radius-full: 9999px; // alias explícito de pill (chips de estado)
 
   // ── Sombras ──────────────────────────────────────────────────────────────
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);
 
   // ── Focus rings ──────────────────────────────────────────────────────────
-  --focus-ring:         0 0 0 3px rgba(46, 109, 164, 0.30); // primary (default)
-  --focus-ring-error:   0 0 0 3px rgba(192, 57, 43, 0.20);  // sobre campo en error
-  --focus-ring-on-dark: 0 0 0 2px rgba(255, 255, 255, 0.50); // sobre sidebar
+  --focus-ring: 0 0 0 3px rgba(46, 109, 164, 0.3); // primary (default)
+  --focus-ring-error: 0 0 0 3px rgba(192, 57, 43, 0.2); // sobre campo en error
+  --focus-ring-on-dark: 0 0 0 2px rgba(255, 255, 255, 0.5); // sobre sidebar
 
   // ── Movimiento ───────────────────────────────────────────────────────────
-  --duration-fast:    150ms;
-  --duration-medium:  200ms; // transiciones de panel (sidebar slide)
-  --easing-standard:  cubic-bezier(0.2, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-medium: 200ms; // transiciones de panel (sidebar slide)
+  --easing-standard: cubic-bezier(0.2, 0, 0.2, 1);
 }

@@ -61,7 +61,7 @@ export const ALL_QUICK_ACTIONS: Record<QuickActionId, QuickAction> = {
 };
 
 export const ROLE_ACTION_IDS: Record<Role, QuickActionId[]> = {
-  ADMIN:  ['upload', 'search', 'list', 'users', 'categories'],
+  ADMIN: ['upload', 'search', 'list', 'users', 'categories'],
   EDITOR: ['upload', 'search', 'list'],
   READER: ['search', 'list'],
 };

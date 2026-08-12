@@ -27,10 +27,14 @@ export class AlertComponent {
 
   protected readonly iconName = computed(() => {
     switch (this.variant()) {
-      case 'error':   return 'error';
-      case 'warning': return 'warning';
-      case 'success': return 'check_circle';
-      case 'info':    return 'info';
+      case 'error':
+        return 'error';
+      case 'warning':
+        return 'warning';
+      case 'success':
+        return 'check_circle';
+      case 'info':
+        return 'info';
     }
   });
 }

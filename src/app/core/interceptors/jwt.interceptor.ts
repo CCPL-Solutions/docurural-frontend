@@ -12,9 +12,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   if (isLogin) return next(req);
 
   const token = auth.token();
-  const authReq = token
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-    : req;
+  const authReq = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
 
   return next(authReq).pipe(
     catchError((err: HttpErrorResponse) => {

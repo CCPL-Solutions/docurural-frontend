@@ -3,7 +3,7 @@ import { STATUS_LABELS, UserStatus } from '../../../../core/models/user-status.m
 import { BadgeComponent, BadgeVariant } from '../../../../shared/components/badge/badge.component';
 
 const STATUS_VARIANT: Record<UserStatus, BadgeVariant> = {
-  ACTIVE:   'success',
+  ACTIVE: 'success',
   INACTIVE: 'neutral',
 };
 
@@ -12,13 +12,11 @@ const STATUS_VARIANT: Record<UserStatus, BadgeVariant> = {
   standalone: true,
   imports: [BadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <app-badge [variant]="variant()" [dot]="true">{{ label() }}</app-badge>
-  `,
+  template: ` <app-badge [variant]="variant()" [dot]="true">{{ label() }}</app-badge> `,
 })
 export class StatusBadgeComponent {
   readonly status = input.required<UserStatus>();
 
-  protected readonly label   = computed(() => STATUS_LABELS[this.status()]);
+  protected readonly label = computed(() => STATUS_LABELS[this.status()]);
   protected readonly variant = computed(() => STATUS_VARIANT[this.status()]);
 }

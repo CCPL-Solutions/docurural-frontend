@@ -13,10 +13,10 @@ export type KpiAccent = 'primary' | 'success' | 'warning';
   styleUrl: './kpi-card.component.scss',
 })
 export class KpiCardComponent {
-  readonly icon   = input.required<string>();
-  readonly label  = input.required<string>();
-  readonly value  = input.required<string | number>();
-  readonly hint   = input('');
+  readonly icon = input.required<string>();
+  readonly label = input.required<string>();
+  readonly value = input.required<string | number>();
+  readonly hint = input('');
   readonly accent = input<KpiAccent>('primary');
 
   protected readonly accentClass = computed(() => `kpi-card--${this.accent()}`);

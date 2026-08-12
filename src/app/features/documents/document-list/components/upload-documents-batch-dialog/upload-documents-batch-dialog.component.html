@@ -1,5 +1,4 @@
 <div class="dialog-container">
-
   <div class="dialog-header">
     <h2 class="dialog-title">Carga múltiple de documentos</h2>
     <button
@@ -18,9 +17,7 @@
   }
 
   <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-
     <div class="dialog-fields">
-
       <!-- Zona de arrastre (visible en fase compose mientras no se alcance el límite) -->
       @if (phase() === 'compose') {
         <div class="field">
@@ -37,9 +34,13 @@
               [class.dropzone--error]="fileError() && files().length === 0"
               role="button"
               tabindex="0"
-              [attr.aria-label]="files().length === 0
-                ? 'Zona de carga. Haga clic o arrastre archivos aquí.'
-                : 'Agregar más archivos. Puede añadir ' + (maxBatchFiles - files().length) + ' más.'"
+              [attr.aria-label]="
+                files().length === 0
+                  ? 'Zona de carga. Haga clic o arrastre archivos aquí.'
+                  : 'Agregar más archivos. Puede añadir ' +
+                    (maxBatchFiles - files().length) +
+                    ' más.'
+              "
               (click)="fileInput.click()"
               (keydown.enter)="fileInput.click()"
               (keydown.space)="fileInput.click(); $event.preventDefault()"
@@ -53,7 +54,9 @@
                 </div>
               } @else {
                 <div class="dropzone__icon-circle">
-                  <mat-icon aria-hidden="true">{{ files().length === 0 ? 'cloud_upload' : 'add' }}</mat-icon>
+                  <mat-icon aria-hidden="true">{{
+                    files().length === 0 ? 'cloud_upload' : 'add'
+                  }}</mat-icon>
                 </div>
               }
 
@@ -62,7 +65,9 @@
                   Arrastre hasta {{ maxBatchFiles }} archivos aquí o
                   <span class="dropzone__link">seleccione del equipo</span>
                 </div>
-                <div class="dropzone__subtitle">PDF, DOCX, XLSX, JPG o PNG. Máximo 10 MB por archivo.</div>
+                <div class="dropzone__subtitle">
+                  PDF, DOCX, XLSX, JPG o PNG. Máximo 10 MB por archivo.
+                </div>
               } @else {
                 <div class="dropzone__prompt">
                   <span class="dropzone__link">Agregar más archivos</span>
@@ -100,8 +105,11 @@
       @if (files().length > 0) {
         <ul class="file-list" aria-label="Archivos seleccionados">
           @for (file of files(); track file.id) {
-            <li class="file-row" [class.file-row--success]="file.status === 'success'" [class.file-row--error]="file.status === 'error'">
-
+            <li
+              class="file-row"
+              [class.file-row--success]="file.status === 'success'"
+              [class.file-row--error]="file.status === 'error'"
+            >
               <app-document-format-icon
                 class="file-row__icon"
                 [format]="inferFormat(file.file.name)"
@@ -123,7 +131,9 @@
                 } @else {
                   <span class="file-row__title-text">{{ file.title }}</span>
                 }
-                <span class="file-row__meta">{{ file.file.name }} · {{ formatSize(file.file.size) }}</span>
+                <span class="file-row__meta"
+                  >{{ file.file.name }} · {{ formatSize(file.file.size) }}</span
+                >
 
                 @if (phase() === 'uploading') {
                   <mat-progress-bar
@@ -181,7 +191,6 @@
                   <mat-icon aria-hidden="true">delete</mat-icon>
                 </button>
               }
-
             </li>
           }
         </ul>
@@ -198,17 +207,23 @@
           aria-live="polite"
         >
           @if (summary().failed === 0) {
-            <mat-icon class="summary-card__icon summary-card__icon--success" aria-hidden="true">check_circle</mat-icon>
+            <mat-icon class="summary-card__icon summary-card__icon--success" aria-hidden="true"
+              >check_circle</mat-icon
+            >
             <p class="summary-card__text">
               {{ summary().success }} de {{ summary().total }} archivos cargados correctamente.
             </p>
           } @else if (summary().success === 0) {
-            <mat-icon class="summary-card__icon summary-card__icon--error" aria-hidden="true">cancel</mat-icon>
+            <mat-icon class="summary-card__icon summary-card__icon--error" aria-hidden="true"
+              >cancel</mat-icon
+            >
             <p class="summary-card__text">
               Ningún archivo se cargó correctamente. Revise los errores e intente nuevamente.
             </p>
           } @else {
-            <mat-icon class="summary-card__icon summary-card__icon--warning" aria-hidden="true">warning</mat-icon>
+            <mat-icon class="summary-card__icon summary-card__icon--warning" aria-hidden="true"
+              >warning</mat-icon
+            >
             <p class="summary-card__text">
               {{ summary().success }} de {{ summary().total }} archivos cargados.
               {{ summary().failed }} {{ summary().failed === 1 ? 'falló' : 'fallaron' }}.
@@ -222,13 +237,12 @@
         <div class="metadata-info" role="note">
           <mat-icon aria-hidden="true">info</mat-icon>
           <p>
-            Los metadatos comunes (<strong>categoría</strong> y <strong>área</strong>) se aplican a todos los archivos del lote.
-            Cada archivo conserva su propio título, editable arriba.
+            Los metadatos comunes (<strong>categoría</strong> y <strong>área</strong>) se aplican a
+            todos los archivos del lote. Cada archivo conserva su propio título, editable arriba.
           </p>
         </div>
 
         <div class="field-row">
-
           <!-- Categoría -->
           <div class="field">
             <label class="field__label" id="batch-category-label">
@@ -241,7 +255,9 @@
                 formControlName="categoryId"
                 aria-labelledby="batch-category-label"
                 aria-describedby="batch-category-error batch-category-hint"
-                [placeholder]="categoriesLoading() ? 'Cargando categorías...' : 'Seleccione una categoría'"
+                [placeholder]="
+                  categoriesLoading() ? 'Cargando categorías...' : 'Seleccione una categoría'
+                "
               >
                 @for (cat of categories(); track cat.id) {
                   <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
@@ -293,7 +309,6 @@
               </p>
             }
           </div>
-
         </div>
 
         <!-- Nivel de sensibilidad (aplica a todo el lote) -->
@@ -336,8 +351,8 @@
           </div>
         </div>
       }
-
-    </div><!-- /dialog-fields -->
+    </div>
+    <!-- /dialog-fields -->
 
     <div class="dialog-footer">
       @if (phase() === 'compose') {
@@ -363,7 +378,5 @@
         </app-button>
       }
     </div>
-
   </form>
-
 </div>

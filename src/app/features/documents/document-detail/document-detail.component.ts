@@ -17,7 +17,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/services/auth.service';
 import { DocumentsService } from '../../../core/services/documents.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { DocumentDetailResponse, isPreviewableFormat } from '../../../core/models/document-detail.model';
+import {
+  DocumentDetailResponse,
+  isPreviewableFormat,
+} from '../../../core/models/document-detail.model';
 import { DOCUMENT_FORMAT_LABELS } from '../../../core/models/document-format.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { formatFileSize } from '../document-list/utils/file-size';
@@ -62,25 +65,25 @@ type ErrorKind = 'not-found' | 'file-missing' | 'network';
   styleUrl: './document-detail.component.scss',
 })
 export class DocumentDetailComponent implements OnDestroy {
-  private readonly route         = inject(ActivatedRoute);
-  private readonly router        = inject(Router);
-  private readonly sanitizer     = inject(DomSanitizer);
-  private readonly docService    = inject(DocumentsService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly docService = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
-  private readonly auth          = inject(AuthService);
-  private readonly dialog        = inject(MatDialog);
+  private readonly auth = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
 
   private docId = NaN;
 
   protected readonly imageContainer = viewChild<ElementRef<HTMLElement>>('imageContainer');
 
   protected readonly loadingMetadata = signal(true);
-  protected readonly loadingBlob     = signal(false);
-  protected readonly downloading     = signal(false);
-  protected readonly metadata        = signal<DocumentDetailResponse | null>(null);
-  protected readonly objectUrl       = signal<string | null>(null);
-  protected readonly errorKind       = signal<ErrorKind | null>(null);
-  protected readonly zoomLevel       = signal(1);
+  protected readonly loadingBlob = signal(false);
+  protected readonly downloading = signal(false);
+  protected readonly metadata = signal<DocumentDetailResponse | null>(null);
+  protected readonly objectUrl = signal<string | null>(null);
+  protected readonly errorKind = signal<ErrorKind | null>(null);
+  protected readonly zoomLevel = signal(1);
 
   protected readonly safeUrl = computed(() => {
     const url = this.objectUrl();
@@ -108,24 +111,32 @@ export class DocumentDetailComponent implements OnDestroy {
       .split(' ')
       .filter(Boolean)
       .slice(0, 2)
-      .map(p => p[0].toUpperCase())
+      .map((p) => p[0].toUpperCase())
       .join('');
   }
 
   private readonly docDateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
   private readonly loadedAtFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
   constructor() {
     const raw = this.route.snapshot.paramMap.get('id');
-    const id  = raw ? parseInt(raw, 10) : NaN;
+    const id = raw ? parseInt(raw, 10) : NaN;
 
     if (Number.isNaN(id)) {
-      this.notifications.error('Documento inválido', 'El identificador del documento no es válido.');
+      this.notifications.error(
+        'Documento inválido',
+        'El identificador del documento no es válido.',
+      );
       this.router.navigate(['/documents']);
       return;
     }

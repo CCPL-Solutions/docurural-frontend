@@ -19,10 +19,11 @@ import {
 export class CategoriesService {
   private readonly http = inject(HttpClient);
 
-  list(sortBy: CategorySortBy = 'name', sortDir: CategorySortDir = 'asc'): Observable<CategoryListResponse> {
-    const params = new HttpParams()
-      .set('sortBy', sortBy)
-      .set('sortDir', sortDir);
+  list(
+    sortBy: CategorySortBy = 'name',
+    sortDir: CategorySortDir = 'asc',
+  ): Observable<CategoryListResponse> {
+    const params = new HttpParams().set('sortBy', sortBy).set('sortDir', sortDir);
     return this.http.get<CategoryListResponse>(`${environment.apiBaseUrl}/categories`, { params });
   }
 

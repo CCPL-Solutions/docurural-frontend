@@ -13,7 +13,10 @@ import { finalize } from 'rxjs/operators';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { AlertComponent } from '../../../../../shared/components/alert/alert.component';
-import { ButtonComponent, ButtonVariant } from '../../../../../shared/components/button/button.component';
+import {
+  ButtonComponent,
+  ButtonVariant,
+} from '../../../../../shared/components/button/button.component';
 import { SensitivityRadioComponent } from '../../../../../shared/sensitivity/sensitivity-radio.component';
 import { CategoriesService } from '../../../../../core/services/categories.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
@@ -33,7 +36,7 @@ import {
 export type CategoryFormDialogMode = 'create' | 'edit';
 
 export interface CategoryFormDialogData {
-  mode:      CategoryFormDialogMode;
+  mode: CategoryFormDialogMode;
   category?: Category;
 }
 
@@ -45,7 +48,9 @@ export type CategoryFormDialogResult =
 function trimmedMinLength(min: number): ValidatorFn {
   return (control) => {
     const value = ((control.value as string) ?? '').trim();
-    return value.length >= min ? null : { minlength: { requiredLength: min, actualLength: value.length } };
+    return value.length >= min
+      ? null
+      : { minlength: { requiredLength: min, actualLength: value.length } };
   };
 }
 
@@ -69,24 +74,26 @@ export class CategoryFormDialogComponent implements OnInit {
   private readonly dialogRef =
     inject<MatDialogRef<CategoryFormDialogComponent, CategoryFormDialogResult>>(MatDialogRef);
 
-  private readonly fb                = inject(FormBuilder);
+  private readonly fb = inject(FormBuilder);
   private readonly categoriesService = inject(CategoriesService);
-  private readonly notifications     = inject(NotificationService);
+  private readonly notifications = inject(NotificationService);
 
-  protected readonly loading        = signal(false);
-  protected readonly submitError    = signal<string | null>(null);
+  protected readonly loading = signal(false);
+  protected readonly submitError = signal<string | null>(null);
   protected readonly confirmChecked = signal(false);
 
   private readonly previousLevel = signal<SensitivityLevel | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
-    name:                    ['', [Validators.required, trimmedMinLength(3), Validators.maxLength(100)]],
-    description:             ['', [Validators.maxLength(500)]],
+    name: ['', [Validators.required, trimmedMinLength(3), Validators.maxLength(100)]],
+    description: ['', [Validators.maxLength(500)]],
     defaultSensitivityLevel: ['INTERNAL' as SensitivityLevel, [Validators.required]],
   });
 
-  private readonly nameValue = toSignal(this.form.controls.name.valueChanges,        { initialValue: '' });
-  private readonly descValue = toSignal(this.form.controls.description.valueChanges, { initialValue: '' });
+  private readonly nameValue = toSignal(this.form.controls.name.valueChanges, { initialValue: '' });
+  private readonly descValue = toSignal(this.form.controls.description.valueChanges, {
+    initialValue: '',
+  });
   private readonly sensitivityValue = toSignal(
     this.form.controls.defaultSensitivityLevel.valueChanges,
     { initialValue: this.form.controls.defaultSensitivityLevel.value },
@@ -95,18 +102,24 @@ export class CategoryFormDialogComponent implements OnInit {
   protected readonly nameLen = computed(() => this.nameValue().length);
   protected readonly descLen = computed(() => this.descValue().length);
 
-  protected readonly isEdit       = computed(() => this.data.mode === 'edit');
-  protected readonly title        = computed(() => this.isEdit() ? 'Editar categoría' : 'Nueva categoría');
-  protected readonly loadingLabel = computed(() => this.isEdit() ? 'Actualizando...' : 'Guardando...');
+  protected readonly isEdit = computed(() => this.data.mode === 'edit');
+  protected readonly title = computed(() =>
+    this.isEdit() ? 'Editar categoría' : 'Nueva categoría',
+  );
+  protected readonly loadingLabel = computed(() =>
+    this.isEdit() ? 'Actualizando...' : 'Guardando...',
+  );
 
   protected readonly showDocumentBanner = computed(
     () => this.isEdit() && (this.data.category?.documentCount ?? 0) > 0,
   );
   protected readonly documentCount = computed(() => this.data.category?.documentCount ?? 0);
 
-  protected readonly warningKind = computed<'edit-raise' | 'edit-lower' | 'create-sensitive' | null>(() => {
+  protected readonly warningKind = computed<
+    'edit-raise' | 'edit-lower' | 'create-sensitive' | null
+  >(() => {
     const current = this.sensitivityValue() as SensitivityLevel;
-    const prev    = this.previousLevel();
+    const prev = this.previousLevel();
 
     if (this.isEdit() && prev !== null && current !== prev) {
       const cmp = compareSensitivity(current, prev);
@@ -121,8 +134,8 @@ export class CategoryFormDialogComponent implements OnInit {
     const prev = this.previousLevel();
     return prev ? SENSITIVITY_LABELS[prev] : '';
   });
-  protected readonly levelLabelTo = computed(() =>
-    SENSITIVITY_LABELS[this.sensitivityValue() as SensitivityLevel] ?? '',
+  protected readonly levelLabelTo = computed(
+    () => SENSITIVITY_LABELS[this.sensitivityValue() as SensitivityLevel] ?? '',
   );
 
   protected readonly primaryLabel = computed(() => {
@@ -145,7 +158,7 @@ export class CategoryFormDialogComponent implements OnInit {
       const { name, description, defaultSensitivityLevel } = this.data.category;
       this.form.patchValue({
         name,
-        description:             description ?? '',
+        description: description ?? '',
         defaultSensitivityLevel: defaultSensitivityLevel ?? 'INTERNAL',
       });
       this.previousLevel.set(defaultSensitivityLevel ?? 'INTERNAL');
@@ -155,10 +168,10 @@ export class CategoryFormDialogComponent implements OnInit {
   protected nameError(): string | null {
     const ctrl = this.form.controls.name;
     if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required'))                               return 'Ingrese el nombre de la categoría.';
+    if (ctrl.hasError('required')) return 'Ingrese el nombre de la categoría.';
     if (ctrl.hasError('minlength') || ctrl.hasError('maxlength'))
       return 'El nombre debe tener entre 3 y 100 caracteres.';
-    if (ctrl.hasError('backend'))                                return ctrl.getError('backend') as string;
+    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
 
@@ -166,15 +179,15 @@ export class CategoryFormDialogComponent implements OnInit {
     const ctrl = this.form.controls.description;
     if (!ctrl.touched || ctrl.valid) return null;
     if (ctrl.hasError('maxlength')) return 'La descripción no puede superar los 500 caracteres.';
-    if (ctrl.hasError('backend'))   return ctrl.getError('backend') as string;
+    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
 
   protected sensitivityError(): string | null {
     const ctrl = this.form.controls.defaultSensitivityLevel;
     if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required'))  return 'Seleccione el nivel de sensibilidad por defecto.';
-    if (ctrl.hasError('backend'))   return ctrl.getError('backend') as string;
+    if (ctrl.hasError('required')) return 'Seleccione el nivel de sensibilidad por defecto.';
+    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
     return null;
   }
 
@@ -197,42 +210,51 @@ export class CategoryFormDialogComponent implements OnInit {
     this.form.disable();
     this.dialogRef.disableClose = true;
 
-    const raw     = this.form.getRawValue();
+    const raw = this.form.getRawValue();
     const payload: CreateCategoryRequest | UpdateCategoryRequest = {
-      name:                    raw.name.trim(),
-      description:             raw.description.trim() || null,
+      name: raw.name.trim(),
+      description: raw.description.trim() || null,
       defaultSensitivityLevel: raw.defaultSensitivityLevel,
     };
 
-    const request$ = this.isEdit() && this.data.category
-      ? this.categoriesService.update(this.data.category.id, payload)
-      : this.categoriesService.create(payload);
+    const request$ =
+      this.isEdit() && this.data.category
+        ? this.categoriesService.update(this.data.category.id, payload)
+        : this.categoriesService.create(payload);
 
-    request$.pipe(
-      finalize(() => {
-        this.loading.set(false);
-        this.form.enable();
-        this.dialogRef.disableClose = false;
-      }),
-    ).subscribe({
-      next:  (res) => this.handleSuccess(res),
-      error: (err: HttpErrorResponse) => this.handleError(err),
-    });
+    request$
+      .pipe(
+        finalize(() => {
+          this.loading.set(false);
+          this.form.enable();
+          this.dialogRef.disableClose = false;
+        }),
+      )
+      .subscribe({
+        next: (res) => this.handleSuccess(res),
+        error: (err: HttpErrorResponse) => this.handleError(err),
+      });
   }
 
   private handleSuccess(res: CreateCategoryResponse | UpdateCategoryResponse): void {
     if (this.isEdit() && this.data.category) {
-      this.notifications.success('Categoría actualizada', 'Los cambios se guardaron correctamente.');
+      this.notifications.success(
+        'Categoría actualizada',
+        'Los cambios se guardaron correctamente.',
+      );
       const updated: Category = {
         ...this.data.category,
-        name:                    res.name,
-        description:             res.description,
-        status:                  res.status,
+        name: res.name,
+        description: res.description,
+        status: res.status,
         defaultSensitivityLevel: res.defaultSensitivityLevel,
       };
       this.dialogRef.close({ kind: 'updated', category: updated });
     } else {
-      this.notifications.success('Categoría creada', 'La categoría está disponible para clasificar documentos.');
+      this.notifications.success(
+        'Categoría creada',
+        'La categoría está disponible para clasificar documentos.',
+      );
       this.dialogRef.close({ kind: 'created', category: res as CreateCategoryResponse });
     }
   }
@@ -266,7 +288,9 @@ export class CategoryFormDialogComponent implements OnInit {
         );
         break;
       case 404:
-        this.submitError.set('La categoría ya no existe. Cierre el formulario y recargue el listado.');
+        this.submitError.set(
+          'La categoría ya no existe. Cierre el formulario y recargue el listado.',
+        );
         break;
       default:
         this.submitError.set(

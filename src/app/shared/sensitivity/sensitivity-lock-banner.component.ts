@@ -23,8 +23,8 @@ import {
           <strong>{{ labelLower() }}</strong>
           @if (categoryName()) {
             porque la categoría <strong>{{ categoryName() }}</strong> está configurada así
-          }.
-          No puede modificarse desde este formulario.
+          }
+          . No puede modificarse desde este formulario.
         </p>
       </div>
     </div>
@@ -32,9 +32,9 @@ import {
   styleUrl: './sensitivity-lock-banner.component.scss',
 })
 export class SensitivityLockBannerComponent {
-  readonly level        = input.required<SensitivityLevel>();
+  readonly level = input.required<SensitivityLevel>();
   readonly categoryName = input<string | null>(null);
 
-  protected readonly icon       = computed(() => SENSITIVITY_ICONS[this.level()]);
+  protected readonly icon = computed(() => SENSITIVITY_ICONS[this.level()]);
   protected readonly labelLower = computed(() => SENSITIVITY_LABELS[this.level()].toLowerCase());
 }

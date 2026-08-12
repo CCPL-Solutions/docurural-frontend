@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,26 +34,37 @@ export interface CategoryToggleStatusDialogResult {
 export class CategoryToggleStatusDialogComponent {
   protected readonly data = inject<CategoryToggleStatusDialogData>(MAT_DIALOG_DATA);
   private readonly dialogRef =
-    inject<MatDialogRef<CategoryToggleStatusDialogComponent, CategoryToggleStatusDialogResult | undefined>>(MatDialogRef);
+    inject<
+      MatDialogRef<
+        CategoryToggleStatusDialogComponent,
+        CategoryToggleStatusDialogResult | undefined
+      >
+    >(MatDialogRef);
   private readonly categoriesService = inject(CategoriesService);
 
-  protected readonly loading          = signal(false);
-  protected readonly errorMessage     = signal<string | null>(null);
+  protected readonly loading = signal(false);
+  protected readonly errorMessage = signal<string | null>(null);
   protected readonly errorBlocksAction = signal(false);
 
-  protected readonly isDeactivate    = computed(() => this.data.action === 'deactivate');
-  protected readonly title           = computed(() =>
-    this.isDeactivate() ? 'Desactivar categoría' : 'Reactivar categoría');
-  protected readonly headerIcon      = computed(() => this.isDeactivate() ? 'warning' : 'restart_alt');
-  protected readonly actionIcon      = computed(() => this.isDeactivate() ? 'delete_outline' : 'check');
-  protected readonly actionLabel     = computed(() => this.isDeactivate() ? 'Desactivar' : 'Activar categoría');
-  protected readonly actionVariant   = computed<'warning' | 'primary'>(
-    () => this.isDeactivate() ? 'warning' : 'primary');
-  protected readonly documentCount   = computed(() => this.data.category.documentCount);
+  protected readonly isDeactivate = computed(() => this.data.action === 'deactivate');
+  protected readonly title = computed(() =>
+    this.isDeactivate() ? 'Desactivar categoría' : 'Reactivar categoría',
+  );
+  protected readonly headerIcon = computed(() => (this.isDeactivate() ? 'warning' : 'restart_alt'));
+  protected readonly actionIcon = computed(() =>
+    this.isDeactivate() ? 'delete_outline' : 'check',
+  );
+  protected readonly actionLabel = computed(() =>
+    this.isDeactivate() ? 'Desactivar' : 'Activar categoría',
+  );
+  protected readonly actionVariant = computed<'warning' | 'primary'>(() =>
+    this.isDeactivate() ? 'warning' : 'primary',
+  );
+  protected readonly documentCount = computed(() => this.data.category.documentCount);
   protected readonly showDocumentsCard = computed(
-    () => this.isDeactivate() && this.data.category.documentCount > 0);
-  protected readonly actionDisabled  = computed(
-    () => this.loading() || this.errorBlocksAction());
+    () => this.isDeactivate() && this.data.category.documentCount > 0,
+  );
+  protected readonly actionDisabled = computed(() => this.loading() || this.errorBlocksAction());
 
   protected confirm(): void {
     this.loading.set(true);
@@ -72,9 +77,9 @@ export class CategoryToggleStatusDialogComponent {
       next: (res: UpdateCategoryStatusResponse) => {
         this.dialogRef.close({
           success: true,
-          message:    res.message,
+          message: res.message,
           categoryId: res.id,
-          newStatus:  res.status,
+          newStatus: res.status,
         });
       },
       error: (err: HttpErrorResponse) => {
@@ -92,7 +97,9 @@ export class CategoryToggleStatusDialogComponent {
   private handleError(err: HttpErrorResponse): void {
     switch (err.status) {
       case 400:
-        this.errorMessage.set('La categoría ya tiene este estado. Cierre el diálogo y recargue el listado.');
+        this.errorMessage.set(
+          'La categoría ya tiene este estado. Cierre el diálogo y recargue el listado.',
+        );
         this.errorBlocksAction.set(true);
         break;
       case 403:
@@ -100,7 +107,9 @@ export class CategoryToggleStatusDialogComponent {
         this.errorBlocksAction.set(true);
         break;
       case 404:
-        this.errorMessage.set('La categoría ya no existe. Cierre el diálogo y recargue el listado.');
+        this.errorMessage.set(
+          'La categoría ya no existe. Cierre el diálogo y recargue el listado.',
+        );
         this.errorBlocksAction.set(true);
         break;
       default:

@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  forwardRef,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -24,34 +18,34 @@ import {
   imports: [MatIconModule],
   providers: [
     {
-      provide:     NG_VALUE_ACCESSOR,
+      provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => SensitivityRadioComponent),
-      multi:       true,
+      multi: true,
     },
   ],
   templateUrl: './sensitivity-radio.component.html',
-  styleUrl:    './sensitivity-radio.component.scss',
+  styleUrl: './sensitivity-radio.component.scss',
 })
 export class SensitivityRadioComponent implements ControlValueAccessor {
-  readonly minLevel   = input<SensitivityLevel>('INTERNAL');
+  readonly minLevel = input<SensitivityLevel>('INTERNAL');
   readonly editorRole = input(false);
-  readonly locked     = input(false);
-  readonly compact    = input(false);
+  readonly locked = input(false);
+  readonly compact = input(false);
 
-  protected readonly _value          = signal<SensitivityLevel>('INTERNAL');
-  protected readonly isFormDisabled  = signal(false);
+  protected readonly _value = signal<SensitivityLevel>('INTERNAL');
+  protected readonly isFormDisabled = signal(false);
 
-  protected readonly levels       = SENSITIVITY_LEVELS;
-  protected readonly labels       = SENSITIVITY_LABELS;
+  protected readonly levels = SENSITIVITY_LEVELS;
+  protected readonly labels = SENSITIVITY_LABELS;
   protected readonly descriptions = SENSITIVITY_DESCRIPTIONS;
-  protected readonly accessHints  = SENSITIVITY_ACCESS_HINTS;
-  protected readonly icons        = SENSITIVITY_ICONS;
+  protected readonly accessHints = SENSITIVITY_ACCESS_HINTS;
+  protected readonly icons = SENSITIVITY_ICONS;
 
   private onChange: (value: SensitivityLevel) => void = () => {};
-  private onTouched: () => void                       = () => {};
+  private onTouched: () => void = () => {};
 
   protected isDisabledLevel(level: SensitivityLevel): boolean {
-    if (this.locked() || this.isFormDisabled())  return true;
+    if (this.locked() || this.isFormDisabled()) return true;
     if (compareSensitivity(level, this.minLevel()) < 0) return true;
     if (this.editorRole() && (level === 'RESTRICTED' || level === 'CONFIDENTIAL')) return true;
     return false;

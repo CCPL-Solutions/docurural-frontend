@@ -42,6 +42,6 @@ import { IconButtonComponent } from '../../../../shared/components/icon-button/i
 export class CategoryRowActionsComponent {
   readonly category = input.required<Category>();
 
-  readonly edit         = output<Category>();
+  readonly edit = output<Category>();
   readonly toggleStatus = output<Category>();
 }

@@ -38,8 +38,9 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background var(--duration-fast) var(--easing-standard),
-              border-color var(--duration-fast) var(--easing-standard);
+  transition:
+    background var(--duration-fast) var(--easing-standard),
+    border-color var(--duration-fast) var(--easing-standard);
 
   &:hover {
     background: var(--color-bg-hover);
@@ -73,13 +74,27 @@
   @include dt.styles();
 }
 
-.col-title       { width: 28%; }
-.col-category    { width: 13%; }
-.col-area        { width: 12%; }
-.col-date        { width: 9%;  }
-.col-size        { width: 8%;  }
-.col-uploaded-by { width: 13%; }
-.col-actions     { width: 17%; }
+.col-title {
+  width: 28%;
+}
+.col-category {
+  width: 13%;
+}
+.col-area {
+  width: 12%;
+}
+.col-date {
+  width: 9%;
+}
+.col-size {
+  width: 8%;
+}
+.col-uploaded-by {
+  width: 13%;
+}
+.col-actions {
+  width: 17%;
+}
 
 // ── Celda título ─────────────────────────────────────────────────────────────
 .cell-title {
@@ -245,7 +260,9 @@
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
 
-  strong { color: var(--color-text-primary); }
+  strong {
+    color: var(--color-text-primary);
+  }
 }
 
 .pagination__controls {
@@ -268,8 +285,9 @@
   font-weight: 500;
   color: var(--color-text-primary);
   cursor: pointer;
-  transition: background var(--duration-fast) var(--easing-standard),
-              border-color var(--duration-fast) var(--easing-standard);
+  transition:
+    background var(--duration-fast) var(--easing-standard),
+    border-color var(--duration-fast) var(--easing-standard);
 
   &:hover {
     background: var(--color-bg-hover);

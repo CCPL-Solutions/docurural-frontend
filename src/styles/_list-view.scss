@@ -35,8 +35,9 @@
   color: var(--color-text-primary);
   cursor: pointer;
   flex-shrink: 0;
-  transition: border-color var(--duration-fast) var(--easing-standard),
-              box-shadow var(--duration-fast) var(--easing-standard);
+  transition:
+    border-color var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard);
 
   &:hover:not(:disabled) {
     border-color: var(--color-border-strong);
@@ -111,8 +112,12 @@
 }
 
 // ── Visibilidad responsive ───────────────────────────────────────────────────
-.desktop-only { display: block; }
-.mobile-only  { display: none;  }
+.desktop-only {
+  display: block;
+}
+.mobile-only {
+  display: none;
+}
 
 @include bp.md {
   .header-action {
@@ -129,6 +134,10 @@
     }
   }
 
-  .desktop-only { display: none; }
-  .mobile-only  { display: flex; }
+  .desktop-only {
+    display: none;
+  }
+  .mobile-only {
+    display: flex;
+  }
 }

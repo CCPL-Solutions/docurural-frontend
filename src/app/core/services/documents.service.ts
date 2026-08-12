@@ -42,7 +42,9 @@ export class DocumentsService {
   }
 
   filterOptions(): Observable<FilterOptionsResponse> {
-    return this.http.get<FilterOptionsResponse>(`${environment.apiBaseUrl}/documents/filter-options`);
+    return this.http.get<FilterOptionsResponse>(
+      `${environment.apiBaseUrl}/documents/filter-options`,
+    );
   }
 
   private appendOptional(params: HttpParams, key: string, value: unknown): HttpParams {
@@ -51,10 +53,7 @@ export class DocumentsService {
   }
 
   create(formData: FormData): Observable<UploadDocumentResponse> {
-    return this.http.post<UploadDocumentResponse>(
-      `${environment.apiBaseUrl}/documents`,
-      formData,
-    );
+    return this.http.post<UploadDocumentResponse>(`${environment.apiBaseUrl}/documents`, formData);
   }
 
   createBatch(formData: FormData): Observable<HttpEvent<BatchUploadDocumentResponse>> {
@@ -70,7 +69,9 @@ export class DocumentsService {
   }
 
   getViewBlob(id: number): Observable<Blob> {
-    return this.http.get(`${environment.apiBaseUrl}/documents/${id}/view`, { responseType: 'blob' });
+    return this.http.get(`${environment.apiBaseUrl}/documents/${id}/view`, {
+      responseType: 'blob',
+    });
   }
 
   /** DOC-08: descarga el archivo forzando Content-Disposition: attachment.
@@ -83,7 +84,10 @@ export class DocumentsService {
     });
   }
 
-  update(id: number, payload: UpdateDocumentMetadataRequest): Observable<UpdateDocumentMetadataResponse> {
+  update(
+    id: number,
+    payload: UpdateDocumentMetadataRequest,
+  ): Observable<UpdateDocumentMetadataResponse> {
     return this.http.put<UpdateDocumentMetadataResponse>(
       `${environment.apiBaseUrl}/documents/${id}`,
       payload,

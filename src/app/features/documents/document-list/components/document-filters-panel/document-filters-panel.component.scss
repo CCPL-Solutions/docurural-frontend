@@ -42,9 +42,13 @@
   gap: var(--space-1);
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
-  margin-left: auto;   // ← alineación a la derecha
+  margin-left: auto; // ← alineación a la derecha
 
-  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
 }
 
 .filters-panel__close {
@@ -62,10 +66,19 @@
   padding: 0;
   transition: background var(--duration-fast) var(--easing-standard);
 
-  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
 
-  &:hover { background: var(--color-bg-hover); }
-  &:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  &:hover {
+    background: var(--color-bg-hover);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
 }
 
 // ── Body con campos ──────────────────────────────────────────────────
@@ -85,7 +98,9 @@
   }
 
   // Quitar margin-bottom del .field dentro del grid
-  .field { margin-bottom: 0; }
+  .field {
+    margin-bottom: 0;
+  }
 }
 
 .filters-panel__date-error {
@@ -97,7 +112,11 @@
   font-weight: 500;
   color: var(--color-error);
 
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
 }
 
 // ── Footer ───────────────────────────────────────────────────────────
@@ -128,10 +147,20 @@
   cursor: pointer;
   transition: color var(--duration-fast) var(--easing-standard);
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
 
-  &:hover { color: var(--color-text-primary); background: var(--color-bg-hover); }
-  &:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-hover);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
 }
 
 .filters-panel__apply {
@@ -150,11 +179,23 @@
   cursor: pointer;
   transition: background var(--duration-fast) var(--easing-standard);
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
 
-  &:hover { background: var(--color-primary-dark); }
-  &:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  &:disabled { opacity: 0.55; cursor: not-allowed; }
+  &:hover {
+    background: var(--color-primary-dark);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
 }
 
 // ── Responsive ────────────────────────────────────────────────────────

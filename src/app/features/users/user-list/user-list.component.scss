@@ -27,15 +27,29 @@
 .users-table {
   @include dt.styles();
 
-  td { padding: 16px 20px; }
+  td {
+    padding: 16px 20px;
+  }
 }
 
-.col-user    { width: 32%; }
-.col-role    { width: 13%; }
-.col-status  { width: 12%; }
-.col-created { width: 14%; }
-.col-last    { width: 17%; }
-.col-actions { width: 12%; }
+.col-user {
+  width: 32%;
+}
+.col-role {
+  width: 13%;
+}
+.col-status {
+  width: 12%;
+}
+.col-created {
+  width: 14%;
+}
+.col-last {
+  width: 17%;
+}
+.col-actions {
+  width: 12%;
+}
 
 .cell-never {
   color: var(--color-text-muted);
@@ -43,8 +57,12 @@
 }
 
 .row--muted {
-  .cell-date    { color: var(--color-text-muted); }
-  .badge-wrap   { opacity: 0.6; }
+  .cell-date {
+    color: var(--color-text-muted);
+  }
+  .badge-wrap {
+    opacity: 0.6;
+  }
 }
 
 // ── Tarjetas (móvil) ─────────────────────────────────────────────────────────
@@ -77,7 +95,9 @@
   min-width: 0;
 }
 
-.user-card--muted .badge-wrap { opacity: 0.6; }
+.user-card--muted .badge-wrap {
+  opacity: 0.6;
+}
 
 // ── Responsive específico ────────────────────────────────────────────────────
 @include bp.md {

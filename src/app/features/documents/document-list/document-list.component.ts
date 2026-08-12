@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -10,7 +18,11 @@ import { DocumentsService } from '../../../core/services/documents.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Document } from '../../../core/models/document.model';
-import { ActiveFiltersDto, DocumentSortBy, DocumentSortDir } from '../../../core/models/document-list.models';
+import {
+  ActiveFiltersDto,
+  DocumentSortBy,
+  DocumentSortDir,
+} from '../../../core/models/document-list.models';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
   DocumentFilters,
@@ -66,7 +78,13 @@ import { IconButtonComponent } from '../../../shared/components/icon-button/icon
 import { SortTriggerComponent } from '../../../shared/components/sort-trigger/sort-trigger.component';
 import { SensitivityBadgeComponent } from '../../../shared/sensitivity/sensitivity-badge.component';
 
-type SortOption = 'createdAtDesc' | 'createdAtAsc' | 'titleAsc' | 'titleDesc' | 'documentDateDesc' | 'documentDateAsc';
+type SortOption =
+  | 'createdAtDesc'
+  | 'createdAtAsc'
+  | 'titleAsc'
+  | 'titleDesc'
+  | 'documentDateDesc'
+  | 'documentDateAsc';
 
 interface SortOptionConfig {
   value: SortOption;
@@ -76,12 +94,22 @@ interface SortOptionConfig {
 }
 
 const SORT_OPTIONS: SortOptionConfig[] = [
-  { value: 'createdAtDesc',    label: 'Más recientes',           sortBy: 'createdAt',    sortDir: 'desc' },
-  { value: 'createdAtAsc',     label: 'Más antiguos',            sortBy: 'createdAt',    sortDir: 'asc'  },
-  { value: 'titleAsc',         label: 'Título A–Z',              sortBy: 'title',        sortDir: 'asc'  },
-  { value: 'titleDesc',        label: 'Título Z–A',              sortBy: 'title',        sortDir: 'desc' },
-  { value: 'documentDateDesc', label: 'Fecha doc. más reciente', sortBy: 'documentDate', sortDir: 'desc' },
-  { value: 'documentDateAsc',  label: 'Fecha doc. más antigua',  sortBy: 'documentDate', sortDir: 'asc'  },
+  { value: 'createdAtDesc', label: 'Más recientes', sortBy: 'createdAt', sortDir: 'desc' },
+  { value: 'createdAtAsc', label: 'Más antiguos', sortBy: 'createdAt', sortDir: 'asc' },
+  { value: 'titleAsc', label: 'Título A–Z', sortBy: 'title', sortDir: 'asc' },
+  { value: 'titleDesc', label: 'Título Z–A', sortBy: 'title', sortDir: 'desc' },
+  {
+    value: 'documentDateDesc',
+    label: 'Fecha doc. más reciente',
+    sortBy: 'documentDate',
+    sortDir: 'desc',
+  },
+  {
+    value: 'documentDateAsc',
+    label: 'Fecha doc. más antigua',
+    sortBy: 'documentDate',
+    sortDir: 'asc',
+  },
 ];
 
 const PAGE_SIZE = 10;
@@ -115,58 +143,58 @@ const PAGE_SIZE = 10;
 })
 export class DocumentListComponent implements OnInit {
   private readonly documentsService = inject(DocumentsService);
-  private readonly notifications    = inject(NotificationService);
-  private readonly auth             = inject(AuthService);
-  private readonly dialog           = inject(MatDialog);
-  private readonly bottomSheet      = inject(MatBottomSheet);
-  private readonly router           = inject(Router);
+  private readonly notifications = inject(NotificationService);
+  private readonly auth = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
+  private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly router = inject(Router);
 
   // ── Signals existentes ──────────────────────────────────────────────
-  protected readonly loading          = signal(false);
-  protected readonly documents        = signal<Document[]>([]);
-  protected readonly totalDocuments   = signal(0);
-  protected readonly totalPages       = signal(0);
-  protected readonly currentPage      = signal(1);
-  protected readonly selectedSort     = signal<SortOption>('createdAtDesc');
-  protected readonly downloadingIds   = signal(new Set<number>());
+  protected readonly loading = signal(false);
+  protected readonly documents = signal<Document[]>([]);
+  protected readonly totalDocuments = signal(0);
+  protected readonly totalPages = signal(0);
+  protected readonly currentPage = signal(1);
+  protected readonly selectedSort = signal<SortOption>('createdAtDesc');
+  protected readonly downloadingIds = signal(new Set<number>());
 
   // ── Signals de búsqueda y filtros (RF-03) ───────────────────────────
-  protected readonly searchInput          = signal('');
-  protected readonly appliedSearchTerm    = signal<string | null>(null);
-  protected readonly searchError          = signal<string | null>(null);
-  protected readonly filtersDraft         = signal<DocumentFilters>({ ...EMPTY_FILTERS });
-  protected readonly appliedFilters       = signal<DocumentFilters>({ ...EMPTY_FILTERS });
-  protected readonly activeFiltersMeta    = signal<ActiveFiltersDto | null>(null);
-  protected readonly filtersPanelOpen     = signal(false);
-  protected readonly filterOptions        = signal<FilterOptionsResponse | null>(null);
+  protected readonly searchInput = signal('');
+  protected readonly appliedSearchTerm = signal<string | null>(null);
+  protected readonly searchError = signal<string | null>(null);
+  protected readonly filtersDraft = signal<DocumentFilters>({ ...EMPTY_FILTERS });
+  protected readonly appliedFilters = signal<DocumentFilters>({ ...EMPTY_FILTERS });
+  protected readonly activeFiltersMeta = signal<ActiveFiltersDto | null>(null);
+  protected readonly filtersPanelOpen = signal(false);
+  protected readonly filterOptions = signal<FilterOptionsResponse | null>(null);
   protected readonly loadingFilterOptions = signal(false);
-  protected readonly dateRangeError       = signal<string | null>(null);
+  protected readonly dateRangeError = signal<string | null>(null);
 
-  protected readonly sortOptions      = SORT_OPTIONS;
+  protected readonly sortOptions = SORT_OPTIONS;
   protected readonly currentSortLabel = computed(() => this.currentSortConfig().label);
 
   protected readonly currentUser = computed(() => this.auth.currentUser());
-  protected readonly role        = computed(() => this.auth.currentUser()?.role ?? 'READER');
+  protected readonly role = computed(() => this.auth.currentUser()?.role ?? 'READER');
 
-  protected readonly canUpload             = computed(() => canUploadDocument(this.role()));
+  protected readonly canUpload = computed(() => canUploadDocument(this.role()));
   protected readonly canSeeUploadedByFilter = computed(() => this.role() === 'ADMIN');
-  protected readonly isEmpty               = computed(() => !this.loading() && this.totalDocuments() === 0);
+  protected readonly isEmpty = computed(() => !this.loading() && this.totalDocuments() === 0);
 
   protected readonly appliedFilterCount = computed(() => countActiveFilters(this.appliedFilters()));
 
   protected readonly chips = computed<FilterChipDescriptor[]>(() =>
-    this.buildChips(this.appliedSearchTerm(), this.activeFiltersMeta(), this.appliedFilters())
+    this.buildChips(this.appliedSearchTerm(), this.activeFiltersMeta(), this.appliedFilters()),
   );
 
   protected readonly showClearAll = computed(() => this.chips().length >= 2);
 
-  protected readonly hasActiveSearch = computed(() =>
-    this.appliedSearchTerm() !== null || hasAnyFilter(this.appliedFilters())
+  protected readonly hasActiveSearch = computed(
+    () => this.appliedSearchTerm() !== null || hasAnyFilter(this.appliedFilters()),
   );
 
   protected readonly emptyVariant = computed<'search' | 'filters' | 'combined' | null>(() => {
     if (this.loading() || this.totalDocuments() > 0) return null;
-    const hasTerm   = this.appliedSearchTerm() !== null;
+    const hasTerm = this.appliedSearchTerm() !== null;
     const hasFilter = hasAnyFilter(this.appliedFilters());
     if (hasTerm && hasFilter) return 'combined';
     if (hasTerm) return 'search';
@@ -175,27 +203,28 @@ export class DocumentListComponent implements OnInit {
   });
 
   protected readonly searchResultLabel = computed(() => {
-    const total     = this.totalDocuments();
-    const term      = this.appliedSearchTerm();
+    const total = this.totalDocuments();
+    const term = this.appliedSearchTerm();
     const hasFilter = hasAnyFilter(this.appliedFilters());
-    const docWord   = total === 1 ? 'documento' : 'documentos';
-    if (term && hasFilter) return `Se encontraron ${total} ${docWord} para "${term}" con los filtros aplicados`;
-    if (term)              return `Se encontraron ${total} ${docWord} para "${term}"`;
-    if (hasFilter)         return `Se encontraron ${total} ${docWord} con los filtros aplicados`;
+    const docWord = total === 1 ? 'documento' : 'documentos';
+    if (term && hasFilter)
+      return `Se encontraron ${total} ${docWord} para "${term}" con los filtros aplicados`;
+    if (term) return `Se encontraron ${total} ${docWord} para "${term}"`;
+    if (hasFilter) return `Se encontraron ${total} ${docWord} con los filtros aplicados`;
     return null;
   });
 
   protected readonly pageRangeLabel = computed(() => {
-    const page  = this.currentPage();
+    const page = this.currentPage();
     const total = this.totalDocuments();
     if (total === 0) return '0 documentos';
-    const from  = (page - 1) * PAGE_SIZE + 1;
-    const to    = Math.min(page * PAGE_SIZE, total);
+    const from = (page - 1) * PAGE_SIZE + 1;
+    const to = Math.min(page * PAGE_SIZE, total);
     return `Mostrando ${from}–${to} de ${total} documentos`;
   });
 
   protected readonly pageNumbers = computed(() => {
-    const total   = this.totalPages();
+    const total = this.totalPages();
     const current = this.currentPage();
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
     const delta = 2;
@@ -212,11 +241,16 @@ export class DocumentListComponent implements OnInit {
   });
 
   private readonly docDateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
   private readonly loadedAtFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
   constructor() {
@@ -233,40 +267,44 @@ export class DocumentListComponent implements OnInit {
   // ── Carga de datos ──────────────────────────────────────────────────
 
   protected loadDocuments(): void {
-    const opt     = this.currentSortConfig();
+    const opt = this.currentSortConfig();
     const filters = this.appliedFilters();
     this.loading.set(true);
 
-    const uploadedBy = this.canSeeUploadedByFilter() ? (filters.uploadedBy ?? undefined) : undefined;
+    const uploadedBy = this.canSeeUploadedByFilter()
+      ? (filters.uploadedBy ?? undefined)
+      : undefined;
 
-    this.documentsService.list({
-      page:            this.currentPage(),
-      size:            PAGE_SIZE,
-      sortBy:          opt.sortBy,
-      sortDir:         opt.sortDir,
-      q:               this.appliedSearchTerm() ?? undefined,
-      categoryId:      filters.categoryId    ?? undefined,
-      responsibleArea: filters.responsibleArea ?? undefined,
-      dateFrom:        filters.dateFrom       ?? undefined,
-      dateTo:          filters.dateTo         ?? undefined,
-      uploadedBy,
-    }).subscribe({
-      next: (res) => {
-        this.documents.set(res.documents);
-        this.totalDocuments.set(res.totalDocuments);
-        this.totalPages.set(res.totalPages);
-        this.activeFiltersMeta.set(res.activeFilters ?? null);
-        this.loading.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading.set(false);
-        const apiError = err.error as ApiError | undefined;
-        this.notifications.error(
-          'No se pudo cargar el listado',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
-        );
-      },
-    });
+    this.documentsService
+      .list({
+        page: this.currentPage(),
+        size: PAGE_SIZE,
+        sortBy: opt.sortBy,
+        sortDir: opt.sortDir,
+        q: this.appliedSearchTerm() ?? undefined,
+        categoryId: filters.categoryId ?? undefined,
+        responsibleArea: filters.responsibleArea ?? undefined,
+        dateFrom: filters.dateFrom ?? undefined,
+        dateTo: filters.dateTo ?? undefined,
+        uploadedBy,
+      })
+      .subscribe({
+        next: (res) => {
+          this.documents.set(res.documents);
+          this.totalDocuments.set(res.totalDocuments);
+          this.totalPages.set(res.totalPages);
+          this.activeFiltersMeta.set(res.activeFilters ?? null);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          const apiError = err.error as ApiError | undefined;
+          this.notifications.error(
+            'No se pudo cargar el listado',
+            apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
+          );
+        },
+      });
   }
 
   private loadFilterOptions(): void {
@@ -318,10 +356,10 @@ export class DocumentListComponent implements OnInit {
     if (window.innerWidth <= 768) {
       const ref = this.bottomSheet.open(DocumentFiltersBottomSheetComponent, {
         data: {
-          draft:            { ...this.appliedFilters() },
-          options:          this.filterOptions(),
+          draft: { ...this.appliedFilters() },
+          options: this.filterOptions(),
           canSeeUploadedBy: this.canSeeUploadedByFilter(),
-          loadingOptions:   this.loadingFilterOptions(),
+          loadingOptions: this.loadingFilterOptions(),
         },
         panelClass: 'filters-bottom-sheet',
       });
@@ -448,10 +486,18 @@ export class DocumentListComponent implements OnInit {
           buildFallbackFilename(doc.title, doc.fileFormat);
         triggerBlobDownload(response.body!, filename);
         this.notifications.success('Descarga iniciada', filename);
-        this.downloadingIds.update((ids) => { const next = new Set(ids); next.delete(doc.id); return next; });
+        this.downloadingIds.update((ids) => {
+          const next = new Set(ids);
+          next.delete(doc.id);
+          return next;
+        });
       },
       error: async (err: HttpErrorResponse) => {
-        this.downloadingIds.update((ids) => { const next = new Set(ids); next.delete(doc.id); return next; });
+        this.downloadingIds.update((ids) => {
+          const next = new Set(ids);
+          next.delete(doc.id);
+          return next;
+        });
         if (err.status === 401) return;
         if (err.status === 404) {
           const apiError = await parseBlobError(err);
@@ -492,10 +538,16 @@ export class DocumentListComponent implements OnInit {
       error: (err: HttpErrorResponse) => {
         if (err.status === 401) return;
         if (err.status === 404) {
-          this.notifications.error('Documento no encontrado', 'El documento ya no existe o fue eliminado.');
+          this.notifications.error(
+            'Documento no encontrado',
+            'El documento ya no existe o fue eliminado.',
+          );
           return;
         }
-        this.notifications.error('Error al abrir el editor', 'No fue posible cargar los datos del documento. Intente nuevamente.');
+        this.notifications.error(
+          'Error al abrir el editor',
+          'No fue posible cargar los datos del documento. Intente nuevamente.',
+        );
       },
     });
   }
@@ -626,7 +678,11 @@ export class DocumentListComponent implements OnInit {
       chips.push({ key: 'q', label: 'Búsqueda', value: `"${term}"`, kind: 'search' });
     }
     if (filters.categoryId !== null) {
-      chips.push({ key: 'categoryId', label: 'Categoría', value: meta?.categoryName ?? `#${filters.categoryId}` });
+      chips.push({
+        key: 'categoryId',
+        label: 'Categoría',
+        value: meta?.categoryName ?? `#${filters.categoryId}`,
+      });
     }
     if (filters.responsibleArea) {
       chips.push({ key: 'responsibleArea', label: 'Área', value: filters.responsibleArea });
@@ -638,7 +694,11 @@ export class DocumentListComponent implements OnInit {
       chips.push({ key: 'dateTo', label: 'Hasta', value: this.formatChipDate(filters.dateTo) });
     }
     if (filters.uploadedBy !== null) {
-      chips.push({ key: 'uploadedBy', label: 'Subido por', value: meta?.uploadedByName ?? `#${filters.uploadedBy}` });
+      chips.push({
+        key: 'uploadedBy',
+        label: 'Subido por',
+        value: meta?.uploadedByName ?? `#${filters.uploadedBy}`,
+      });
     }
     return chips;
   }

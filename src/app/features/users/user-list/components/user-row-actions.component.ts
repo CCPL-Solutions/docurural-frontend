@@ -10,11 +10,7 @@ import { IconButtonComponent } from '../../../../shared/components/icon-button/i
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="row-actions">
-      <app-icon-button
-        tooltip="Editar"
-        ariaLabel="Editar usuario"
-        (click)="edit.emit(user())"
-      >
+      <app-icon-button tooltip="Editar" ariaLabel="Editar usuario" (click)="edit.emit(user())">
         <mat-icon>edit</mat-icon>
       </app-icon-button>
 
@@ -42,6 +38,6 @@ import { IconButtonComponent } from '../../../../shared/components/icon-button/i
 export class UserRowActionsComponent {
   readonly user = input.required<User>();
 
-  readonly edit         = output<User>();
+  readonly edit = output<User>();
   readonly toggleStatus = output<User>();
 }

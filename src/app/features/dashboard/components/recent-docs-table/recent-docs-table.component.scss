@@ -47,7 +47,11 @@
   white-space: nowrap;
   flex-shrink: 0;
 
-  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
 }
 
 // ── Empty state ───────────────────────────────────────────────────────────────
@@ -71,9 +75,18 @@
   cursor: pointer;
   margin-top: var(--space-3);
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
-  &:hover { background: var(--color-primary-dark); }
-  &:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+  &:hover {
+    background: var(--color-primary-dark);
+  }
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
 }
 
 // ── Vista tabla (desktop ≥ 768px) ─────────────────────────────────────────────
@@ -87,11 +100,24 @@
   // Sin min-width forzado — se adapta al contenedor
 }
 
-.col--title    { width: 38%; }
-.col--category { width: 16%; }
-.col--area     { width: 16%; }
-.col--date     { width: 14%; white-space: nowrap; color: var(--color-text-secondary); }
-.col--actions  { width: 16%; text-align: right; }
+.col--title {
+  width: 38%;
+}
+.col--category {
+  width: 16%;
+}
+.col--area {
+  width: 16%;
+}
+.col--date {
+  width: 14%;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+}
+.col--actions {
+  width: 16%;
+  text-align: right;
+}
 
 .doc-title-cell {
   display: flex;
@@ -146,9 +172,10 @@
   transition: background var(--duration-fast);
   min-width: 0;
 
-  &:hover { background: var(--color-bg-hover); }
+  &:hover {
+    background: var(--color-bg-hover);
+  }
 }
-
 
 .rdt-card__text {
   flex: 1;
@@ -197,16 +224,30 @@
   background: var(--color-bg-app);
   transition: background var(--duration-fast);
 
-  &:hover { background: var(--color-primary-light); }
-  &:focus-visible { outline: var(--focus-ring); }
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:hover {
+    background: var(--color-primary-light);
+  }
+  &:focus-visible {
+    outline: var(--focus-ring);
+  }
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
 }
 
 // ── Responsive switchover ─────────────────────────────────────────────────────
 
 // En tablet/mobile (≤1024px) la tabla se reemplaza por tarjetas
 @include bp.lg {
-  .recent-docs__table-wrap  { display: none; }
-  .rdt-cards                { display: block; }
-  .recent-docs__order-badge { display: none; }
+  .recent-docs__table-wrap {
+    display: none;
+  }
+  .rdt-cards {
+    display: block;
+  }
+  .recent-docs__order-badge {
+    display: none;
+  }
 }

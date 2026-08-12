@@ -1,5 +1,7 @@
-<app-page-header [title]="'Bienvenido, ' + firstName()"
-                subtitle="Resumen general del repositorio institucional · IERD Miña y Ticha">
+<app-page-header
+  [title]="'Bienvenido, ' + firstName()"
+  subtitle="Resumen general del repositorio institucional · IERD Miña y Ticha"
+>
   @if (canUpload()) {
     <button actions class="header-upload-btn" (click)="onUploadDoc()">
       <mat-icon>upload</mat-icon>
@@ -12,10 +14,12 @@
   <app-empty-state variant="loading">Cargando panel de control…</app-empty-state>
 } @else if (error()) {
   <div class="dashboard__error">
-    <app-empty-state variant="empty"
-                     icon="cloud_off"
-                     title="No se pudo cargar el panel de control"
-                     [description]="error()!">
+    <app-empty-state
+      variant="empty"
+      icon="cloud_off"
+      title="No se pudo cargar el panel de control"
+      [description]="error()!"
+    >
       <button actions class="retry-btn" (click)="loadStats()">
         <mat-icon>refresh</mat-icon>
         Reintentar
@@ -25,33 +29,39 @@
 } @else if (stats(); as s) {
   <div class="dashboard__body">
     <!-- Desktop: arriba. Mobile: al final (order: 10) -->
-    <app-quick-actions class="dashboard__qa-block"
-                       [role]="role()"
-                       [actions]="quickActions()" />
+    <app-quick-actions class="dashboard__qa-block" [role]="role()" [actions]="quickActions()" />
 
     <section class="dashboard__grid-kpis" aria-label="Indicadores del repositorio">
-      <app-kpi-card icon="description"
-                    label="Total de documentos"
-                    [value]="s.summary.totalActiveDocuments"
-                    hint="Activos en el repositorio"
-                    accent="primary" />
-      <app-kpi-card icon="event"
-                    label="Subidos este mes"
-                    [value]="s.summary.documentsUploadedThisMonth"
-                    [hint]="currentMonthLabel"
-                    accent="success" />
-      <app-top-category-card [category]="s.summary.topCategory"
-                             [total]="s.summary.totalActiveDocuments" />
+      <app-kpi-card
+        icon="description"
+        label="Total de documentos"
+        [value]="s.summary.totalActiveDocuments"
+        hint="Activos en el repositorio"
+        accent="primary"
+      />
+      <app-kpi-card
+        icon="event"
+        label="Subidos este mes"
+        [value]="s.summary.documentsUploadedThisMonth"
+        [hint]="currentMonthLabel"
+        accent="success"
+      />
+      <app-top-category-card
+        [category]="s.summary.topCategory"
+        [total]="s.summary.totalActiveDocuments"
+      />
     </section>
 
     <!-- Tabla izquierda, gráfico derecha -->
     <section class="dashboard__grid-main">
-      <app-recent-docs-table [documents]="s.recentDocuments"
-                             [repoIsEmpty]="isEmptyRepo()"
-                             [canUpload]="canUpload()"
-                             (view)="onView($event)"
-                             (download)="onDownload($event)"
-                             (uploadFirst)="onUploadDoc()" />
+      <app-recent-docs-table
+        [documents]="s.recentDocuments"
+        [repoIsEmpty]="isEmptyRepo()"
+        [canUpload]="canUpload()"
+        (view)="onView($event)"
+        (download)="onDownload($event)"
+        (uploadFirst)="onUploadDoc()"
+      />
       <app-category-chart [data]="s.categoryDistribution" />
     </section>
   </div>

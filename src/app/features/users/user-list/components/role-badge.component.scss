@@ -22,19 +22,25 @@
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
 
-  .role-badge__dot { background: var(--color-primary); }
+  .role-badge__dot {
+    background: var(--color-primary);
+  }
 }
 
 .role-badge--editor {
   background: var(--color-success-light);
   color: var(--color-success-text);
 
-  .role-badge__dot { background: var(--color-success); }
+  .role-badge__dot {
+    background: var(--color-success);
+  }
 }
 
 .role-badge--reader {
   background: var(--color-neutral-light);
   color: var(--color-neutral);
 
-  .role-badge__dot { background: var(--color-neutral-accent); }
+  .role-badge__dot {
+    background: var(--color-neutral-accent);
+  }
 }

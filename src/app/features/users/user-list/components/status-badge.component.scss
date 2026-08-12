@@ -22,12 +22,16 @@
   background: var(--color-success-light);
   color: var(--color-success-text);
 
-  .status-badge__dot { background: var(--color-success); }
+  .status-badge__dot {
+    background: var(--color-success);
+  }
 }
 
 .status-badge--inactive {
   background: var(--color-neutral-light);
   color: var(--color-text-secondary);
 
-  .status-badge__dot { background: var(--color-text-muted); }
+  .status-badge__dot {
+    background: var(--color-text-muted);
+  }
 }

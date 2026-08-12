@@ -44,14 +44,14 @@ export interface SortOptionItem {
   `,
 })
 export class SortTriggerComponent {
-  readonly options    = input.required<SortOptionItem[]>();
+  readonly options = input.required<SortOptionItem[]>();
   readonly activeValue = input<string>('');
-  readonly disabled   = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
 
   readonly sortChange = output<string>();
 
   protected readonly activeLabel = computed(
-    () => this.options().find(o => o.value === this.activeValue())?.label ?? '',
+    () => this.options().find((o) => o.value === this.activeValue())?.label ?? '',
   );
 
   protected onSelect(value: string): void {

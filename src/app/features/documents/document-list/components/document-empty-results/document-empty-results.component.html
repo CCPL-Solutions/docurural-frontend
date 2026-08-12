@@ -6,11 +6,7 @@
   <h3 class="empty-results__title">{{ title }}</h3>
   <p class="empty-results__message">{{ message }}</p>
 
-  <button
-    type="button"
-    class="btn btn--primary empty-results__action"
-    (click)="clearAll.emit()"
-  >
+  <button type="button" class="btn btn--primary empty-results__action" (click)="clearAll.emit()">
     <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
     <span>Limpiar búsqueda y filtros</span>
   </button>

@@ -70,16 +70,31 @@
 
 // Accent modifiers
 .kpi-card--primary {
-  .kpi-card__accent-bar { background: var(--color-primary); }
-  .kpi-card__icon-wrap  { background: var(--color-primary-light); color: var(--color-primary); }
+  .kpi-card__accent-bar {
+    background: var(--color-primary);
+  }
+  .kpi-card__icon-wrap {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
 }
 
 .kpi-card--success {
-  .kpi-card__accent-bar { background: var(--color-success); }
-  .kpi-card__icon-wrap  { background: var(--color-success-light); color: var(--color-success); }
+  .kpi-card__accent-bar {
+    background: var(--color-success);
+  }
+  .kpi-card__icon-wrap {
+    background: var(--color-success-light);
+    color: var(--color-success);
+  }
 }
 
 .kpi-card--warning {
-  .kpi-card__accent-bar { background: var(--color-warning); }
-  .kpi-card__icon-wrap  { background: var(--color-warning-light); color: var(--color-warning-text); }
+  .kpi-card__accent-bar {
+    background: var(--color-warning);
+  }
+  .kpi-card__icon-wrap {
+    background: var(--color-warning-light);
+    color: var(--color-warning-text);
+  }
 }

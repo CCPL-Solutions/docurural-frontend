@@ -1,5 +1,4 @@
 <div class="dialog">
-
   @if (errorMessage()) {
     <app-alert variant="error" class="dialog__alert">{{ errorMessage() }}</app-alert>
   }
@@ -18,8 +17,8 @@
       <p class="dialog__message">
         @if (isDeactivate()) {
           ¿Está seguro de desactivar la categoría
-          <strong>"{{ data.category.name }}"</strong>?
-          No podrá usarse para clasificar nuevos documentos.
+          <strong>"{{ data.category.name }}"</strong>? No podrá usarse para clasificar nuevos
+          documentos.
         } @else {
           La categoría
           <strong>"{{ data.category.name }}"</strong>
@@ -35,10 +34,17 @@
         <mat-icon aria-hidden="true">description</mat-icon>
         <strong>
           {{ documentCount() }}
-          {{ documentCount() === 1 ? 'documento seguirá siendo accesible' : 'documentos seguirán siendo accesibles' }}
+          {{
+            documentCount() === 1
+              ? 'documento seguirá siendo accesible'
+              : 'documentos seguirán siendo accesibles'
+          }}
         </strong>
       </div>
-      <p>Los documentos ya clasificados conservan su categoría. Podrá reactivarla en cualquier momento.</p>
+      <p>
+        Los documentos ya clasificados conservan su categoría. Podrá reactivarla en cualquier
+        momento.
+      </p>
     </div>
   }
 
@@ -56,5 +62,4 @@
       {{ actionLabel() }}
     </app-button>
   </div>
-
 </div>

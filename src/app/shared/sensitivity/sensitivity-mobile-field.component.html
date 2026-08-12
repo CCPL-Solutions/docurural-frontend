@@ -9,7 +9,9 @@
     <!-- Trigger personalizado: ícono coloreado + etiqueta + candado/chevron -->
     <mat-select-trigger>
       <span class="sensitivity-mf__trigger sensitivity-mf__trigger--{{ _value() }}">
-        <mat-icon class="sensitivity-mf__trigger-icon" aria-hidden="true">{{ icons[_value()] }}</mat-icon>
+        <mat-icon class="sensitivity-mf__trigger-icon" aria-hidden="true">{{
+          icons[_value()]
+        }}</mat-icon>
         <span class="sensitivity-mf__trigger-label">{{ labels[_value()] }}</span>
         @if (locked()) {
           <mat-icon class="sensitivity-mf__trigger-lock" aria-hidden="true">lock</mat-icon>

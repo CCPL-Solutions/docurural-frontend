@@ -6,15 +6,14 @@
   }
   <p class="dialog__message">
     ¿Está seguro de {{ isDeactivate() ? 'desactivar' : 'activar' }} la cuenta de
-    <strong>{{ data.user.fullName }}</strong>?
+    <strong>{{ data.user.fullName }}</strong
+    >?
   </p>
   <p class="dialog__hint">{{ secondaryMessage() }}</p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="dialog__actions">
-  <app-button variant="secondary" [disabled]="loading()" (click)="cancel()">
-    Cancelar
-  </app-button>
+  <app-button variant="secondary" [disabled]="loading()" (click)="cancel()"> Cancelar </app-button>
   <app-button
     [variant]="isDeactivate() ? 'danger' : 'primary'"
     [loading]="loading()"
