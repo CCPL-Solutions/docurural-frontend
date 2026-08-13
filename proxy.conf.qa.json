@@ -1,0 +1,10 @@
+{
+  "/api": {
+    "target": "https://qa.ccplsolutions.link",
+    "secure": true,
+    "changeOrigin": true,
+    "headers": {
+      "Origin": "https://qa.ccplsolutions.link"
+    }
+  }
+}
