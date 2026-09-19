@@ -158,7 +158,7 @@ jobs:
             fi
           done
 
-          DEPLOYED_VERSION=$($CURL -s "https://$DOMAIN/version.json" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+          DEPLOYED_VERSION=$($CURL -s "https://$DOMAIN/version.json" | grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | cut -d'"' -f4)
           echo "Versión reportada por /version.json: $DEPLOYED_VERSION (esperada: ${{ inputs.version }})"
           if [ "$DEPLOYED_VERSION" != "${{ inputs.version }}" ]; then
             echo "La versión desplegada no coincide con la esperada."
