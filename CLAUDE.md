@@ -86,7 +86,9 @@ src/styles/   tokens de diseño (_tokens.scss) y parciales globales (ver src/sty
   tokens menores (`--text-2xs` a `--text-md`) son solo para captions, badges y etiquetas.
 - Colores, tamaños de letra, espaciados y radios salen **solo** de los tokens de
   `src/styles/_tokens.scss`. Si falta un valor, se añade un token siguiendo `src/styles/README.md`.
-- Media queries solo con los mixins `bp.lg`, `bp.md` y `bp.sm` (`src/styles/_breakpoints.scss`).
+- Media queries solo con los mixins `bp.lg`, `bp.md` y `bp.sm` (`src/styles/_breakpoints.scss`); en
+  TS, `BreakpointObserver` con `shared/ui/breakpoints.ts`. Tamaños de icono con `icon.size(Npx)`
+  (`src/styles/_icons.scss`). `npm run check:styles` hace fallar la CI si hay literales.
 - Botones con `<app-button>` / `<app-icon-button>`. Feedback al usuario con `NotificationService`
   (toasts) o `<app-alert>` (errores inline en diálogos).
 

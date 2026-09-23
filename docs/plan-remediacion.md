@@ -219,7 +219,26 @@ Las fases van ordenadas por dependencia y riesgo. Primero lo que no rompe nada (
 
 ---
 
-## Fase 4 — Estilos y sistema de diseño · Esfuerzo **M** · Riesgo **visual**
+## Fase 4 — Estilos y sistema de diseño · Esfuerzo **L** · Riesgo **visual** · ✅ Completada (2026-09-23)
+
+> **Resultado:** `npm run check:styles` da **0 en las 8 comprobaciones** y ahora todas son estrictas: hacen fallar la CI. Pasó de 49 hex en SCSS, 57 en TS, 18 `@media`, 1 `window.innerWidth`, 1 `class="btn`, 90 `font-size`, 132 espaciados y 26 radios a 0. **Bundle inicial: 527,24 kB → 406,21 kB**, sin aviso (tarea 4.10). Avisos de presupuesto: de 6 a 5, todos de estilos de componente. Lint con 0 errores y 6 avisos. Tests: 115 en verde y 4 fallos esperados. E2E: **22 en verde**, con un flujo nuevo que comprueba un toast real. Las 12 capturas de referencia se regeneraron y se revisaron una a una.
+>
+> **Criterios aplicados en 4.8** (documentados en `src/styles/README.md` y en `scripts/check-styles.mjs`):
+>
+> - **Iconos:** mixin `icon.size(Npx)` (`src/styles/_icons.scss`) en lugar de una excepción en el script. Sustituye 64 bloques de `font-size` + `width` + `height`.
+> - **Tokens nuevos** solo donde había muchos usos o ningún valor cercano: medios pasos de espaciado `--space-0-5`/`1-5`/`2-5`/`3-5` (2, 6, 10 y 14 px, 74 usos); `--text-4xs` (8), `--text-3xs` (10) y `--text-4xl` (32); `--radius-xs` (4) y `--radius-circle` (50 %).
+> - **El resto, al token más cercano; en empate, al mayor**, para no reducir áreas táctiles. Por ejemplo, 3 → 4, 5 → 6, 11 → 12, 18 → 20, 28 → 32, 36 → 40 y 44 → 48 px en espaciados; 17 → 18, 22 → 24 y 26 → 28 px en texto; 2–3 → 4 px en radios. El único valor que no se redondeó es el margen de 60 px de `category-toggle-status-dialog` (icono de 44 px + hueco de 16 px), que pasa a `calc(var(--space-9) + var(--space-3))`.
+> - Excepciones permitidas: `0` y `1px` en espaciado.
+>
+> **Desviaciones respecto al plan:**
+>
+> - **4.4:** no hace falta el espejo de hex de chart.js. La paleta del gráfico vive en el SCSS del componente (`--chart-color-N` → tokens); la leyenda la usa con `var()` y el canvas lee los valores resueltos con `getComputedStyle` después del primer render. Hay 0 hex en TS, sin excepciones. El fondo translúcido de los avatares (antes, el sufijo hex `22`) usa `color-mix(in srgb, var(--color-*) 13%, transparent)`. El sexto color de avatar, `#5B6E84`, no tenía token y se ajustó a `--color-text-secondary` (`#6B7A8D`).
+> - **4.7:** además de los 4 botones del plan, pasa a `<app-button>` el de «Cargar primer documento» del estado vacío de los recientes. «Restablecer» del panel de filtros, que era un botón de texto, pasa a la variante `secondary`. El `.retry-btn` del bloque de error del dashboard no se toca porque ese bloque desaparece en la tarea 5.4.
+> - **4.9:** accesos rápidos con `repeat(auto-fit, minmax(min(100%, 220px), 1fr))`; la insignia ADMIN puede bajar de línea para no tapar la flecha. Rejilla principal del dashboard en flex: el gráfico baja de fila cuando la tabla (600 px) y él (450 px) no caben juntos, según el ancho del contenido y no del viewport. Categorías: ancho fijo para documentos, estado, fecha y acciones. **Añadido:** en el detalle móvil, los botones de la cabecera no llegaban al borde (defecto previo, visible en las capturas).
+> - **4.10:** el aviso del bundle inicial se resolvió **recortando, sin subir el presupuesto**. `NotificationService` carga el snackbar y el toast con un `import()` dinámico en el primer aviso: el interceptor lo inyecta al arrancar y arrastraba el overlay del CDK y los módulos de Material del snackbar (−121 kB). Los avisos se siguen mostrando en orden (comparten la promesa). Lo cubren el test unitario del servicio y un E2E nuevo (toast al fallar una descarga). Se descartó cambiar el `mat-icon-button` del toast por `<app-icon-button>`: el botón de Material lo importa igualmente `MatSnackBar`, y el tooltip de `app-icon-button` añadía 17 kB.
+> - **Presupuestos de componente:** `document-list.component.scss` crece de 5,77 a 5,90 kB y `category-list.component.scss` pasa a 4,11 kB (aviso nuevo, +112 bytes), porque `var(--space-3)` ocupa más bytes que `12px`. Es inherente a Q4, así que no se cumple el criterio «no crece» para `document-list`. `dashboard.component.scss` sí baja: se va el CSS del botón propio. Se eliminó el CSS muerto encontrado (`.sb-badge` en `main-layout`). Los otros tres avisos (`main-layout`, `upload-documents-batch-dialog` y `sensitivity-radio`) ya existían.
+>
+> **Hallazgo:** UI-08 (el cuerpo de texto nunca baja de 16 px) figuraba como «auditoría en la Fase 4», pero no tenía tarea y no se auditó. Queda pendiente.
 
 **Objetivo.** Que el código cumpla la regla ya escrita en `src/styles/README.md` (D29) y un solo mecanismo de breakpoints y de botones.
 
@@ -241,7 +260,7 @@ Las fases van ordenadas por dependencia y riesgo. Primero lo que no rompe nada (
 - `npm run check:styles` pasa a **fallar la CI** si hay algún hex en `src/app/**/*.scss`, algún `@media (` fuera de `src/styles/_breakpoints.scss`, algún `window.innerWidth`, algún `class="btn` fuera de `shared/components/button/`, o algún `font-size`, `padding`, `margin`, `gap` o `border-radius` con px fuera de la lista de excepciones.
 - La Fase 4 pasa de esfuerzo **M a L** por la tarea 4.8.
 - Hex en TS: solo en `shared/utils/name-color.ts`/`category-chart` (espejo documentado).
-- Presupuestos: `dashboard.component.scss` y `document-list.component.scss` no crecen, y se vuelve a medir el número de avisos (hoy 6: 5 de estilos de componente y 1 del bundle inicial, tarea 4.10).
+- Presupuestos: `dashboard.component.scss` y `document-list.component.scss` no crecen, y se vuelve a medir el número de avisos (al empezar la fase, 6: 5 de estilos de componente y 1 del bundle inicial, tarea 4.10).
 
 🔍 **Verificación manual (parada obligatoria):** recorrer **todas las pantallas a 1280, 768 y 600 px** y comparar con las capturas de la Fase 1. Prestar especial atención al banner de advertencia del formulario de categoría (4.2), al sidebar móvil, a los toasts y al botón "Limpiar búsqueda" del estado vacío, que ahora sí tendrá estilo.
 
