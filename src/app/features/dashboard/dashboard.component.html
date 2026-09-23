@@ -3,10 +3,10 @@
   subtitle="Resumen general del repositorio institucional · IERD Miña y Ticha"
 >
   @if (canUpload()) {
-    <button actions class="header-upload-btn" (click)="onUploadDoc()">
-      <mat-icon>upload</mat-icon>
-      {{ isEmptyRepo() ? 'Cargar primer documento' : 'Subir documento' }}
-    </button>
+    <app-button actions variant="primary" (click)="onUploadDoc()">
+      <mat-icon aria-hidden="true">upload</mat-icon>
+      <span>{{ isEmptyRepo() ? 'Cargar primer documento' : 'Subir documento' }}</span>
+    </app-button>
   }
 </app-page-header>
 

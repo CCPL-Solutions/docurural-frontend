@@ -11,6 +11,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { AuthService } from '@core/services/auth.service';
 import { DocumentsService } from '@core/services/documents.service';
 import { DashboardService } from '@core/services/dashboard.service';
@@ -45,6 +46,7 @@ import { DIALOG_LG } from '@shared/ui/dialog-sizes';
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ButtonComponent,
     MatIconModule,
     MatDialogModule,
     PageHeaderComponent,

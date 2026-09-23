@@ -21,4 +21,16 @@ describe('FORMAT_STYLE', () => {
   it('define un estilo para cada formato', () => {
     expect(Object.keys(FORMAT_STYLE).sort()).toEqual(['DOCX', 'JPG', 'PDF', 'PNG', 'XLSX']);
   });
+
+  it('usa los tokens de color de cada familia', () => {
+    expect(FORMAT_STYLE.PDF).toEqual({
+      bg: 'var(--color-error-light)',
+      fg: 'var(--color-error-text)',
+      dot: 'var(--color-error)',
+      matIcon: 'description',
+    });
+    // primary no tiene token -text: el texto usa primary-dark.
+    expect(FORMAT_STYLE.DOCX.fg).toBe('var(--color-primary-dark)');
+    expect(FORMAT_STYLE.JPG.dot).toBe('var(--color-purple)');
+  });
 });

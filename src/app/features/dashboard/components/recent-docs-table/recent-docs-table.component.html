@@ -28,10 +28,10 @@
       >
         @if (canUpload()) {
           <div actions>
-            <button class="recent-docs__upload-cta" (click)="uploadFirst.emit()">
-              <mat-icon>upload</mat-icon>
-              Cargar primer documento
-            </button>
+            <app-button variant="primary" (click)="uploadFirst.emit()">
+              <mat-icon aria-hidden="true">upload</mat-icon>
+              <span>Cargar primer documento</span>
+            </app-button>
           </div>
         }
       </app-empty-state>

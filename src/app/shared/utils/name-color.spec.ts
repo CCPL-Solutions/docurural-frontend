@@ -1,49 +1,65 @@
 import { avatarColor, nameColor } from './name-color';
 
+const v = (name: string) => `var(--color-${name})`;
+
 describe('nameColor', () => {
   it('es determinista para el mismo nombre', () => {
     expect(nameColor('Actas')).toEqual(nameColor('Actas'));
   });
 
   it('usa el primer color de la paleta para un nombre vacío o nulo', () => {
-    const first = { bg: '#EBF3FB', fg: '#1E4F7A', dot: '#2E6DA4' };
+    const first = { bg: v('primary-light'), fg: v('primary-dark'), dot: v('primary') };
     expect(nameColor('')).toEqual(first);
     expect(nameColor(null)).toEqual(first);
   });
 
   it('conserva la paleta de categorías y pills', () => {
-    // Valores calculados con la implementación anterior (category-color.ts), para fijar que la
-    // fusión no cambia ningún color.
-    expect(nameColor('Actas')).toEqual({ bg: '#F3EAF8', fg: '#5B2779', dot: '#8E4FB8' });
-    expect(nameColor('Informes')).toEqual({ bg: '#F4F6F8', fg: '#4A5A6E', dot: '#6B7A8D' });
+    // Mismas posiciones que la implementación con hex (Fase 3): 'Actas' era #F3EAF8/#5B2779/#8E4FB8
+    // e 'Informes' #F4F6F8/#4A5A6E/#6B7A8D, que son exactamente estos tokens.
+    expect(nameColor('Actas')).toEqual({
+      bg: v('purple-light'),
+      fg: v('purple-text'),
+      dot: v('purple'),
+    });
+    expect(nameColor('Informes')).toEqual({
+      bg: v('bg-app'),
+      fg: v('neutral'),
+      dot: v('text-secondary'),
+    });
   });
 
   it('devuelve la variante apagada cuando muted es true', () => {
-    expect(nameColor('Actas', true)).toEqual({ bg: '#EEF1F4', fg: '#9AA8B8', dot: '#9AA8B8' });
+    expect(nameColor('Actas', true)).toEqual({
+      bg: v('neutral-light'),
+      fg: v('text-muted'),
+      dot: v('text-muted'),
+    });
   });
 });
 
 describe('avatarColor', () => {
+  const translucent = (color: string) => `color-mix(in srgb, ${color} 13%, transparent)`;
+
   it('es determinista para el mismo nombre', () => {
     expect(avatarColor('Ana Pérez')).toEqual(avatarColor('Ana Pérez'));
   });
 
-  it('usa el color base como texto y el mismo con transparencia como fondo', () => {
+  it('usa el color base como texto y el mismo, translúcido, como fondo', () => {
     const { bg, fg } = avatarColor('Ana Pérez');
-    expect(bg).toBe(`${fg}22`);
+    expect(bg).toBe(translucent(fg));
   });
 
   it('conserva la paleta de avatares', () => {
-    // Valores calculados con la implementación anterior (avatar-color.ts).
-    expect(avatarColor('Ana Pérez')).toEqual({ bg: '#3A8A3F22', fg: '#3A8A3F' });
-    expect(avatarColor('Luis Gómez')).toEqual({ bg: '#E8A02022', fg: '#E8A020' });
+    // Mismas posiciones que la implementación con hex: #3A8A3F y #E8A020.
+    expect(avatarColor('Ana Pérez').fg).toBe(v('success'));
+    expect(avatarColor('Luis Gómez').fg).toBe(v('warning'));
   });
 
   it('usa el primer color de su paleta para un nombre vacío', () => {
-    expect(avatarColor('')).toEqual({ bg: '#2E6DA422', fg: '#2E6DA4' });
+    expect(avatarColor('')).toEqual({ bg: translucent(v('primary')), fg: v('primary') });
   });
 
   it('devuelve la variante apagada cuando muted es true', () => {
-    expect(avatarColor('Ana Pérez', true)).toEqual({ bg: '#E5EAF0', fg: '#9AA8B8' });
+    expect(avatarColor('Ana Pérez', true)).toEqual({ bg: v('divider'), fg: v('text-muted') });
   });
 });

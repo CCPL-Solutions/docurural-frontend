@@ -1,4 +1,5 @@
 @use 'breakpoints' as bp;
+@use 'icons' as icon;
 
 .qa-section {
   margin-top: var(--space-7);
@@ -29,7 +30,7 @@
   font-size: var(--text-2xs);
   font-weight: 600;
   letter-spacing: 0.06em;
-  padding: 3px var(--space-2);
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
@@ -37,7 +38,9 @@
 
 .qa-section__grid {
   display: grid;
-  grid-template-columns: repeat(var(--qa-cols, 3), 1fr);
+  // Tantas columnas como quepan con al menos 220px: con el menú lateral a 1280px caben 4 de las
+  // 5 tarjetas del ADMIN y la 5.ª pasa a la fila siguiente en lugar de quedar cortada.
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: var(--space-4);
 
   @include bp.md {
@@ -87,9 +90,7 @@
   flex-shrink: 0;
 
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    @include icon.size(24px);
   }
 }
 
@@ -100,8 +101,9 @@
 
 .qa-btn__title-row {
   display: flex;
+  flex-wrap: wrap; // la insignia ADMIN baja de línea si no cabe junto al título
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-2);
 }
 
 .qa-btn__title {
@@ -111,10 +113,10 @@
 }
 
 .qa-btn__admin-badge {
-  font-size: 10px;
+  font-size: var(--text-3xs);
   font-weight: 600;
   letter-spacing: 0.06em;
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
@@ -131,7 +133,7 @@
 .qa-btn__arrow {
   color: var(--color-text-muted);
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: var(--space-0-5);
 }
 
 // ── Variant colour overrides ──────────────────────────────────────────────────
@@ -147,8 +149,8 @@
 }
 
 .qa-btn--info .qa-btn__icon-wrap {
-  background: #e5f1f7;
-  color: #1a5570;
+  background: var(--color-teal-light);
+  color: var(--color-teal-text);
 }
 
 .qa-btn--warning .qa-btn__icon-wrap {
@@ -157,6 +159,6 @@
 }
 
 .qa-btn--purple .qa-btn__icon-wrap {
-  background: #f3eaf8;
-  color: #5b2779;
+  background: var(--color-purple-light);
+  color: var(--color-purple-text);
 }

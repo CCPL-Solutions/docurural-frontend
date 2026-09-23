@@ -1,3 +1,5 @@
+@use 'icons' as icon;
+
 .empty-results {
   display: flex;
   flex-direction: column;
@@ -5,7 +7,7 @@
   justify-content: center;
   text-align: center;
   padding: var(--space-9) var(--space-6);
-  background: #fff;
+  background: var(--color-bg-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-divider);
   box-shadow: var(--shadow-card);
@@ -18,15 +20,13 @@
   justify-content: center;
   width: 88px;
   height: 88px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--color-bg-app);
   margin-bottom: var(--space-4);
 }
 
 .empty-results__icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
+  @include icon.size(40px);
   color: var(--color-text-muted);
 }
 
@@ -43,34 +43,4 @@
   max-width: 480px;
   margin: 0 0 var(--space-5);
   line-height: var(--leading-relaxed);
-}
-
-.empty-results__action {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 0 var(--space-5);
-  height: 44px;
-  border: none;
-  border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: #fff;
-  font-size: var(--text-base);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background var(--duration-fast) var(--easing-standard);
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
-  &:hover {
-    background: var(--color-primary-dark);
-  }
-  &:focus-visible {
-    outline: none;
-    box-shadow: var(--focus-ring);
-  }
 }

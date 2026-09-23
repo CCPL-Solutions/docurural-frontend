@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { MatDatepickerModule, MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { MatSelectModule } from '@angular/material/select';
 import { DocumentFilters, EMPTY_FILTERS } from '../../document-filters.model';
 import { FilterOptionsResponse } from '@core/models/filter-options.model';
@@ -11,7 +12,13 @@ import { parseYmd } from '@shared/utils/parse-date';
 @Component({
   selector: 'app-document-filters-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, MatFormFieldModule, MatSelectModule, MatDatepickerModule],
+  imports: [
+    ButtonComponent,
+    MatIconModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule,
+  ],
   templateUrl: './document-filters-panel.component.html',
   styleUrl: './document-filters-panel.component.scss',
 })

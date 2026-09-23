@@ -1,3 +1,5 @@
+@use 'icons' as icon;
+
 .sensitivity-radio {
   display: flex;
   flex-direction: column;
@@ -8,7 +10,7 @@
     display: flex;
     align-items: flex-start;
     gap: var(--space-3);
-    padding: 13px 14px;
+    padding: var(--space-3-5) var(--space-3-5);
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
     background: var(--color-bg-card);
@@ -35,36 +37,36 @@
 
     // Estados seleccionados por nivel
     &--INTERNAL.is-selected {
-      border-color: var(--color-neutral-accent); // #6B7A8D
-      background: var(--color-neutral-light); // #EEF1F4
+      border-color: var(--color-neutral-accent);
+      background: var(--color-neutral-light);
       box-shadow: 0 0 0 3px rgba(107, 122, 141, 0.13);
     }
 
     &--RESTRICTED.is-selected {
-      border-color: var(--color-warning); // #E8A020
-      background: #fbeacc; // bgSel del handoff (no tiene token)
+      border-color: var(--color-warning);
+      background: var(--color-warning-selected);
       box-shadow: 0 0 0 3px rgba(232, 160, 32, 0.13);
     }
 
     &--CONFIDENTIAL.is-selected {
-      border-color: var(--color-error); // #C0392B
-      background: #f5d2cc; // bgSel del handoff (no tiene token)
+      border-color: var(--color-error);
+      background: var(--color-error-selected);
       box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.13);
     }
   }
 
   &--compact &__card {
-    padding: 11px 12px;
+    padding: var(--space-3) var(--space-3);
   }
 
   // ── Indicador (círculo radio) ─────────────────────────────────────────────────
   &__indicator {
     width: 18px;
     height: 18px;
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
     flex-shrink: 0;
-    margin-top: 2px;
-    background: #fff;
+    margin-top: var(--space-0-5);
+    background: var(--color-bg-card);
     border: 2px solid var(--color-border);
     display: flex;
     align-items: center;
@@ -85,7 +87,7 @@
   &__dot {
     width: 8px;
     height: 8px;
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
   }
 
   &__card--INTERNAL &__dot {
@@ -109,9 +111,7 @@
     justify-content: center;
 
     mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+      @include icon.size(18px);
     }
   }
 
@@ -119,9 +119,7 @@
     width: 32px;
     height: 32px;
     mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
+      @include icon.size(16px);
     }
   }
 
@@ -152,7 +150,7 @@
   }
 
   &__label {
-    font-size: 15px;
+    font-size: var(--text-md-15);
     font-weight: 600;
     color: var(--color-text-primary);
     letter-spacing: var(--ls-tight);
@@ -165,25 +163,23 @@
   &__chip {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 11px;
+    gap: var(--space-1);
+    font-size: var(--text-2xs);
     font-weight: 600;
     color: var(--color-text-secondary);
-    padding: 2px 7px;
+    padding: var(--space-0-5) var(--space-2);
     border-radius: var(--radius-pill);
     background: var(--color-bg-app);
 
     mat-icon {
-      font-size: 10px;
-      width: 10px;
-      height: 10px;
+      @include icon.size(10px);
     }
   }
 
   &__description {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
-    margin: 3px 0 0;
+    margin: var(--space-1) 0 0;
     line-height: var(--lh-snug);
   }
 
@@ -194,15 +190,13 @@
   &__access {
     font-size: var(--text-xs);
     color: var(--color-text-secondary);
-    margin: 4px 0 0;
+    margin: var(--space-1) 0 0;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: var(--space-1-5);
 
     mat-icon {
-      font-size: 11px;
-      width: 11px;
-      height: 11px;
+      @include icon.size(11px);
       color: var(--color-text-muted);
     }
   }

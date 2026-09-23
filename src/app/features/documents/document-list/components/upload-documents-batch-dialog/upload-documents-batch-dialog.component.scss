@@ -1,3 +1,6 @@
+@use 'breakpoints' as bp;
+@use 'icons' as icon;
+
 // Estilos específicos del dialog de carga masiva de documentos.
 // Los estilos de estructura (dialog-shell, form-field, dropzone base, mat-select)
 // son globales y viven en src/styles/.
@@ -34,7 +37,7 @@
 
   .file-row__icon {
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: var(--space-0-5);
   }
 }
 
@@ -43,13 +46,13 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .file-row__title-input {
   width: 100%;
   box-sizing: border-box;
-  padding: 6px 10px;
+  padding: var(--space-1-5) var(--space-2-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-family: var(--font-sans);
@@ -90,8 +93,8 @@
 }
 
 .file-row__progress {
-  margin-top: 2px;
-  border-radius: 4px;
+  margin-top: var(--space-0-5);
+  border-radius: var(--radius-xs);
   --mdc-linear-progress-active-indicator-color: var(--color-primary);
   --mdc-linear-progress-track-color: var(--color-primary-light);
 }
@@ -99,16 +102,14 @@
 .file-row__error-msg {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   font-size: var(--text-xs);
   color: var(--color-error);
   margin: 0;
   font-weight: 500;
 
   mat-icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    @include icon.size(14px);
     flex-shrink: 0;
   }
 }
@@ -117,19 +118,17 @@
 .file-row__status {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   flex-shrink: 0;
   font-size: var(--text-xs);
   font-weight: 600;
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-2-5);
   border-radius: var(--radius-full);
   white-space: nowrap;
-  margin-top: 2px;
+  margin-top: var(--space-0-5);
 
   mat-icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    @include icon.size(14px);
   }
 
   &--pending {
@@ -167,13 +166,11 @@
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: var(--space-0-5);
   transition: background var(--duration-fast) var(--easing-standard);
 
   mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    @include icon.size(16px);
   }
 
   &:hover {
@@ -213,9 +210,7 @@
 }
 
 .summary-card__icon {
-  font-size: 24px;
-  width: 24px;
-  height: 24px;
+  @include icon.size(24px);
   flex-shrink: 0;
   margin-top: 1px;
 
@@ -250,9 +245,7 @@
   margin-bottom: var(--space-4);
 
   mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    @include icon.size(20px);
     flex-shrink: 0;
     color: var(--color-info);
     margin-top: 1px;
@@ -267,7 +260,7 @@
 }
 
 // ─── Responsive ───────────────────────────────────────────────────────────────
-@media (max-width: 600px) {
+@include bp.sm {
   .file-row {
     flex-wrap: wrap;
 
