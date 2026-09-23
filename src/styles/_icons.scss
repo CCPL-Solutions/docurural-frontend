@@ -1,0 +1,13 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Iconos
+// Uso: @use 'icons' as icon;  →  mat-icon { @include icon.size(18px); }
+//
+// El tamaño de un icono es intrínseco (no es tipografía ni espaciado), así que es la única
+// excepción a la regla de tokens de UI-09: se pasa en px y el mixin iguala fuente y caja.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@mixin size($size) {
+  font-size: $size;
+  width: $size;
+  height: $size;
+}
