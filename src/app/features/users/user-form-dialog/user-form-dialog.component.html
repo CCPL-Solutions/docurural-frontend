@@ -36,12 +36,7 @@
           "
         />
       </div>
-      @if (fullNameError(); as msg) {
-        <p class="field__error">
-          <mat-icon aria-hidden="true">error</mat-icon>
-          {{ msg }}
-        </p>
-      }
+      <app-field-error [control]="form.controls.fullName" [messages]="messages.fullName" />
     </div>
 
     <!-- Correo electrónico -->
@@ -65,12 +60,7 @@
           [attr.aria-invalid]="(form.controls.email.invalid && form.controls.email.touched) || null"
         />
       </div>
-      @if (emailError(); as msg) {
-        <p class="field__error">
-          <mat-icon aria-hidden="true">error</mat-icon>
-          {{ msg }}
-        </p>
-      }
+      <app-field-error [control]="form.controls.email" [messages]="messages.email" />
     </div>
 
     <!-- Rol -->
@@ -99,12 +89,7 @@
           }
         </select>
       </div>
-      @if (roleError(); as msg) {
-        <p class="field__error">
-          <mat-icon aria-hidden="true">error</mat-icon>
-          {{ msg }}
-        </p>
-      }
+      <app-field-error [control]="form.controls.role" [messages]="messages.role" />
     </div>
 
     <!-- Contraseña -->
@@ -150,12 +135,7 @@
       <small class="field__hint"
         >Mínimo 12 caracteres, con una mayúscula, una minúscula, un número y un símbolo.</small
       >
-      @if (passwordError(); as msg) {
-        <p class="field__error">
-          <mat-icon aria-hidden="true">error</mat-icon>
-          {{ msg }}
-        </p>
-      }
+      <app-field-error [control]="form.controls.password" [messages]="messages.password" />
     </div>
 
     <!-- Confirmar contraseña -->
@@ -198,12 +178,11 @@
           <mat-icon>{{ hideConfirmPassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
         </button>
       </div>
-      @if (confirmPasswordError(); as msg) {
-        <p class="field__error">
-          <mat-icon aria-hidden="true">error</mat-icon>
-          {{ msg }}
-        </p>
-      }
+      <app-field-error
+        [control]="form.controls.confirmPassword"
+        [messages]="messages.confirmPassword"
+        [groupErrors]="['passwordMismatch']"
+      />
     </div>
 
     <div class="dialog-footer">

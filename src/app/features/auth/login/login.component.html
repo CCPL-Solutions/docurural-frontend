@@ -39,12 +39,7 @@
             [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
           />
         </div>
-        @if (emailError()) {
-          <p class="field__error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ emailError() }}
-          </p>
-        }
+        <app-field-error [control]="form.controls.email" [messages]="messages.email" />
       </div>
 
       <!-- Campo contraseña -->
@@ -77,12 +72,7 @@
             <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
           </button>
         </div>
-        @if (passwordError()) {
-          <p class="field__error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ passwordError() }}
-          </p>
-        }
+        <app-field-error [control]="form.controls.password" [messages]="messages.password" />
       </div>
 
       <!-- Botón submit -->

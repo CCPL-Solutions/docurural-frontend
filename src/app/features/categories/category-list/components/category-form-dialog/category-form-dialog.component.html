@@ -29,9 +29,9 @@
           </label>
           <span
             class="field__counter"
-            [class.field__counter--over]="nameLen() > 100"
+            [class.field__counter--over]="nameLen() > maxNameLength"
             aria-hidden="true"
-            >{{ nameLen() }}/100</span
+            >{{ nameLen() }}/{{ maxNameLength }}</span
           >
         </div>
         <div
@@ -43,7 +43,7 @@
             id="name"
             type="text"
             formControlName="name"
-            maxlength="100"
+            [maxlength]="maxNameLength"
             autocomplete="off"
             placeholder="Ej. Proyectos Biotecnología"
             [attr.aria-required]="true"
@@ -51,16 +51,15 @@
             aria-describedby="name-error name-hint"
           />
         </div>
-        @if (nameError(); as msg) {
-          <p class="field__error" id="name-error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        } @else {
+        <app-field-error
+          [control]="form.controls.name"
+          [messages]="messages.name"
+          errorId="name-error"
+        >
           <small class="field__hint" id="name-hint"
             >Entre 3 y 100 caracteres. Debe ser único en el sistema.</small
           >
-        }
+        </app-field-error>
       </div>
 
       <!-- Descripción -->
@@ -72,9 +71,9 @@
           </label>
           <span
             class="field__counter"
-            [class.field__counter--over]="descLen() > 500"
+            [class.field__counter--over]="descLen() > maxDescriptionLength"
             aria-hidden="true"
-            >{{ descLen() }}/500</span
+            >{{ descLen() }}/{{ maxDescriptionLength }}</span
           >
         </div>
         <div
@@ -88,7 +87,7 @@
             id="description"
             formControlName="description"
             rows="4"
-            maxlength="500"
+            [maxlength]="maxDescriptionLength"
             autocomplete="off"
             placeholder="Describa brevemente qué tipo de documentos agrupa esta categoría (opcional)."
             [attr.aria-invalid]="
@@ -97,16 +96,15 @@
             aria-describedby="desc-error desc-hint"
           ></textarea>
         </div>
-        @if (descriptionError(); as msg) {
-          <p class="field__error" id="desc-error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        } @else {
+        <app-field-error
+          [control]="form.controls.description"
+          [messages]="messages.description"
+          errorId="desc-error"
+        >
           <small class="field__hint" id="desc-hint"
             >Máximo 500 caracteres. Ayuda a otros administradores a clasificar correctamente.</small
           >
-        }
+        </app-field-error>
       </div>
 
       <!-- Sensibilidad por defecto -->
@@ -179,12 +177,10 @@
           <app-sensitivity-radio formControlName="defaultSensitivityLevel" [compact]="true" />
         </div>
 
-        @if (sensitivityError(); as msg) {
-          <p class="field__error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        }
+        <app-field-error
+          [control]="form.controls.defaultSensitivityLevel"
+          [messages]="messages.defaultSensitivityLevel"
+        />
       </div>
     </div>
     <!-- /dialog-fields -->

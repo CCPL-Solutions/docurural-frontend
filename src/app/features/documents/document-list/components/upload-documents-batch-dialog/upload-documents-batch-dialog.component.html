@@ -275,12 +275,11 @@
               </div>
             }
 
-            @if (categoryError(); as msg) {
-              <p class="field__error" id="batch-category-error">
-                <mat-icon aria-hidden="true">error</mat-icon>
-                {{ msg }}
-              </p>
-            }
+            <app-field-error
+              [control]="form.controls.categoryId"
+              [messages]="messages.categoryId"
+              errorId="batch-category-error"
+            />
           </div>
 
           <!-- Área responsable -->
@@ -302,12 +301,11 @@
                 }
               </mat-select>
             </mat-form-field>
-            @if (areaError(); as msg) {
-              <p class="field__error" id="batch-area-error">
-                <mat-icon aria-hidden="true">error</mat-icon>
-                {{ msg }}
-              </p>
-            }
+            <app-field-error
+              [control]="form.controls.responsibleArea"
+              [messages]="messages.responsibleArea"
+              errorId="batch-area-error"
+            />
           </div>
         </div>
 

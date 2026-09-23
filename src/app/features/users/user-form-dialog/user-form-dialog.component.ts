@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,9 +20,19 @@ import { NotificationService } from '@core/services/notification.service';
 import { Role, ROLE_LABELS } from '@core/models/role.model';
 import { AuthenticatedUser, User } from '@core/models/user.model';
 import { UserStatus } from '@core/models/user-status.model';
-import { CreateUserRequest, UpdateUserRequest } from '@core/models/user-form.model';
+import {
+  CreateUserRequest,
+  MAX_EMAIL_LENGTH,
+  MAX_FULL_NAME_LENGTH,
+  MIN_FULL_NAME_LENGTH,
+  UpdateUserRequest,
+} from '@core/models/user-form.model';
+import { applyFieldErrors } from '@shared/forms/apply-field-errors';
+import { trimmedMinLength } from '@shared/forms/validators';
 import { passwordMatchValidator } from './validators/password-match.validator';
 import { passwordComplexityValidator } from './validators/password-complexity.validator';
+import { FieldErrorComponent } from '@shared/forms/field-error.component';
+import { USER_FORM_MESSAGES } from './user-form.messages';
 
 export type UserFormMode = 'create' | 'edit';
 
@@ -39,7 +49,14 @@ export type UserFormDialogResult =
 @Component({
   selector: 'app-user-form-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatIconModule, MatTooltipModule, AlertComponent, ButtonComponent],
+  imports: [
+    FieldErrorComponent,
+    ReactiveFormsModule,
+    MatIconModule,
+    MatTooltipModule,
+    AlertComponent,
+    ButtonComponent,
+  ],
   templateUrl: './user-form-dialog.component.html',
   styleUrl: './user-form-dialog.component.scss',
 })
@@ -69,12 +86,20 @@ export class UserFormDialogComponent implements OnInit {
     () => this.isEdit() && this.data.user?.id === this.auth.currentUser()?.id,
   );
 
+  protected readonly messages = USER_FORM_MESSAGES;
   protected readonly roleOptions = Object.entries(ROLE_LABELS) as [Role, string][];
 
   protected readonly form = this.fb.nonNullable.group(
     {
-      fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      email: ['', [Validators.required, Validators.email, Validators.maxLength(150)]],
+      fullName: [
+        '',
+        [
+          Validators.required,
+          trimmedMinLength(MIN_FULL_NAME_LENGTH),
+          Validators.maxLength(MAX_FULL_NAME_LENGTH),
+        ],
+      ],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(MAX_EMAIL_LENGTH)]],
       role: ['', [Validators.required]],
       password: [
         '',
@@ -102,63 +127,6 @@ export class UserFormDialogComponent implements OnInit {
     }
   }
 
-  protected fullNameError(): string | null {
-    const ctrl = this.form.controls.fullName;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Ingrese el nombre completo';
-    if (ctrl.hasError('minlength')) return 'El nombre debe tener al menos 3 caracteres';
-    if (ctrl.hasError('maxlength')) return 'El nombre no puede superar los 100 caracteres';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected emailError(): string | null {
-    const ctrl = this.form.controls.email;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Ingrese el correo electrónico';
-    if (ctrl.hasError('email')) return 'Ingrese un correo electrónico válido';
-    if (ctrl.hasError('maxlength')) return 'El correo no puede superar los 150 caracteres';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected roleError(): string | null {
-    const ctrl = this.form.controls.role;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Seleccione un rol';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected passwordError(): string | null {
-    const ctrl = this.form.controls.password;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Ingrese una contraseña';
-    if (ctrl.hasError('minLength')) return 'Debe tener al menos 12 caracteres';
-    if (ctrl.hasError('maxLength')) return 'No puede superar los 128 caracteres';
-    if (ctrl.hasError('noLowercase')) return 'Debe incluir al menos una letra minúscula';
-    if (ctrl.hasError('noUppercase')) return 'Debe incluir al menos una letra mayúscula';
-    if (ctrl.hasError('noDigit')) return 'Debe incluir al menos un número';
-    if (ctrl.hasError('noSymbol')) return 'Debe incluir al menos un símbolo (ej: !, @, #, $)';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected confirmPasswordError(): string | null {
-    const ctrl = this.form.controls.confirmPassword;
-    if (!ctrl.touched) return null;
-    if (ctrl.hasError('required')) return 'Confirme su contraseña';
-    if (ctrl.hasError('minLength')) return 'Debe tener al menos 12 caracteres';
-    if (ctrl.hasError('maxLength')) return 'No puede superar los 128 caracteres';
-    if (ctrl.hasError('noLowercase')) return 'Debe incluir al menos una letra minúscula';
-    if (ctrl.hasError('noUppercase')) return 'Debe incluir al menos una letra mayúscula';
-    if (ctrl.hasError('noDigit')) return 'Debe incluir al menos un número';
-    if (ctrl.hasError('noSymbol')) return 'Debe incluir al menos un símbolo (ej: !, @, #, $)';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    if (this.form.hasError('passwordMismatch')) return 'Las contraseñas no coinciden';
-    return null;
-  }
-
   protected onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -184,14 +152,7 @@ export class UserFormDialogComponent implements OnInit {
 
       this.usersService
         .update(this.data.user.id, req)
-        .pipe(
-          finalize(() => {
-            this.loading.set(false);
-            this.form.enable();
-            this.dialogRef.disableClose = false;
-            if (this.isSelfEdit()) this.form.controls.role.disable();
-          }),
-        )
+        .pipe(finalize(() => this.loading.set(false)))
         .subscribe({
           next: (res) => {
             this.notifications.success(
@@ -214,13 +175,7 @@ export class UserFormDialogComponent implements OnInit {
 
       this.usersService
         .create(req)
-        .pipe(
-          finalize(() => {
-            this.loading.set(false);
-            this.form.enable();
-            this.dialogRef.disableClose = false;
-          }),
-        )
+        .pipe(finalize(() => this.loading.set(false)))
         .subscribe({
           next: (res) => {
             this.notifications.success(
@@ -238,28 +193,28 @@ export class UserFormDialogComponent implements OnInit {
     this.dialogRef.close({ kind: 'cancelled' });
   }
 
+  /** Deja el formulario editable tras un error. */
+  private unlockForm(): void {
+    this.form.enable();
+    if (this.isSelfEdit()) this.form.controls.role.disable();
+    this.dialogRef.disableClose = false;
+  }
+
   private handleError(err: HttpErrorResponse): void {
+    // Antes de aplicar errores: enable() vuelve a validar y borraría los del backend (R12).
+    this.unlockForm();
     switch (err.status) {
-      case 400:
-        if (err.error?.fieldErrors) {
-          const fieldErrors = err.error.fieldErrors as Record<string, string>;
-          Object.entries(fieldErrors).forEach(([field, msg]) => {
-            const ctrl = this.form.get(field);
-            if (ctrl) {
-              ctrl.setErrors({ backend: msg });
-              ctrl.markAsTouched();
-            }
-          });
-        } else {
+      case HttpStatusCode.BadRequest:
+        if (!applyFieldErrors(this.form, err)) {
           this.submitError.set('Los datos enviados no son válidos. Revise el formulario');
         }
         break;
-      case 409:
+      case HttpStatusCode.Conflict:
         this.submitError.set('Ya existe un usuario registrado con este correo electrónico');
         this.form.controls.email.setErrors({ backend: 'Este correo ya está registrado' });
         this.form.controls.email.markAsTouched();
         break;
-      case 403:
+      case HttpStatusCode.Forbidden:
         this.submitError.set('No tiene permisos para realizar esta acción');
         break;
       default:
