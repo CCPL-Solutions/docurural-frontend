@@ -32,7 +32,14 @@ import {
   hasAnyFilter,
 } from './document-filters.model';
 import { FilterOptionsResponse } from '@core/models/filter-options.model';
-import { canUploadDocument } from '@core/auth/permissions';
+import {
+  canDeleteDocument,
+  canEditDocument,
+  canSeeUploadedByFilter,
+  canUploadDocument,
+} from '@core/auth/permissions';
+import { DATE_FORMAT, DATE_TIME_FORMAT } from '@shared/utils/date-formats';
+import { userInitials } from '@shared/utils/user-initials';
 import { formatFileSize } from '@shared/utils/file-size';
 import {
   buildFallbackFilename,
@@ -77,6 +84,8 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
 import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
 import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
+import { DatePipe } from '@angular/common';
+import { DIALOG_LG, DIALOG_MD, DIALOG_XL } from '@shared/ui/dialog-sizes';
 
 type SortOption =
   | 'createdAtDesc'
@@ -118,6 +127,7 @@ const PAGE_SIZE = 10;
   selector: 'app-document-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     MatDialogModule,
     MatBottomSheetModule,
     MatIconModule,
@@ -176,7 +186,11 @@ export class DocumentListComponent implements OnInit {
   protected readonly role = computed(() => this.auth.currentUser()?.role ?? 'READER');
 
   protected readonly canUpload = computed(() => canUploadDocument(this.role()));
-  protected readonly canSeeUploadedByFilter = computed(() => this.role() === 'ADMIN');
+  protected readonly canSeeUploadedByFilter = computed(() => canSeeUploadedByFilter(this.role()));
+  protected readonly canDelete = computed(() => canDeleteDocument(this.role()));
+  protected readonly dateFormat = DATE_FORMAT;
+  protected readonly dateTimeFormat = DATE_TIME_FORMAT;
+  protected readonly userInitials = userInitials;
   protected readonly isEmpty = computed(() => !this.loading() && this.totalDocuments() === 0);
 
   protected readonly appliedFilterCount = computed(() => countActiveFilters(this.appliedFilters()));
@@ -237,19 +251,6 @@ export class DocumentListComponent implements OnInit {
     if (range[range.length - 1] < total - 1) pages.push(null);
     pages.push(total);
     return pages;
-  });
-
-  private readonly docDateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-  private readonly loadedAtFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
   });
 
   constructor() {
@@ -524,9 +525,7 @@ export class DocumentListComponent implements OnInit {
           EditDocumentMetadataDialogResult
         >(EditDocumentMetadataDialogComponent, {
           data: { document: detail },
-          width: '620px',
-          maxWidth: '95vw',
-          autoFocus: 'first-tabbable',
+          ...DIALOG_LG,
         });
         ref.afterClosed().subscribe((result) => {
           if (result?.kind === 'updated') {
@@ -558,9 +557,7 @@ export class DocumentListComponent implements OnInit {
       DeleteDocumentDialogResult
     >(DeleteDocumentDialogComponent, {
       data: { document: doc },
-      width: '480px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_MD,
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -578,9 +575,7 @@ export class DocumentListComponent implements OnInit {
       UploadDocumentDialogResult
     >(UploadDocumentDialogComponent, {
       data: {},
-      width: '620px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_LG,
     });
     ref.afterClosed().subscribe((result) => {
       if (result?.kind === 'uploaded') {
@@ -599,9 +594,7 @@ export class DocumentListComponent implements OnInit {
       UploadDocumentsBatchDialogResult
     >(UploadDocumentsBatchDialogComponent, {
       data: {},
-      width: '720px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_XL,
     });
     ref.afterClosed().subscribe((result) => {
       if (result?.kind === 'uploaded' && result.uploadedCount > 0) {
@@ -612,37 +605,16 @@ export class DocumentListComponent implements OnInit {
     });
   }
 
-  protected formatDocumentDate(iso: string): string {
-    const d = this.parseDate(iso);
-    return d ? this.docDateFormatter.format(d) : '—';
-  }
-
-  protected formatCreatedAt(iso: string): string {
-    const d = this.parseDate(iso);
-    return d ? this.loadedAtFormatter.format(d) : '—';
+  protected canEdit(doc: Document): boolean {
+    return canEditDocument(this.role(), this.currentUser()?.fullName ?? '', doc.uploadedBy);
   }
 
   protected formatSize(bytes: number): string {
     return formatFileSize(bytes);
   }
 
-  protected userInitials(fullName: string): string {
-    return fullName
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p[0].toUpperCase())
-      .join('');
-  }
-
   private currentSortConfig(): SortOptionConfig {
     return SORT_OPTIONS.find((o) => o.value === this.selectedSort()) ?? SORT_OPTIONS[0];
-  }
-
-  private parseDate(value: string): Date | null {
-    if (!value) return null;
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? null : d;
   }
 
   private reloadAfterDelete(): void {

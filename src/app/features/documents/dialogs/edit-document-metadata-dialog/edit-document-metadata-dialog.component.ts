@@ -11,7 +11,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,18 +37,10 @@ import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio
 import { SensitivityMobileFieldComponent } from '@shared/sensitivity/sensitivity-mobile-field.component';
 import { formatFileSize } from '@shared/utils/file-size';
 import { formatYmd } from '@shared/utils/format-ymd';
-
-const MY_DATE_FORMATS = {
-  parse: {
-    dateInput: { day: 'numeric', month: 'numeric', year: 'numeric' },
-  },
-  display: {
-    dateInput: { day: '2-digit', month: '2-digit', year: 'numeric' },
-    monthYearLabel: { year: 'numeric', month: 'short' },
-    dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric' },
-    monthYearA11yLabel: { year: 'numeric', month: 'long' },
-  },
-};
+import { DatePipe } from '@angular/common';
+import { isEditor } from '@core/auth/permissions';
+import { DATE_TIME_FORMAT } from '@shared/utils/date-formats';
+import { parseYmd } from '@shared/utils/parse-date';
 
 export interface EditDocumentMetadataDialogData {
   document: DocumentDetailResponse;
@@ -63,6 +54,7 @@ export type EditDocumentMetadataDialogResult =
   selector: 'app-edit-document-metadata-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     ReactiveFormsModule,
     MatIconModule,
     MatDialogModule,
@@ -77,7 +69,6 @@ export type EditDocumentMetadataDialogResult =
     SensitivityRadioComponent,
     SensitivityMobileFieldComponent,
   ],
-  providers: [{ provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }],
   templateUrl: './edit-document-metadata-dialog.component.html',
   styleUrl: './edit-document-metadata-dialog.component.scss',
 })
@@ -133,7 +124,7 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
     () => this.selectedCategory()?.defaultSensitivityLevel ?? 'INTERNAL',
   );
   protected readonly sensitivityLocked = computed(() => this.categoryDefault() !== 'INTERNAL');
-  protected readonly editorRole = computed(() => this.auth.currentUser()?.role === 'EDITOR');
+  protected readonly editorRole = computed(() => isEditor(this.auth.currentUser()?.role));
   protected readonly minSensitivity = computed(() => {
     const catMin = this.categoryDefault();
     const docMin = this.docOriginalSensitivity();
@@ -170,13 +161,7 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
 
   protected readonly formatFileSize = formatFileSize;
 
-  private readonly createdAtFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  protected readonly dateTimeFormat = DATE_TIME_FORMAT;
 
   ngOnInit(): void {
     this.loadCategories();
@@ -186,7 +171,7 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
       title: doc.title,
       categoryId: doc.category.id,
       responsibleArea: doc.responsibleArea,
-      documentDate: new Date(doc.documentDate + 'T00:00:00'),
+      documentDate: parseYmd(doc.documentDate),
       description: doc.description ?? '',
       sensitivityLevel: doc.sensitivityLevel,
     });
@@ -206,11 +191,6 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
           this.loadCategoriesError.set(true);
         },
       });
-  }
-
-  protected formatCreatedAt(iso: string): string {
-    const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? '—' : this.createdAtFormatter.format(d);
   }
 
   protected titleError(): string | null {

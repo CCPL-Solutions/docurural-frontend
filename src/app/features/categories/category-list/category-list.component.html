@@ -105,7 +105,7 @@
             <td>
               <app-category-status-badge [status]="category.status" />
             </td>
-            <td class="cell-date">{{ formatCreated(category.createdAt) }}</td>
+            <td class="cell-date">{{ category.createdAt | date: dateFormat }}</td>
             <td class="cell-actions">
               <app-category-row-actions
                 [category]="category"

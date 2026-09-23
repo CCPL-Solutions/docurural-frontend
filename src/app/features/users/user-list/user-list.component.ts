@@ -28,6 +28,9 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
+import { DatePipe } from '@angular/common';
+import { DATE_FORMAT, DATE_TIME_24H_FORMAT } from '@shared/utils/date-formats';
+import { DIALOG_MD, DIALOG_SM } from '@shared/ui/dialog-sizes';
 
 type SortOption = 'fullNameAsc' | 'fullNameDesc' | 'createdAtDesc' | 'createdAtAsc';
 
@@ -48,6 +51,7 @@ const SORT_OPTIONS: SortOptionConfig[] = [
 @Component({
   selector: 'app-user-list',
   imports: [
+    DatePipe,
     FormsModule,
     MatIconModule,
     MatMenuModule,
@@ -89,20 +93,8 @@ export class UserListComponent {
     );
   });
 
-  private readonly dateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-
-  private readonly dateTimeFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
+  protected readonly dateFormat = DATE_FORMAT;
+  protected readonly dateTimeFormat = DATE_TIME_24H_FORMAT;
 
   constructor() {
     this.loadUsers();
@@ -142,9 +134,7 @@ export class UserListComponent {
       ToggleStatusDialogResult
     >(ToggleStatusDialogComponent, {
       data: { user, action },
-      width: '400px',
-      maxWidth: '90vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_SM,
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -157,7 +147,7 @@ export class UserListComponent {
   protected goToCreate(): void {
     const ref = this.dialog.open<UserFormDialogComponent, UserFormDialogData, UserFormDialogResult>(
       UserFormDialogComponent,
-      { data: { mode: 'create' }, width: '480px', maxWidth: '95vw', autoFocus: 'first-tabbable' },
+      { data: { mode: 'create' }, ...DIALOG_MD },
     );
     ref.afterClosed().subscribe((result) => {
       if (result?.kind === 'created') this.loadUsers();
@@ -169,25 +159,12 @@ export class UserListComponent {
       UserFormDialogComponent,
       {
         data: { mode: 'edit', user },
-        width: '480px',
-        maxWidth: '95vw',
-        autoFocus: 'first-tabbable',
+        ...DIALOG_MD,
       },
     );
     ref.afterClosed().subscribe((result) => {
       if (result?.kind === 'updated') this.loadUsers();
     });
-  }
-
-  protected formatCreated(iso: string): string {
-    const d = this.parseIso(iso);
-    return d ? this.dateFormatter.format(d) : '—';
-  }
-
-  protected formatLastLogin(iso: string | null): string {
-    if (!iso) return 'Nunca';
-    const d = this.parseIso(iso);
-    return d ? this.dateTimeFormatter.format(d) : 'Nunca';
   }
 
   protected isMuted(user: User): boolean {
@@ -196,11 +173,5 @@ export class UserListComponent {
 
   private currentSortConfig(): SortOptionConfig {
     return SORT_OPTIONS.find((o) => o.value === this.selectedSort()) ?? SORT_OPTIONS[0];
-  }
-
-  private parseIso(value: string): Date | null {
-    if (!value) return null;
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? null : d;
   }
 }

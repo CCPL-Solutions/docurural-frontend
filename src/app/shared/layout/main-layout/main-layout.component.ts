@@ -1,7 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { isAdmin } from '@core/auth/permissions';
 import { AuthService } from '@core/services/auth.service';
+import { userInitials } from '@shared/utils/user-initials';
 import { RoleLabelPipe } from '../../pipes/role-label.pipe';
 
 @Component({
@@ -17,17 +19,9 @@ export class MainLayoutComponent {
 
   protected readonly sidebarOpen = signal(false);
 
-  protected readonly userInitials = computed(() => {
-    const name = this.currentUser()?.fullName ?? '';
-    return name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0].toUpperCase())
-      .join('');
-  });
+  protected readonly userInitials = computed(() => userInitials(this.currentUser()?.fullName));
 
-  protected readonly isAdmin = computed(() => this.currentUser()?.role === 'ADMIN');
+  protected readonly isAdmin = computed(() => isAdmin(this.currentUser()?.role));
 
   protected onLogout(): void {
     this.auth.logout().subscribe();

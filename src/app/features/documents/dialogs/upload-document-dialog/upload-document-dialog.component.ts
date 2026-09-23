@@ -11,7 +11,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,7 +24,6 @@ import { DocumentsService } from '@core/services/documents.service';
 import { NotificationService } from '@core/services/notification.service';
 import { AuthService } from '@core/services/auth.service';
 import { Category } from '@core/models/category.model';
-import { DocumentFormat } from '@core/models/document-format.model';
 import {
   ALLOWED_EXTENSIONS,
   MAX_FILE_SIZE_BYTES,
@@ -39,18 +37,8 @@ import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio
 import { SensitivityMobileFieldComponent } from '@shared/sensitivity/sensitivity-mobile-field.component';
 import { formatFileSize } from '@shared/utils/file-size';
 import { formatYmd } from '@shared/utils/format-ymd';
-
-const MY_DATE_FORMATS = {
-  parse: {
-    dateInput: { day: 'numeric', month: 'numeric', year: 'numeric' },
-  },
-  display: {
-    dateInput: { day: '2-digit', month: '2-digit', year: 'numeric' },
-    monthYearLabel: { year: 'numeric', month: 'short' },
-    dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric' },
-    monthYearA11yLabel: { year: 'numeric', month: 'long' },
-  },
-};
+import { isEditor } from '@core/auth/permissions';
+import { inferFormat } from '@shared/utils/document-format';
 
 export type UploadDocumentDialogData = Record<string, never>;
 
@@ -76,7 +64,6 @@ export type UploadDocumentDialogResult =
     SensitivityRadioComponent,
     SensitivityMobileFieldComponent,
   ],
-  providers: [{ provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }],
   templateUrl: './upload-document-dialog.component.html',
   styleUrl: './upload-document-dialog.component.scss',
 })
@@ -131,7 +118,7 @@ export class UploadDocumentDialogComponent implements OnInit {
     () => this.selectedCategory()?.defaultSensitivityLevel ?? 'INTERNAL',
   );
   protected readonly sensitivityLocked = computed(() => this.categoryDefault() !== 'INTERNAL');
-  protected readonly editorRole = computed(() => this.auth.currentUser()?.role === 'EDITOR');
+  protected readonly editorRole = computed(() => isEditor(this.auth.currentUser()?.role));
   protected readonly minSensitivity = computed(() => this.categoryDefault());
 
   constructor() {
@@ -335,24 +322,7 @@ export class UploadDocumentDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  protected inferFormat(filename: string): DocumentFormat {
-    const ext = filename.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'pdf':
-        return 'PDF';
-      case 'docx':
-        return 'DOCX';
-      case 'xlsx':
-        return 'XLSX';
-      case 'jpg':
-      case 'jpeg':
-        return 'JPG';
-      case 'png':
-        return 'PNG';
-      default:
-        return 'PDF';
-    }
-  }
+  protected readonly inferFormat = inferFormat;
 
   protected formatSize(bytes: number): string {
     return formatFileSize(bytes);

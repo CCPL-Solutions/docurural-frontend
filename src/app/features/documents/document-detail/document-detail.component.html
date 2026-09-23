@@ -167,7 +167,7 @@
         </div>
         <div class="meta-list__item">
           <dt>Fecha del documento</dt>
-          <dd>{{ formatDocumentDate(metadata()!.documentDate) }}</dd>
+          <dd>{{ metadata()!.documentDate | date: dateFormat }}</dd>
         </div>
         <div class="meta-list__item">
           <dt>Formato</dt>
@@ -193,7 +193,7 @@
         </div>
         <div class="meta-list__item">
           <dt>Fecha de carga</dt>
-          <dd>{{ formatCreatedAt(metadata()!.createdAt) }}</dd>
+          <dd>{{ metadata()!.createdAt | date: dateTimeFormat }}</dd>
         </div>
       </dl>
     </aside>

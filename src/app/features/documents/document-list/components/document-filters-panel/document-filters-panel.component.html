@@ -72,7 +72,7 @@
             class="field__input field__input--with-toggle field__input--datepicker"
             type="text"
             [matDatepicker]="pickerFrom"
-            [value]="parseDateStr(draft().dateFrom)"
+            [value]="parseYmd(draft().dateFrom)"
             placeholder="DD/MM/AAAA"
             readonly
             (click)="pickerFrom.open()"
@@ -99,7 +99,7 @@
             class="field__input field__input--with-toggle field__input--datepicker"
             type="text"
             [matDatepicker]="pickerTo"
-            [value]="parseDateStr(draft().dateTo)"
+            [value]="parseYmd(draft().dateTo)"
             placeholder="DD/MM/AAAA"
             readonly
             (click)="pickerTo.open()"

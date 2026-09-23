@@ -14,3 +14,18 @@ export const FORMAT_STYLE: Record<DocumentFormat, FormatStyle> = {
   JPG: { bg: '#F3EAF8', fg: '#5B2779', dot: '#8E4FB8', matIcon: 'image' },
   PNG: { bg: '#FDF3DF', fg: '#8A5E10', dot: '#E8A020', matIcon: 'image' },
 };
+
+const FORMAT_BY_EXTENSION = new Map<string, DocumentFormat>([
+  ['pdf', 'PDF'],
+  ['docx', 'DOCX'],
+  ['xlsx', 'XLSX'],
+  ['jpg', 'JPG'],
+  ['jpeg', 'JPG'],
+  ['png', 'PNG'],
+]);
+
+/** Formato a partir de la extensión del archivo. Si no se reconoce, `PDF`. */
+export function inferFormat(filename: string): DocumentFormat {
+  const ext = filename.split('.').pop()?.toLowerCase() ?? '';
+  return FORMAT_BY_EXTENSION.get(ext) ?? 'PDF';
+}

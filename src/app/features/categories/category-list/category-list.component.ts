@@ -26,6 +26,9 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
+import { DatePipe } from '@angular/common';
+import { DATE_FORMAT } from '@shared/utils/date-formats';
+import { DIALOG_LG, DIALOG_SM } from '@shared/ui/dialog-sizes';
 
 type SortOption = 'nameAsc' | 'nameDesc' | 'createdAtDesc' | 'createdAtAsc';
 
@@ -47,6 +50,7 @@ const SORT_OPTIONS: SortOptionConfig[] = [
   selector: 'app-category-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     MatIconModule,
     MatMenuModule,
     MatDialogModule,
@@ -77,11 +81,7 @@ export class CategoryListComponent {
   protected readonly sortOptions = SORT_OPTIONS;
   protected readonly currentSortLabel = computed(() => this.currentSortConfig().label);
 
-  private readonly dateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  protected readonly dateFormat = DATE_FORMAT;
 
   constructor() {
     this.loadCategories();
@@ -121,9 +121,7 @@ export class CategoryListComponent {
       CategoryFormDialogResult
     >(CategoryFormDialogComponent, {
       data: { mode: 'create' },
-      width: '620px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_LG,
     });
     ref.afterClosed().subscribe((result) => {
       if (result?.kind === 'created') this.loadCategories();
@@ -137,9 +135,7 @@ export class CategoryListComponent {
       CategoryFormDialogResult
     >(CategoryFormDialogComponent, {
       data: { mode: 'edit', category },
-      width: '620px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_LG,
     });
     ref.afterClosed().subscribe((result) => {
       if (result?.kind === 'updated') this.loadCategories();
@@ -155,9 +151,7 @@ export class CategoryListComponent {
       CategoryToggleStatusDialogResult
     >(CategoryToggleStatusDialogComponent, {
       data: { category, action },
-      width: '400px',
-      maxWidth: '90vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_SM,
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -167,22 +161,11 @@ export class CategoryListComponent {
     });
   }
 
-  protected formatCreated(iso: string): string {
-    const d = this.parseIso(iso);
-    return d ? this.dateFormatter.format(d) : '—';
-  }
-
   protected isMuted(category: Category): boolean {
     return category.status === 'INACTIVE';
   }
 
   private currentSortConfig(): SortOptionConfig {
     return SORT_OPTIONS.find((o) => o.value === this.selectedSort()) ?? SORT_OPTIONS[0];
-  }
-
-  private parseIso(value: string): Date | null {
-    if (!value) return null;
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? null : d;
   }
 }

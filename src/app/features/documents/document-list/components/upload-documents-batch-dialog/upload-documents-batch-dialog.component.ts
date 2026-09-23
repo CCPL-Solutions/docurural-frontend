@@ -24,7 +24,6 @@ import { DocumentsService } from '@core/services/documents.service';
 import { NotificationService } from '@core/services/notification.service';
 import { AuthService } from '@core/services/auth.service';
 import { Category } from '@core/models/category.model';
-import { DocumentFormat } from '@core/models/document-format.model';
 import {
   ALLOWED_EXTENSIONS,
   BatchUploadDocumentResponse,
@@ -42,6 +41,8 @@ import { SensitivityMobileFieldComponent } from '@shared/sensitivity/sensitivity
 import { formatFileSize } from '@shared/utils/file-size';
 import { BatchFileItem, BatchFileStatus } from './batch-file-item.model';
 import { v4 as uuidv4 } from 'uuid';
+import { isEditor } from '@core/auth/permissions';
+import { inferFormat } from '@shared/utils/document-format';
 
 export type UploadDocumentsBatchDialogData = Record<string, never>;
 
@@ -121,7 +122,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     () => this.selectedCategory()?.defaultSensitivityLevel ?? 'INTERNAL',
   );
   protected readonly sensitivityLocked = computed(() => this.categoryDefault() !== 'INTERNAL');
-  protected readonly editorRole = computed(() => this.auth.currentUser()?.role === 'EDITOR');
+  protected readonly editorRole = computed(() => isEditor(this.auth.currentUser()?.role));
 
   constructor() {
     effect(() => {
@@ -323,24 +324,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     }
   }
 
-  protected inferFormat(filename: string): DocumentFormat {
-    const ext = filename.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'pdf':
-        return 'PDF';
-      case 'docx':
-        return 'DOCX';
-      case 'xlsx':
-        return 'XLSX';
-      case 'jpg':
-      case 'jpeg':
-        return 'JPG';
-      case 'png':
-        return 'PNG';
-      default:
-        return 'PDF';
-    }
-  }
+  protected readonly inferFormat = inferFormat;
 
   protected formatSize(bytes: number): string {
     return formatFileSize(bytes);

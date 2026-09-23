@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { categoryColor } from '../utils/category-color';
+import { nameColor } from '@shared/utils/name-color';
 
 @Component({
   selector: 'app-category-icon-badge',
@@ -17,5 +17,5 @@ export class CategoryIconBadgeComponent {
   readonly name = input.required<string>();
   readonly muted = input(false);
 
-  protected readonly colors = computed(() => categoryColor(this.name(), this.muted()));
+  protected readonly colors = computed(() => nameColor(this.name(), this.muted()));
 }
