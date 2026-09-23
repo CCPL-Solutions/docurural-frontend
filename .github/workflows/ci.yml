@@ -29,6 +29,12 @@ jobs:
       - name: Verificar formato (Prettier)
         run: npm run format:check
 
+      - name: Analizar código (ESLint)
+        run: npm run lint
+
+      - name: Verificar estilos (tokens y breakpoints)
+        run: npm run check:styles
+
       - name: Ejecutar pruebas
         run: npm run test:ci
 
