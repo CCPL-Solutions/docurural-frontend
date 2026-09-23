@@ -48,3 +48,49 @@ jobs:
           name: reporte-cobertura
           path: coverage/
           retention-days: 7
+
+  e2e:
+    # Flujos E2E con la API simulada (proyecto `functional` de playwright.config.ts). Las capturas
+    # de referencia no se ejecutan aquí: son específicas del sistema operativo (ver README).
+    name: Pruebas E2E (Playwright)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Cachear navegadores de Playwright
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Instalar Chromium y sus dependencias del sistema
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Instalar dependencias del sistema de Chromium
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Ejecutar E2E
+        run: npm run e2e:ci
+
+      - name: Publicar reporte de Playwright
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: reporte-playwright
+          path: playwright-report/
+          retention-days: 7

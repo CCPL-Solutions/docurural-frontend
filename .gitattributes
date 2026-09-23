@@ -1,0 +1,8 @@
+# Finales de línea LF en todas las plataformas (Prettier usa endOfLine "lf").
+* text=auto eol=lf
+
+# Binarios
+*.png binary
+*.ico binary
+*.jpg binary
+*.svg text eol=lf
