@@ -9,7 +9,10 @@ export interface Document {
   documentDate: string;
   fileFormat: DocumentFormat;
   fileSizeBytes: number;
+  /** Nombre completo de quien lo subió (solo para mostrar). */
   uploadedBy: string;
+  /** Id de quien lo subió: los permisos comparan por id, nunca por nombre (D34). */
+  uploadedById: number;
   createdAt: string;
   sensitivityLevel: SensitivityLevel;
 }

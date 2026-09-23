@@ -25,16 +25,26 @@ describe('permissions', () => {
 
   describe('canEditDocument', () => {
     it('permite a ADMIN editar cualquier documento', () => {
-      expect(canEditDocument('ADMIN', 'Ana Pérez', 'Otro Usuario')).toBe(true);
+      expect(canEditDocument('ADMIN', 1, 2)).toBe(true);
     });
 
-    it('permite a EDITOR editar solo lo que subió', () => {
-      expect(canEditDocument('EDITOR', 'Ana Pérez', 'Ana Pérez')).toBe(true);
-      expect(canEditDocument('EDITOR', 'Ana Pérez', 'Otro Usuario')).toBe(false);
+    it('permite a EDITOR editar solo lo que subió, comparando por id', () => {
+      expect(canEditDocument('EDITOR', 1, 1)).toBe(true);
+      expect(canEditDocument('EDITOR', 1, 2)).toBe(false);
+    });
+
+    // R5: antes se comparaba el nombre, y un EDITOR homónimo veía «Editar» en documentos ajenos.
+    it('R5: un EDITOR homónimo no puede editar documentos ajenos', () => {
+      expect(canEditDocument('EDITOR', 1, 2)).toBe(false);
+    });
+
+    it('sin usuario no permite editar', () => {
+      expect(canEditDocument('EDITOR', null, 1)).toBe(false);
+      expect(canEditDocument('EDITOR', undefined, 1)).toBe(false);
     });
 
     it('no permite a READER editar', () => {
-      expect(canEditDocument('READER', 'Ana Pérez', 'Ana Pérez')).toBe(false);
+      expect(canEditDocument('READER', 1, 1)).toBe(false);
     });
   });
 

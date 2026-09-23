@@ -57,7 +57,7 @@ import { canEditDocument, canDeleteDocument } from '@core/auth/permissions';
 export class DocumentRowActionsComponent {
   readonly doc = input.required<Document>();
   readonly role = input.required<Role>();
-  readonly currentUserName = input.required<string>();
+  readonly currentUserId = input.required<number | null>();
   readonly downloading = input(false);
 
   readonly download = output<Document>();
@@ -65,7 +65,7 @@ export class DocumentRowActionsComponent {
   readonly delete = output<Document>();
 
   protected readonly canEdit = computed(() =>
-    canEditDocument(this.role(), this.currentUserName(), this.doc().uploadedBy),
+    canEditDocument(this.role(), this.currentUserId(), this.doc().uploadedById),
   );
   protected readonly canDelete = computed(() => canDeleteDocument(this.role()));
 }

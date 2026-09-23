@@ -16,9 +16,15 @@ export function canSeeUploadedByFilter(role: Role | null | undefined): boolean {
   return isAdmin(role);
 }
 
-// TODO(Fase 6): comparar por id (uploadedById) en lugar de por nombre (D34, R5).
-export function canEditDocument(role: Role, currentUserName: string, uploadedBy: string): boolean {
-  return isAdmin(role) || (isEditor(role) && uploadedBy === currentUserName);
+/** ADMIN edita cualquier documento; EDITOR, solo los que subió. Compara ids, no nombres (D34, R5). */
+export function canEditDocument(
+  role: Role,
+  currentUserId: number | null | undefined,
+  uploadedById: number,
+): boolean {
+  return (
+    isAdmin(role) || (isEditor(role) && currentUserId != null && uploadedById === currentUserId)
+  );
 }
 
 export function canDeleteDocument(role: Role): boolean {

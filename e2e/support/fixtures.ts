@@ -21,6 +21,7 @@ export const DOCUMENTS = Array.from({ length: 12 }, (_, i) => {
     fileFormat: 'PNG',
     fileSizeBytes: 2048,
     uploadedBy: 'Ana Pérez',
+    uploadedById: 1,
     createdAt: '2026-09-01T10:00:00-05:00',
     sensitivityLevel: 'INTERNAL',
   };
@@ -127,7 +128,7 @@ async function mockApi(page: Page): Promise<void> {
         description: 'Documento de prueba',
         category: { id: 1, name: doc.category },
         originalFileName: `${doc.title}.png`,
-        uploadedBy: { id: 1, fullName: doc.uploadedBy },
+        uploadedBy: { id: doc.uploadedById, fullName: doc.uploadedBy },
       });
     }
 

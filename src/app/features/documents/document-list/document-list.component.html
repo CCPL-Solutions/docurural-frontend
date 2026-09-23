@@ -171,7 +171,7 @@
               <app-document-row-actions
                 [doc]="doc"
                 [role]="role()"
-                [currentUserName]="currentUser()?.fullName ?? ''"
+                [currentUserId]="currentUser()?.id ?? null"
                 [downloading]="downloadingIds().has(doc.id)"
                 (download)="onDownload($event)"
                 (edit)="onEdit($event)"

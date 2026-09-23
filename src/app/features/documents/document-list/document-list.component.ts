@@ -564,7 +564,7 @@ export class DocumentListComponent implements OnInit {
   }
 
   protected canEdit(doc: Document): boolean {
-    return canEditDocument(this.role(), this.currentUser()?.fullName ?? '', doc.uploadedBy);
+    return canEditDocument(this.role(), this.currentUser()?.id, doc.uploadedById);
   }
 
   protected formatSize(bytes: number): string {

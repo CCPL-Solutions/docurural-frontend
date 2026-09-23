@@ -102,7 +102,7 @@ export class DocumentDetailComponent implements OnDestroy {
     const meta = this.metadata();
     const user = this.auth.currentUser();
     if (!meta || !user) return false;
-    return canEditDocument(user.role, user.fullName, meta.uploadedBy.fullName);
+    return canEditDocument(user.role, user.id, meta.uploadedBy.id);
   });
 
   protected readonly formatFileSize = formatFileSize;
