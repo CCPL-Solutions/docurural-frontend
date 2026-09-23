@@ -36,6 +36,27 @@ test.describe('Documentos', () => {
     await expect(page.getByRole('heading', { name: 'Documento 1', level: 1 })).toBeVisible();
   });
 
+  // El snackbar y el toast se cargan con el primer aviso (Fase 4, tarea 4.10): este flujo comprueba
+  // que el toast se sigue mostrando.
+  test('muestra un toast si falla la descarga', async ({ page }) => {
+    await page.route('**/api/documents/*/download', (route) =>
+      route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Error de almacenamiento' }),
+      }),
+    );
+
+    await page
+      .locator('table')
+      .getByRole('button', { name: 'Descargar documento Documento 1', exact: true })
+      .click();
+
+    const toast = page.locator('app-toast');
+    await expect(toast.getByText('No se pudo descargar el documento')).toBeVisible();
+    await expect(toast.getByText('Error de almacenamiento')).toBeVisible();
+  });
+
   test('el diálogo de subida valida los campos obligatorios', async ({ page }) => {
     await page.getByRole('button', { name: 'Subir documento' }).click();
     const dialog = page.getByRole('dialog');
