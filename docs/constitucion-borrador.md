@@ -1,6 +1,6 @@
 # Borrador de reglas del proyecto — insumo para la constitución de Spec Kit
 
-> Fecha: 2026-09-22 (estado actualizado al cerrar la Fase 5, 2026-09-23) · Base: decisiones cerradas en el checkpoint (D1–D40 según las recomendaciones de `docs/auditoria-consistencia.md`, respuestas P1–P13 y Q1–Q4 de `docs/plan-remediacion.md`).
+> Fecha: 2026-09-22 (estado actualizado al cerrar la Fase 6, 2026-09-23) · Base: decisiones cerradas en el checkpoint (D1–D40 según las recomendaciones de `docs/auditoria-consistencia.md`, respuestas P1–P13 y Q1–Q4 de `docs/plan-remediacion.md`).
 > Alcance: Angular 21.2, zoneless. Idioma del documento: español (P4).
 > Cada regla indica su **estado hoy** (✅ Cumple · 🟡 Parcial · ❌ No cumple), la evidencia, **cómo se verifica** y la **fase** de `docs/plan-remediacion.md` que la hace cumplir.
 > Solo se incluyen reglas justificadas por una decisión tomada. Las reglas que el código ya cumple pero que no pasaron por el checkpoint se listan al final para ratificarlas.
@@ -57,11 +57,11 @@
 
 | ID     | Regla                                                                                                                                                 | Estado hoy | Evidencia                                                                                                                      | Verificación                                                       | Fase | Origen  |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---- | ------- |
-| RUT-01 | La navegación que no depende de lógica previa usa `routerLink`. `router.navigate` solo se usa después de una lógica (guardar, validar, cerrar sesión) | 🟡         | Las filas del listado y del dashboard navegan por código                                                                       | Revisión                                                           | 6    | D35     |
+| RUT-01 | La navegación que no depende de lógica previa usa `routerLink`. `router.navigate` solo se usa después de una lógica (guardar, validar, cerrar sesión) | ✅         | Desde la Fase 6: títulos, «Ver» y «Volver» con `routerLink` (`link` en `<app-button>`/`<app-icon-button>`)                     | Revisión                                                           | 6    | D35     |
 | RUT-02 | Los permisos por rol se consultan solo con las funciones de `core/auth/permissions.ts`. Se prohíbe comparar `role === '…'` fuera de ese archivo       | ✅         | Desde la Fase 3: `isAdmin`, `isEditor`, `canSeeUploadedByFilter`, `canEditDocument`, `canDeleteDocument` y `canUploadDocument` | Grep `=== '(ADMIN\|EDITOR\|READER)'` fuera de `permissions.ts` = 0 | 3    | D33     |
-| RUT-03 | Los permisos sobre un recurso comparan **ids** de usuario, nunca nombres                                                                              | ❌         | `document-permissions.ts:3-5` compara `fullName`                                                                               | Test de `canEditDocument`                                          | 6    | D34, P1 |
-| RUT-04 | Toda ruta desconocida (`**`) muestra la página 404 propia                                                                                             | ❌         | `**` → `login`                                                                                                                 | Test de ruta                                                       | 6    | P8      |
-| RUT-05 | Todo query param que la app escribe tiene un consumidor. No hay parámetros sin efecto                                                                 | 🟡         | `?action=upload` no lo lee nadie                                                                                               | Revisión                                                           | 6    | P2      |
+| RUT-03 | Los permisos sobre un recurso comparan **ids** de usuario, nunca nombres                                                                              | ✅         | Desde la Fase 6: `canEditDocument(role, currentUserId, uploadedById)`. Pendiente de que el backend publique `uploadedById`     | Test de `canEditDocument`                                          | 6    | D34, P1 |
+| RUT-04 | Toda ruta desconocida (`**`) muestra la página 404 propia                                                                                             | ✅         | Desde la Fase 6: `NotFoundComponent`                                                                                           | Test de ruta                                                       | 6    | P8      |
+| RUT-05 | Todo query param que la app escribe tiene un consumidor. No hay parámetros sin efecto                                                                 | ✅         | Desde la Fase 6: se elimina `?action=upload`                                                                                   | Revisión                                                           | 6    | P2      |
 
 ## 6. Formularios y validación
 
@@ -111,16 +111,16 @@
 
 El código ya las cumple de forma uniforme, pero no se decidieron explícitamente. **No se incluyen en la constitución hasta que las ratifiques.**
 
-| Candidata                                                                                                       | Estado hoy                               |
-| --------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| Inyección de dependencias solo con `inject()`                                                                   | ✅ 85 de 85                              |
-| Control de flujo `@if`/`@for`/`@switch`. Se prohíben `*ngIf`/`*ngFor`                                           | ✅ 0 directivas estructurales            |
-| Prefijo `app-` en todos los selectores                                                                          | ✅ 51/51                                 |
-| `strict` y `strictTemplates` activos, 0 `any` explícitos                                                        | ✅                                       |
-| El HTTP vive solo en `core/services`, con un servicio por recurso y URL construida con `environment.apiBaseUrl` | ✅ 20/20                                 |
-| Todas las rutas son lazy (`loadComponent`) y tienen `title`                                                     | ✅ 7/7                                   |
-| Guards e interceptores funcionales                                                                              | ✅ 4/4                                   |
-| Comentarios de código en español                                                                                | ✅ 279 de 282 líneas                     |
-| `interface` para formas de datos y `type` para uniones                                                          | ✅ 48 / 16                               |
-| Un único mecanismo de toasts (`NotificationService`)                                                            | ✅                                       |
-| La sesión se valida en cada navegación (`canActivateChild`) y caduca con `expiresAt`                            | ❌ (lo corrige la Fase 6 como riesgo R4) |
+| Candidata                                                                                                       | Estado hoy                    |
+| --------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| Inyección de dependencias solo con `inject()`                                                                   | ✅ 85 de 85                   |
+| Control de flujo `@if`/`@for`/`@switch`. Se prohíben `*ngIf`/`*ngFor`                                           | ✅ 0 directivas estructurales |
+| Prefijo `app-` en todos los selectores                                                                          | ✅ 51/51                      |
+| `strict` y `strictTemplates` activos, 0 `any` explícitos                                                        | ✅                            |
+| El HTTP vive solo en `core/services`, con un servicio por recurso y URL construida con `environment.apiBaseUrl` | ✅ 20/20                      |
+| Todas las rutas son lazy (`loadComponent`) y tienen `title`                                                     | ✅ 7/7                        |
+| Guards e interceptores funcionales                                                                              | ✅ 4/4                        |
+| Comentarios de código en español                                                                                | ✅ 279 de 282 líneas          |
+| `interface` para formas de datos y `type` para uniones                                                          | ✅ 48 / 16                    |
+| Un único mecanismo de toasts (`NotificationService`)                                                            | ✅                            |
+| La sesión se valida en cada navegación (`canActivateChild`) y caduca con `expiresAt`                            | ✅ desde la Fase 6 (R4)       |

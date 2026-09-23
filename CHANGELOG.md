@@ -90,6 +90,12 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   - Los diálogos de documentos comparten la sincronización de la sensibilidad con la categoría y
     la carga de categorías activas.
   - ESLint pasa a `error` la restricción de `FormsModule`.
+- Ruteo y autorización (fase 6 de la remediación):
+  - Página 404 propia para las direcciones que no existen, en lugar de redirigir al login.
+  - Los títulos de los documentos (listado y recientes del dashboard), «Ver documento» y
+    «Volver» son enlaces: un documento se puede abrir en otra pestaña. `<app-button>` y
+    `<app-icon-button>` aceptan `link`.
+  - La acción rápida «Subir documento» ya no añade `?action=upload`, que no tenía efecto.
 
 ### Removed
 
@@ -100,6 +106,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- La sesión se cierra al vencer el token, sin esperar a un error del servidor, y se comprueba en
+  cada navegación entre páginas (R4).
+- Al iniciar sesión desde un enlace con varios parámetros, se vuelve a la dirección completa (R7).
+- El permiso para editar un documento se decide por id de usuario y no por nombre (R5).
 - Los errores de campo del backend (400 con `fieldErrors`) y el de duplicado (409) se muestran
   junto a cada campo: al rehabilitar el formulario se borraban (R12). En el login se ven aunque
   se envíe con Enter sin salir del campo (R9).
