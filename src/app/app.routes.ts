@@ -7,6 +7,8 @@ export const routes: Routes = [
   {
     path: '',
     canActivate: [authGuard],
+    // La sesión se vuelve a comprobar al navegar entre páginas del layout (R4).
+    canActivateChild: [authGuard],
     loadComponent: () =>
       import('@shared/layout/main-layout/main-layout.component').then((m) => m.MainLayoutComponent),
     children: [

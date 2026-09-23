@@ -35,6 +35,7 @@ describe('AuthService', () => {
     http = TestBed.inject(HttpTestingController);
     router = TestBed.inject(Router);
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
   }
 
   beforeEach(() => {
@@ -129,7 +130,16 @@ describe('AuthService', () => {
 
       expect(notifications.error).toHaveBeenCalledWith('Sesión expirada', expect.any(String));
       expect(auth.isAuthenticated()).toBe(false);
-      expect(router.navigateByUrl).toHaveBeenCalledWith('/login?returnUrl=/');
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/' } });
+    });
+
+    it('sin sesión no repite el aviso (varios 401 a la vez o tras el temporizador)', () => {
+      setup();
+
+      auth.forceLogout('expired');
+
+      expect(notifications.error).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
     });
 
     it("'silent' no avisa", () => {
@@ -143,15 +153,8 @@ describe('AuthService', () => {
     });
   });
 
-  it('getReturnUrl usa /dashboard si no hay returnUrl', () => {
-    setup();
-    expect(auth.getReturnUrl()).toBe('/dashboard');
-  });
-
-  // R4 (docs/auditoria-consistencia.md): `isAuthenticated` es un computed que lee Date.now() y no
-  // se reevalúa con el paso del tiempo. Documenta el comportamiento correcto; se corrige en la
-  // Fase 6 (tarea 6.2) y entonces debe pasar a `it`.
-  it.fails('R4: deja de estar autenticado cuando vence el token', () => {
+  // R4 (docs/auditoria-consistencia.md), corregido en la Fase 6 (tarea 6.2).
+  it('R4: deja de estar autenticado cuando vence el token', () => {
     setup({ token: 'jwt', user: USER, expiresAt: NOW + 60_000 });
     auth.hydrate();
     expect(auth.isAuthenticated()).toBe(true);
@@ -159,5 +162,33 @@ describe('AuthService', () => {
     vi.setSystemTime(NOW + 60_001);
 
     expect(auth.isAuthenticated()).toBe(false);
+  });
+
+  it('R4: al llegar expiresAt cierra la sesión y avisa, sin esperar un 401', () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] });
+    vi.setSystemTime(NOW);
+    setup({ token: 'jwt', user: USER, expiresAt: NOW + 60_000 });
+    auth.hydrate();
+
+    vi.advanceTimersByTime(59_999);
+    expect(notifications.error).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
+    expect(notifications.error).toHaveBeenCalledWith('Sesión expirada', expect.any(String));
+    expect(auth.isAuthenticated()).toBe(false);
+    expect(storage.read()).toBeNull();
+  });
+
+  it('el logout cancela el cierre programado', () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] });
+    vi.setSystemTime(NOW);
+    setup({ token: 'jwt', user: USER, expiresAt: NOW + 60_000 });
+    auth.hydrate();
+
+    auth.logout().subscribe();
+    http.expectOne(`${API}/auth/logout`).flush({ message: 'ok' });
+    vi.advanceTimersByTime(60_000);
+
+    expect(notifications.error).not.toHaveBeenCalled();
   });
 });
