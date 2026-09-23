@@ -5,12 +5,12 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, Subject } from 'rxjs';
-import { DocumentDetailResponse } from '../../core/models/document-detail.model';
-import { DocumentListResponse } from '../../core/models/document-list.model';
-import { Document } from '../../core/models/document.model';
-import { AuthService } from '../../core/services/auth.service';
-import { DocumentsService } from '../../core/services/documents.service';
-import { NotificationService } from '../../core/services/notification.service';
+import { DocumentDetailResponse } from '@core/models/document-detail.model';
+import { DocumentListResponse } from '@core/models/document-list.model';
+import { Document } from '@core/models/document.model';
+import { AuthService } from '@core/services/auth.service';
+import { DocumentsService } from '@core/services/documents.service';
+import { NotificationService } from '@core/services/notification.service';
 import { DocumentDetailComponent } from './document-detail/document-detail.component';
 import { DocumentListComponent } from './document-list/document-list.component';
 

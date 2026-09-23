@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { FilterChipDescriptor } from '../../../../../core/models/document-filters.model';
+import { FilterChipDescriptor } from '@core/models/document-filters.model';
 
 @Component({
   selector: 'app-document-filter-chips',

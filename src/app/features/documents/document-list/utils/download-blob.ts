@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ApiError } from '../../../../core/models/api-error.model';
-import { DocumentFormat } from '../../../../core/models/document-format.model';
+import { ApiError } from '@core/models/api-error.model';
+import { DocumentFormat } from '@core/models/document-format.model';
 
 /**
  * Intenta extraer el nombre de archivo del header Content-Disposition.

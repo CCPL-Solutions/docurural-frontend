@@ -14,24 +14,24 @@ import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-s
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DocumentsService } from '../../../core/services/documents.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { Document } from '../../../core/models/document.model';
+import { DocumentsService } from '@core/services/documents.service';
+import { NotificationService } from '@core/services/notification.service';
+import { AuthService } from '@core/services/auth.service';
+import { Document } from '@core/models/document.model';
 import {
   ActiveFiltersDto,
   DocumentSortBy,
   DocumentSortDir,
-} from '../../../core/models/document-list.model';
-import { ApiError } from '../../../core/models/api-error.model';
+} from '@core/models/document-list.model';
+import { ApiError } from '@core/models/api-error.model';
 import {
   DocumentFilters,
   EMPTY_FILTERS,
   FilterChipDescriptor,
   countActiveFilters,
   hasAnyFilter,
-} from '../../../core/models/document-filters.model';
-import { FilterOptionsResponse } from '../../../core/models/filter-options.model';
+} from '@core/models/document-filters.model';
+import { FilterOptionsResponse } from '@core/models/filter-options.model';
 import { canUploadDocument } from './utils/document-permissions';
 import { formatFileSize } from './utils/file-size';
 import {
@@ -71,12 +71,12 @@ import {
   DocumentFiltersBottomSheetComponent,
   FiltersBottomSheetResult,
 } from './components/document-filters-bottom-sheet/document-filters-bottom-sheet.component';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { IconButtonComponent } from '../../../shared/components/icon-button/icon-button.component';
-import { SortTriggerComponent } from '../../../shared/components/sort-trigger/sort-trigger.component';
-import { SensitivityBadgeComponent } from '../../../shared/sensitivity/sensitivity-badge.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
+import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
+import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
 
 type SortOption =
   | 'createdAtDesc'

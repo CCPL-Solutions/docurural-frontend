@@ -17,30 +17,26 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { AlertComponent } from '../../../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../../../shared/components/button/button.component';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { DocumentFormatIconComponent } from '../document-format-icon.component';
-import { CategoriesService } from '../../../../../core/services/categories.service';
-import { DocumentsService } from '../../../../../core/services/documents.service';
-import { NotificationService } from '../../../../../core/services/notification.service';
-import { AuthService } from '../../../../../core/services/auth.service';
-import { Category } from '../../../../../core/models/category.model';
-import { DocumentFormat } from '../../../../../core/models/document-format.model';
+import { CategoriesService } from '@core/services/categories.service';
+import { DocumentsService } from '@core/services/documents.service';
+import { NotificationService } from '@core/services/notification.service';
+import { AuthService } from '@core/services/auth.service';
+import { Category } from '@core/models/category.model';
+import { DocumentFormat } from '@core/models/document-format.model';
 import {
   ALLOWED_EXTENSIONS,
   MAX_FILE_SIZE_BYTES,
   RESPONSIBLE_AREAS,
   UploadDocumentResponse,
-} from '../../../../../core/models/upload-document.model';
-import {
-  SensitivityLevel,
-  clampToMin,
-  isAtLeast,
-} from '../../../../../core/models/sensitivity-level.model';
-import { SensitivityLockBannerComponent } from '../../../../../shared/sensitivity/sensitivity-lock-banner.component';
-import { SensitivityInheritedBannerComponent } from '../../../../../shared/sensitivity/sensitivity-inherited-banner.component';
-import { SensitivityRadioComponent } from '../../../../../shared/sensitivity/sensitivity-radio.component';
-import { SensitivityMobileFieldComponent } from '../../../../../shared/sensitivity/sensitivity-mobile-field.component';
+} from '@core/models/upload-document.model';
+import { SensitivityLevel, clampToMin, isAtLeast } from '@core/models/sensitivity-level.model';
+import { SensitivityLockBannerComponent } from '@shared/sensitivity/sensitivity-lock-banner.component';
+import { SensitivityInheritedBannerComponent } from '@shared/sensitivity/sensitivity-inherited-banner.component';
+import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
+import { SensitivityMobileFieldComponent } from '@shared/sensitivity/sensitivity-mobile-field.component';
 import { formatFileSize } from '../../utils/file-size';
 import { formatYmd } from '../../utils/format-ymd';
 

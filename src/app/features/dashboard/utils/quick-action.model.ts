@@ -1,4 +1,4 @@
-import { Role } from '../../../core/models/role.model';
+import { Role } from '@core/models/role.model';
 
 export type QuickActionId = 'upload' | 'search' | 'list' | 'users' | 'categories';
 export type QuickActionVariant = 'primary' | 'success' | 'info' | 'warning' | 'purple';

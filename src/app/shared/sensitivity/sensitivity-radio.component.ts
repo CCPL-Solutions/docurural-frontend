@@ -9,7 +9,7 @@ import {
   SENSITIVITY_LABELS,
   SENSITIVITY_LEVELS,
   compareSensitivity,
-} from '../../core/models/sensitivity-level.model';
+} from '@core/models/sensitivity-level.model';
 
 @Component({
   selector: 'app-sensitivity-radio',

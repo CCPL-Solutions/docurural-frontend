@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ToastComponent } from '../../shared/components/toast/toast.component';
+import { ToastComponent } from '@shared/components/toast/toast.component';
 import { NotificationService } from './notification.service';
 
 describe('NotificationService', () => {

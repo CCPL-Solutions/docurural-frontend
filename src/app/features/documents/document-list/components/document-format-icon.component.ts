@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { DocumentFormat } from '../../../../core/models/document-format.model';
+import { DocumentFormat } from '@core/models/document-format.model';
 import { FORMAT_STYLE } from '../utils/document-format';
 
 @Component({

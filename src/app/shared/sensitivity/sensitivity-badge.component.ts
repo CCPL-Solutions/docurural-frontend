@@ -5,7 +5,7 @@ import {
   SENSITIVITY_ICONS,
   SENSITIVITY_LABELS,
   SENSITIVITY_SHORT_LABELS,
-} from '../../core/models/sensitivity-level.model';
+} from '@core/models/sensitivity-level.model';
 
 @Component({
   selector: 'app-sensitivity-badge',

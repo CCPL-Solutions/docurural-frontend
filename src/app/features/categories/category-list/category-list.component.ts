@@ -13,19 +13,19 @@ import {
   CategoryToggleStatusDialogData,
   CategoryToggleStatusDialogResult,
 } from './components/category-toggle-status-dialog/category-toggle-status-dialog.component';
-import { CategoriesService } from '../../../core/services/categories.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { Category } from '../../../core/models/category.model';
-import { ApiError } from '../../../core/models/api-error.model';
-import { CategorySortBy, CategorySortDir } from '../../../core/models/category-list.model';
+import { CategoriesService } from '@core/services/categories.service';
+import { NotificationService } from '@core/services/notification.service';
+import { Category } from '@core/models/category.model';
+import { ApiError } from '@core/models/api-error.model';
+import { CategorySortBy, CategorySortDir } from '@core/models/category-list.model';
 import { CategoryStatusBadgeComponent } from './components/category-status-badge.component';
 import { CategoryIconBadgeComponent } from './components/category-icon-badge.component';
 import { CategoryRowActionsComponent } from './components/category-row-actions.component';
-import { SensitivityBadgeComponent } from '../../../shared/sensitivity/sensitivity-badge.component';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { SortTriggerComponent } from '../../../shared/components/sort-trigger/sort-trigger.component';
+import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
 
 type SortOption = 'nameAsc' | 'nameDesc' | 'createdAtDesc' | 'createdAtAsc';
 

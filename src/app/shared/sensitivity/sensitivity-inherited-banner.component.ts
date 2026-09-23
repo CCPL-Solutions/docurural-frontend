@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { SensitivityLevel, SENSITIVITY_LABELS } from '../../core/models/sensitivity-level.model';
+import { SensitivityLevel, SENSITIVITY_LABELS } from '@core/models/sensitivity-level.model';
 
 @Component({
   selector: 'app-sensitivity-inherited-banner',

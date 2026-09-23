@@ -1,4 +1,4 @@
-import { DocumentFormat } from '../../../../core/models/document-format.model';
+import { DocumentFormat } from '@core/models/document-format.model';
 
 export interface FormatStyle {
   bg: string;

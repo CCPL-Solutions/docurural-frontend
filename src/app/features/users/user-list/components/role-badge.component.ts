@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { Role, ROLE_LABELS } from '../../../../core/models/role.model';
-import { BadgeComponent, BadgeVariant } from '../../../../shared/components/badge/badge.component';
+import { Role, ROLE_LABELS } from '@core/models/role.model';
+import { BadgeComponent, BadgeVariant } from '@shared/components/badge/badge.component';
 
 const ROLE_VARIANT: Record<Role, BadgeVariant> = {
   ADMIN: 'primary',

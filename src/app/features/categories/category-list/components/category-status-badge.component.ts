@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { CategoryStatus } from '../../../../core/models/category-status.model';
-import { BadgeComponent, BadgeVariant } from '../../../../shared/components/badge/badge.component';
+import { CategoryStatus } from '@core/models/category-status.model';
+import { BadgeComponent, BadgeVariant } from '@shared/components/badge/badge.component';
 
 const STATUS_LABELS: Record<CategoryStatus, string> = {
   ACTIVE: 'Activa',

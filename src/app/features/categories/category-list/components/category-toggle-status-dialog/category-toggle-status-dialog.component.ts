@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { HttpErrorResponse } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { AlertComponent } from '../../../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../../../shared/components/button/button.component';
-import { CategoriesService } from '../../../../../core/services/categories.service';
-import { Category } from '../../../../../core/models/category.model';
-import { CategoryStatus } from '../../../../../core/models/category-status.model';
-import { UpdateCategoryStatusResponse } from '../../../../../core/models/category-list.model';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { CategoriesService } from '@core/services/categories.service';
+import { Category } from '@core/models/category.model';
+import { CategoryStatus } from '@core/models/category-status.model';
+import { UpdateCategoryStatusResponse } from '@core/models/category-list.model';
 
 export type CategoryToggleAction = 'deactivate' | 'activate';
 

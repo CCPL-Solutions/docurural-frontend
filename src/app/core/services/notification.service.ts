@@ -1,10 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-import {
-  ToastComponent,
-  ToastData,
-  ToastType,
-} from '../../shared/components/toast/toast.component';
+import { ToastComponent, ToastData, ToastType } from '@shared/components/toast/toast.component';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {

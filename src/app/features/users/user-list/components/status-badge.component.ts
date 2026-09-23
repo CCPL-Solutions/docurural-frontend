@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { STATUS_LABELS, UserStatus } from '../../../../core/models/user-status.model';
-import { BadgeComponent, BadgeVariant } from '../../../../shared/components/badge/badge.component';
+import { STATUS_LABELS, UserStatus } from '@core/models/user-status.model';
+import { BadgeComponent, BadgeVariant } from '@shared/components/badge/badge.component';
 
 const STATUS_VARIANT: Record<UserStatus, BadgeVariant> = {
   ACTIVE: 'success',

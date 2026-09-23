@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, finalize } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 import { AuthState, LoginRequest, LoginResponse, LogoutResponse } from '../models/auth.model';
 import { AuthStorageService } from './auth-storage.service';
 import { NotificationService } from './notification.service';

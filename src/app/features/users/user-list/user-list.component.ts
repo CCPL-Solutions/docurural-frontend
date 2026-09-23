@@ -5,26 +5,26 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { UsersService } from '../../../core/services/users.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { User } from '../../../core/models/user.model';
-import { ApiError } from '../../../core/models/api-error.model';
-import { SortBy, SortDir } from '../../../core/models/user-list.model';
+import { UsersService } from '@core/services/users.service';
+import { NotificationService } from '@core/services/notification.service';
+import { User } from '@core/models/user.model';
+import { ApiError } from '@core/models/api-error.model';
+import { SortBy, SortDir } from '@core/models/user-list.model';
 import { UserFormDialogComponent } from '../user-form-dialog/user-form-dialog.component';
-import { UserFormDialogData, UserFormDialogResult } from '../../../core/models/user-form.model';
+import { UserFormDialogData, UserFormDialogResult } from '@core/models/user-form.model';
 import { ToggleStatusDialogComponent } from '../toggle-status-dialog/toggle-status-dialog.component';
 import {
   ToggleStatusDialogData,
   ToggleStatusDialogResult,
-} from '../../../core/models/toggle-status-dialog.model';
+} from '@core/models/toggle-status-dialog.model';
 import { RoleBadgeComponent } from './components/role-badge.component';
 import { StatusBadgeComponent } from './components/status-badge.component';
 import { UserIdentityComponent } from './components/user-identity.component';
 import { UserRowActionsComponent } from './components/user-row-actions.component';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { SortTriggerComponent } from '../../../shared/components/sort-trigger/sort-trigger.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
 
 type SortOption = 'fullNameAsc' | 'fullNameDesc' | 'createdAtDesc' | 'createdAtAsc';
 

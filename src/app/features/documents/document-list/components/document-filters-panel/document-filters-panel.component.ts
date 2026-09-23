@@ -4,8 +4,8 @@ import { MatDatepickerModule, MatDatepickerInputEvent } from '@angular/material/
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { DocumentFilters, EMPTY_FILTERS } from '../../../../../core/models/document-filters.model';
-import { FilterOptionsResponse } from '../../../../../core/models/filter-options.model';
+import { DocumentFilters, EMPTY_FILTERS } from '@core/models/document-filters.model';
+import { FilterOptionsResponse } from '@core/models/filter-options.model';
 import { formatYmd } from '../../utils/format-ymd';
 
 const FILTER_DATE_FORMATS = {

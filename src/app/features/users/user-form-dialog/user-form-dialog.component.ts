@@ -12,18 +12,18 @@ import { finalize } from 'rxjs/operators';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AlertComponent } from '../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { AuthService } from '../../../core/services/auth.service';
-import { UsersService } from '../../../core/services/users.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { Role, ROLE_LABELS } from '../../../core/models/role.model';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { AuthService } from '@core/services/auth.service';
+import { UsersService } from '@core/services/users.service';
+import { NotificationService } from '@core/services/notification.service';
+import { Role, ROLE_LABELS } from '@core/models/role.model';
 import {
   CreateUserRequest,
   UpdateUserRequest,
   UserFormDialogData,
   UserFormDialogResult,
-} from '../../../core/models/user-form.model';
+} from '@core/models/user-form.model';
 import { passwordMatchValidator } from './validators/password-match.validator';
 import { passwordComplexityValidator } from './validators/password-complexity.validator';
 

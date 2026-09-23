@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { TopCategory } from '../../../../core/models/dashboard-stats.model';
+import { TopCategory } from '@core/models/dashboard-stats.model';
 
 @Component({
   selector: 'app-top-category-card',

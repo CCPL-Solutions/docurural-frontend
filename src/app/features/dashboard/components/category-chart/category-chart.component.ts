@@ -8,8 +8,8 @@ import {
   type ChartConfiguration,
   type ChartData,
 } from 'chart.js';
-import { CategoryDistributionItem } from '../../../../core/models/dashboard-stats.model';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { CategoryDistributionItem } from '@core/models/dashboard-stats.model';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 
 const CHART_COLORS = [
   '#2E6DA4',

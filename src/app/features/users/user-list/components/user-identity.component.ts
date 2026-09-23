@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { User } from '../../../../core/models/user.model';
+import { User } from '@core/models/user.model';
 import { avatarColor, avatarInitials } from '../utils/avatar-color';
 
 @Component({

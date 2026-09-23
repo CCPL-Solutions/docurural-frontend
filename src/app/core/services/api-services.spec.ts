@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpEventType, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 import { CategoriesService } from './categories.service';
 import { DashboardService } from './dashboard.service';
 import { DocumentsService } from './documents.service';

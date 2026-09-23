@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 import { AuthState } from '../models/auth.model';
 import { AuthStorageService } from './auth-storage.service';
 
