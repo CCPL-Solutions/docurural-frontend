@@ -12,7 +12,11 @@ import { canEditDocument, canDeleteDocument } from '@core/auth/permissions';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="row-actions">
-      <app-icon-button tooltip="Ver documento" ariaLabel="Ver documento" (click)="view.emit(doc())">
+      <app-icon-button
+        tooltip="Ver documento"
+        ariaLabel="Ver documento"
+        [link]="['/documents', doc().id]"
+      >
         <mat-icon>visibility</mat-icon>
       </app-icon-button>
       <app-icon-button
@@ -56,7 +60,6 @@ export class DocumentRowActionsComponent {
   readonly currentUserName = input.required<string>();
   readonly downloading = input(false);
 
-  readonly view = output<Document>();
   readonly download = output<Document>();
   readonly edit = output<Document>();
   readonly delete = output<Document>();

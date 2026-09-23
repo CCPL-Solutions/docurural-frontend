@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
@@ -142,6 +142,7 @@ const PAGE_SIZE = 10;
     IconButtonComponent,
     SortTriggerComponent,
     SensitivityBadgeComponent,
+    RouterLink,
   ],
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.scss',
@@ -154,7 +155,6 @@ export class DocumentListComponent implements OnInit {
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly downloads = inject(DocumentDownloadService);
-  private readonly router = inject(Router);
 
   // ── Signals existentes ──────────────────────────────────────────────
   protected readonly loading = signal(false);
@@ -468,10 +468,6 @@ export class DocumentListComponent implements OnInit {
     if (page === this.currentPage()) return;
     this.currentPage.set(page);
     this.loadDocuments();
-  }
-
-  protected onView(doc: Document): void {
-    this.router.navigate(['/documents', doc.id]);
   }
 
   protected onDownload(doc: Document): void {

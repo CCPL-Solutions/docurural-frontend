@@ -142,7 +142,9 @@
                 <app-document-format-icon [format]="doc.fileFormat" />
                 <div class="cell-title__info">
                   <div class="cell-title__name-row">
-                    <span class="cell-title__name">{{ doc.title }}</span>
+                    <a class="cell-title__name title-link" [routerLink]="['/documents', doc.id]">{{
+                      doc.title
+                    }}</a>
                     <app-sensitivity-badge size="sm" [level]="doc.sensitivityLevel" />
                   </div>
                   <span class="cell-title__meta"
@@ -171,7 +173,6 @@
                 [role]="role()"
                 [currentUserName]="currentUser()?.fullName ?? ''"
                 [downloading]="downloadingIds().has(doc.id)"
-                (view)="onView($event)"
                 (download)="onDownload($event)"
                 (edit)="onEdit($event)"
                 (delete)="onDelete($event)"
@@ -190,7 +191,9 @@
         <div class="doc-card__top">
           <app-document-format-icon [format]="doc.fileFormat" />
           <div class="doc-card__info">
-            <span class="doc-card__title">{{ doc.title }}</span>
+            <a class="doc-card__title title-link" [routerLink]="['/documents', doc.id]">{{
+              doc.title
+            }}</a>
             <app-category-pill [name]="doc.category" />
           </div>
         </div>
@@ -210,7 +213,7 @@
           </span>
         </div>
         <div class="doc-card__actions">
-          <app-button variant="primary" [fullWidth]="true" (click)="onView(doc)">
+          <app-button variant="primary" [fullWidth]="true" [link]="['/documents', doc.id]">
             <mat-icon>visibility</mat-icon>
             <span>Ver</span>
           </app-button>

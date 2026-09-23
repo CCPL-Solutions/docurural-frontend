@@ -131,10 +131,6 @@ export class DocumentDetailComponent implements OnDestroy {
     this.revokeObjectUrl();
   }
 
-  protected onBack(): void {
-    this.router.navigate(['/documents']);
-  }
-
   protected onEdit(): void {
     const meta = this.metadata();
     if (!meta) return;

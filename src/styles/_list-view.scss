@@ -111,6 +111,22 @@
   text-align: right;
 }
 
+// ── Título de fila como enlace al detalle (D35) ──────────────────────────────
+// Conserva el aspecto del texto; el color y la tipografía los pone cada listado.
+.title-link {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-radius: var(--radius-xs);
+    box-shadow: var(--focus-ring);
+  }
+}
+
 // ── Visibilidad responsive ───────────────────────────────────────────────────
 .desktop-only {
   display: block;

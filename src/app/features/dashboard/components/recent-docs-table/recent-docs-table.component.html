@@ -56,9 +56,13 @@
                 <div class="doc-title-cell">
                   <app-document-format-icon [format]="doc.fileFormat" />
                   <div class="doc-title-cell__text">
-                    <span class="doc-title-cell__name" [title]="doc.title">
+                    <a
+                      class="doc-title-cell__name title-link"
+                      [routerLink]="['/documents', doc.id]"
+                      [title]="doc.title"
+                    >
                       {{ truncateTitle(doc.title) }}
-                    </span>
+                    </a>
                     <span class="doc-title-cell__meta">
                       Cargado el {{ doc.createdAt | date: dateFormat }}
                     </span>
@@ -75,7 +79,7 @@
                   <app-icon-button
                     tooltip="Visualizar"
                     ariaLabel="Visualizar documento"
-                    (click)="view.emit(doc.id)"
+                    [link]="['/documents', doc.id]"
                   >
                     <mat-icon>visibility</mat-icon>
                   </app-icon-button>
@@ -109,14 +113,20 @@
         <li class="rdt-card">
           <app-document-format-icon [format]="doc.fileFormat" />
           <div class="rdt-card__text">
-            <span class="rdt-card__title" [title]="doc.title">{{ doc.title }}</span>
+            <a
+              class="rdt-card__title title-link"
+              [routerLink]="['/documents', doc.id]"
+              [title]="doc.title"
+            >
+              {{ doc.title }}
+            </a>
             <span class="rdt-card__meta">{{ doc.createdAt | date: dateFormat }}</span>
           </div>
           <div class="rdt-card__actions">
             <app-icon-button
               tooltip="Visualizar"
               ariaLabel="Visualizar documento"
-              (click)="view.emit(doc.id)"
+              [link]="['/documents', doc.id]"
             >
               <mat-icon>visibility</mat-icon>
             </app-icon-button>

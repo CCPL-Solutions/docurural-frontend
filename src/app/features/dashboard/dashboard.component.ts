@@ -7,7 +7,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ButtonComponent } from '@shared/components/button/button.component';
@@ -57,7 +56,6 @@ export class DashboardComponent implements OnInit {
   private readonly dashboardSvc = inject(DashboardService);
   private readonly downloads = inject(DocumentDownloadService);
   private readonly notifications = inject(NotificationService);
-  private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
 
   protected readonly loading = signal(true);
@@ -99,10 +97,6 @@ export class DashboardComponent implements OnInit {
         );
       },
     });
-  }
-
-  protected onView(docId: number): void {
-    this.router.navigate(['/documents', docId]);
   }
 
   protected onDownload(doc: RecentDocumentItem): void {
