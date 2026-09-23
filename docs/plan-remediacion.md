@@ -99,6 +99,7 @@ Las fases van ordenadas por dependencia y riesgo. Primero lo que no rompe nada (
 > - El umbral del builder solo admite valores globales. El umbral por carpeta (`core/` ≥ 80 %) va en `vitest-base.config.ts` (`runnerConfig`), y el `include` de cobertura en las opciones del builder (`coverageInclude`), porque solo así se mapean los bundles a los fuentes y se incluyen los archivos sin tests. El umbral de `shared/utils/` se añade en la Fase 3, cuando exista la carpeta.
 > - `playwright-ng-schematics` también instala por defecto la versión para Angular 22; se fijó la 21.1.1.
 > - Las capturas enmascaran el `<canvas>` del gráfico: el reloj fijo (`page.clock`) congela la animación de Chart.js.
+> - A petición durante la revisión del PR #14, los E2E de flujos se ejecutan en la CI (job `e2e`, `npm run e2e:ci`). Las capturas quedan fuera porque las referencias son de Windows (`-win32`) y la CI corre en Ubuntu. Para llevarlas también a la CI habría que generar referencias de Linux con la imagen Docker de Playwright y usar esa misma imagen en el job.
 > - Se añadió `.gitattributes` (`* text=auto eol=lf`): con `core.autocrlf=true` y sin él, cada checkout en Windows deja CRLF y `npm run format:check` falla aunque el contenido sea correcto. El índice ya estaba en LF, así que no cambia ningún archivo del repositorio.
 >
 > **Hallazgos nuevos:**
@@ -126,7 +127,7 @@ Las fases van ordenadas por dependencia y riesgo. Primero lo que no rompe nada (
 
 - `npm run test:ci` en verde, con los fallos esperados declarados explícitamente (`it.fails`).
 - Cobertura de `core/` ≥ 80 % de líneas. Umbral global configurado y aplicado en la CI.
-- `npm run e2e` en verde en local. (La CI no se amplía con E2E en esta fase; ver "No hacer".)
+- `npm run e2e` en verde en local. Los flujos (`npm run e2e:ci`, proyecto `functional`) se ejecutan en la CI en un job paralelo; las capturas de referencia, solo en local, porque dependen del sistema operativo.
 
 ---
 
@@ -336,7 +337,6 @@ Pasos:
 | Puntuación final de los mensajes (12 con punto, 7 sin él)                                    | No hay decisión. Se normaliza sin coste al extraer los textos en la Fase 8                                                                                            |
 | Reducir el chunk de chart.js (196 kB)                                                        | Ya tiene registro selectivo y es lazy (solo el dashboard). No hay queja de rendimiento                                                                                |
 | Subir los presupuestos de estilo para silenciar avisos                                       | Los avisos son la señal que debe bajar tras las fases 4 y 5                                                                                                           |
-| Añadir E2E a la CI                                                                           | Primero hay que estabilizarlos en local (Fase 1). Meterlos en una CI que solo corre en `push` añade tiempo en cada commit                                             |
 | Reactivar la CI en PR                                                                        | Decisión definitiva (P9)                                                                                                                                              |
 
 ---

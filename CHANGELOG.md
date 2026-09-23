@@ -35,5 +35,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ### Changed
 
 - La CI ejecuta ESLint y `check:styles` después de Prettier.
+- La CI ejecuta los E2E de flujos (`npm run e2e:ci`) en un job paralelo. Las capturas de
+  referencia se mantienen solo en local.
+- El README documenta cómo ejecutar los tests unitarios y E2E (sección "Tests").
 - El README documenta los cuatro entornos y el disparador real de la CI (push a ramas de trabajo,
   no en PR).

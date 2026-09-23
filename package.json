@@ -13,7 +13,8 @@
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,json}\"",
     "lint": "ng lint",
     "check:styles": "node scripts/check-styles.mjs",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "e2e:ci": "ng e2e --test-project functional"
   },
   "private": true,
   "engines": {
