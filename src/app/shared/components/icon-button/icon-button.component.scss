@@ -50,3 +50,9 @@
     color: var(--color-error-text);
   }
 }
+
+// Variante enlace (`link`): igual que el botón, que por defecto usa border-box.
+a.icon-btn {
+  box-sizing: border-box;
+  text-decoration: none;
+}
