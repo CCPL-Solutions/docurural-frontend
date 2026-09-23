@@ -58,5 +58,10 @@ export const routes: Routes = [
       import('@features/auth/login/login.component').then((m) => m.LoginComponent),
     title: 'Iniciar sesión — DocuRural',
   },
-  { path: '**', redirectTo: 'login' },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('@features/not-found/not-found.component').then((m) => m.NotFoundComponent),
+    title: 'Página no encontrada — DocuRural',
+  },
 ];
