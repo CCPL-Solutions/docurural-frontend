@@ -9,14 +9,22 @@ import { IconButtonComponent } from '@shared/components/icon-button/icon-button.
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="row-actions">
-      <app-icon-button tooltip="Editar" ariaLabel="Editar usuario" (click)="edit.emit(user())">
+      <app-icon-button
+        tooltip="Editar"
+        i18n-tooltip="@@common.edit"
+        ariaLabel="Editar usuario"
+        i18n-ariaLabel="@@users.row.editAriaLabel"
+        (click)="edit.emit(user())"
+      >
         <mat-icon>edit</mat-icon>
       </app-icon-button>
 
       @if (user().status === 'ACTIVE') {
         <app-icon-button
           tooltip="Desactivar"
+          i18n-tooltip="@@users.action.deactivate"
           ariaLabel="Desactivar usuario"
+          i18n-ariaLabel="@@users.row.deactivateAriaLabel"
           (click)="toggleStatus.emit(user())"
         >
           <mat-icon>lock</mat-icon>
@@ -24,7 +32,9 @@ import { IconButtonComponent } from '@shared/components/icon-button/icon-button.
       } @else {
         <app-icon-button
           tooltip="Activar"
+          i18n-tooltip="@@users.action.activate"
           ariaLabel="Activar usuario"
+          i18n-ariaLabel="@@users.row.activateAriaLabel"
           (click)="toggleStatus.emit(user())"
         >
           <mat-icon>lock_open</mat-icon>

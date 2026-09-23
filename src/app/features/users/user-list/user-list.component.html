@@ -1,12 +1,15 @@
 <!-- Cabecera de página -->
 <app-page-header
   kicker="Administración"
+  i18n-kicker="@@layout.nav.admin"
   title="Usuarios"
+  i18n-title="@@layout.nav.users"
   subtitle="Gestione las cuentas del personal de la institución."
+  i18n-subtitle="@@users.list.subtitle"
 >
   <app-button actions variant="primary" class="header-action" (click)="goToCreate()">
     <mat-icon>add</mat-icon>
-    <span>Nuevo usuario</span>
+    <span i18n="@@users.form.titleCreate">Nuevo usuario</span>
   </app-button>
 </app-page-header>
 
@@ -18,11 +21,13 @@
       <input
         type="text"
         class="field__input field__input--with-icon"
-        placeholder="Buscar por nombre o correo..."
+        placeholder="Buscar por nombre o correo…"
+        i18n-placeholder="@@users.list.search.placeholder"
         [value]="searchTerm()"
         (input)="onSearchInput($event)"
         [disabled]="!loading() && totalUsers() === 0"
         aria-label="Buscar usuarios"
+        i18n-aria-label="@@users.list.search.ariaLabel"
       />
     </div>
   </div>
@@ -38,28 +43,32 @@
 <!-- Contador -->
 <div class="counter">
   <mat-icon aria-hidden="true">group</mat-icon>
-  <span>
-    <strong>{{ totalUsers() }} {{ totalUsers() === 1 ? 'usuario' : 'usuarios' }}</strong>
-    {{ totalUsers() === 1 ? 'registrado' : 'registrados' }}
-  </span>
+  <span i18n="@@users.list.counter">{totalUsers(), plural,
+    =1 {<strong>1 usuario</strong> registrado}
+    other {<strong>{{ totalUsers() }} usuarios</strong> registrados}
+  }</span>
 </div>
 
 @if (loading()) {
-  <app-empty-state variant="loading">Cargando usuarios…</app-empty-state>
+  <app-empty-state variant="loading" i18n="@@users.list.loading"
+    >Cargando usuarios…</app-empty-state
+  >
 } @else if (totalUsers() === 0) {
   <app-empty-state
     variant="empty"
     icon="group"
     title="No hay usuarios registrados en el sistema"
+    i18n-title="@@users.list.empty.title"
     description="Cree el primer usuario para que el personal de la institución pueda acceder a DocuRural."
+    i18n-description="@@users.list.empty.description"
   >
     <app-button actions variant="primary" (click)="goToCreate()">
       <mat-icon>add</mat-icon>
-      <span>Nuevo usuario</span>
+      <span i18n="@@users.form.titleCreate">Nuevo usuario</span>
     </app-button>
   </app-empty-state>
 } @else if (filteredUsers().length === 0) {
-  <app-empty-state variant="no-results" icon="search_off"
+  <app-empty-state variant="no-results" icon="search_off" i18n="@@users.list.noResults"
     >No se encontraron usuarios que coincidan con la búsqueda.</app-empty-state
   >
 } @else {
@@ -76,12 +85,12 @@
       </colgroup>
       <thead>
         <tr>
-          <th>Usuario</th>
-          <th>Rol</th>
-          <th>Estado</th>
-          <th>Fecha de creación</th>
-          <th>Último acceso</th>
-          <th class="th-actions">Acciones</th>
+          <th i18n="@@users.list.col.user">Usuario</th>
+          <th i18n="@@users.form.role">Rol</th>
+          <th i18n="@@users.list.col.status">Estado</th>
+          <th i18n="@@users.list.col.createdAt">Fecha de creación</th>
+          <th i18n="@@users.list.col.lastLogin">Último acceso</th>
+          <th class="th-actions" i18n="@@common.actions">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -101,9 +110,9 @@
             <td class="cell-date">{{ user.createdAt | date: dateFormat }}</td>
             <td class="cell-date">
               @if (user.lastLogin) {
-                {{ (user.lastLogin | date: dateTimeFormat) ?? 'Nunca' }}
+                {{ user.lastLogin | date: dateTimeFormat }}
               } @else {
-                <span class="cell-never">Nunca</span>
+                <span class="cell-never" i18n="@@users.list.never">Nunca</span>
               }
             </td>
             <td class="cell-actions">

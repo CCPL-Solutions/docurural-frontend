@@ -36,7 +36,7 @@ export class DocumentFiltersBottomSheetComponent {
     if (d.dateFrom && d.dateTo) {
       this.dateRangeError.set(
         d.dateFrom > d.dateTo
-          ? 'La fecha de inicio no puede ser posterior a la fecha de fin.'
+          ? $localize`:@@documents.filters.error.dateRange:La fecha de inicio no puede ser posterior a la fecha de fin.`
           : null,
       );
     } else {

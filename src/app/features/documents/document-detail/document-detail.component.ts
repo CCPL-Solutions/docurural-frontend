@@ -102,6 +102,13 @@ export class DocumentDetailComponent implements OnInit {
     return meta ? DOCUMENT_FORMAT_LABELS[meta.fileFormat] : '';
   });
 
+  protected readonly noPreviewDescription = computed(
+    () =>
+      $localize`:@@documents.detail.noPreview.description:Los archivos ${this.formatLabel()}:format: se pueden descargar pero no se previsualizan en el navegador.`,
+  );
+
+  protected readonly loadingTitle = $localize`:@@documents.detail.loading:Cargando documento…`;
+
   protected readonly downloading = computed(() => {
     const meta = this.metadata();
     return meta !== null && this.downloads.isDownloading(meta.id);
@@ -131,8 +138,8 @@ export class DocumentDetailComponent implements OnInit {
 
     if (Number.isNaN(id)) {
       this.notifications.error(
-        'Documento inválido',
-        'El identificador del documento no es válido.',
+        $localize`:@@documents.detail.invalidId.title:Documento inválido`,
+        $localize`:@@documents.detail.invalidId.description:El identificador del documento no es válido.`,
       );
       this.router.navigate(['/documents']);
       return;
@@ -216,8 +223,8 @@ export class DocumentDetailComponent implements OnInit {
         this.errorKind.set('network');
         this.notifications.httpError(
           err,
-          'No se pudo cargar el documento',
-          'Verifique su conexión e intente nuevamente.',
+          $localize`:@@documents.detail.loadError.title:No se pudo cargar el documento`,
+          $localize`:@@common.error.checkConnection:Verifique su conexión e intente nuevamente.`,
         );
         return EMPTY;
       }),
@@ -237,8 +244,8 @@ export class DocumentDetailComponent implements OnInit {
         this.errorKind.set('network');
         this.notifications.httpError(
           err,
-          'No se pudo cargar el archivo',
-          'Verifique su conexión e intente nuevamente.',
+          $localize`:@@documents.detail.fileLoadError.title:No se pudo cargar el archivo`,
+          $localize`:@@common.error.checkConnection:Verifique su conexión e intente nuevamente.`,
         );
         return EMPTY;
       }),

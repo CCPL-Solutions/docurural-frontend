@@ -1,7 +1,9 @@
 <div class="qa-section">
   <div class="qa-section__header">
-    <h2 class="qa-section__title">Accesos directos</h2>
-    <span class="qa-section__subtitle">Adaptados a su rol</span>
+    <h2 class="qa-section__title" i18n="@@dashboard.quickActions.title">Accesos directos</h2>
+    <span class="qa-section__subtitle" i18n="@@dashboard.quickActions.subtitle"
+      >Adaptados a su rol</span
+    >
     <span class="qa-section__role-badge">{{ roleLabels[role()] }}</span>
   </div>
 
@@ -15,7 +17,7 @@
           <div class="qa-btn__title-row">
             <span class="qa-btn__title">{{ action.title }}</span>
             @if (action.adminBadge) {
-              <span class="qa-btn__admin-badge">ADMIN</span>
+              <span class="qa-btn__admin-badge" i18n="@@layout.nav.adminBadge">ADMIN</span>
             }
           </div>
           <p class="qa-btn__desc">{{ action.description }}</p>

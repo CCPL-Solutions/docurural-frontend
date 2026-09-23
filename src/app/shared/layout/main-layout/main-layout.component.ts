@@ -12,12 +12,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { isAdmin } from '@core/auth/permissions';
 import { AuthService } from '@core/services/auth.service';
 import { userInitials } from '@shared/utils/user-initials';
+import { LanguageSwitcherComponent } from '@shared/components/language-switcher/language-switcher.component';
 import { RoleLabelPipe } from '../../pipes/role-label.pipe';
 
 @Component({
   selector: 'app-main-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, RoleLabelPipe],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    MatIconModule,
+    RoleLabelPipe,
+    LanguageSwitcherComponent,
+  ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
 })

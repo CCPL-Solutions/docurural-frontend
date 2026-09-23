@@ -49,7 +49,7 @@ import { isEditor } from '@core/auth/permissions';
 import { DATE_TIME_FORMAT } from '@shared/utils/date-formats';
 import { parseYmd } from '@shared/utils/parse-date';
 import { FieldErrorComponent } from '@shared/forms/field-error.component';
-import { DOCUMENT_FORM_MESSAGES } from '../document-form.messages';
+import { DOCUMENT_FORM_LABELS, DOCUMENT_FORM_MESSAGES } from '../document-form.messages';
 
 export interface EditDocumentMetadataDialogData {
   document: DocumentDetailResponse;
@@ -105,6 +105,7 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   protected readonly areas = RESPONSIBLE_AREAS;
 
   protected readonly messages = DOCUMENT_FORM_MESSAGES;
+  protected readonly labels = DOCUMENT_FORM_LABELS;
   protected readonly maxTitleLength = MAX_TITLE_LENGTH;
   protected readonly maxDescriptionLength = MAX_DESCRIPTION_LENGTH;
 
@@ -219,8 +220,9 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
 
   private handleSuccess(res: UpdateDocumentMetadataResponse): void {
     this.notifications.success(
-      'Metadatos actualizados',
-      res.message ?? 'Los cambios se guardaron correctamente.',
+      $localize`:@@documents.edit.toast.title:Metadatos actualizados`,
+      res.message ??
+        $localize`:@@users.toast.updated.description:Los cambios se guardaron correctamente.`,
     );
     this.dialogRef.close({ kind: 'updated', document: res });
   }
@@ -241,20 +243,25 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
       case HttpStatusCode.BadRequest:
         if (!applyFieldErrors(this.form, err)) {
           this.submitError.set(
-            toApiError(err)?.message ?? 'Los datos enviados no son válidos. Revise el formulario.',
+            toApiError(err)?.message ??
+              $localize`:@@common.error.invalidData:Los datos enviados no son válidos. Revise el formulario.`,
           );
         }
         break;
       case HttpStatusCode.Forbidden:
-        this.submitError.set('No tiene permisos para editar este documento.');
+        this.submitError.set(
+          $localize`:@@documents.edit.error.forbidden:No tiene permisos para editar este documento.`,
+        );
         break;
       case HttpStatusCode.NotFound:
         this.submitError.set(
-          'El documento ya no existe o fue eliminado. Cierre el formulario y recargue el listado.',
+          $localize`:@@documents.edit.error.notFound:El documento ya no existe o fue eliminado. Cierre el formulario y recargue el listado.`,
         );
         break;
       default:
-        this.submitError.set('No fue posible guardar los cambios. Intente de nuevo.');
+        this.submitError.set(
+          $localize`:@@common.error.saveChanges:No fue posible guardar los cambios. Intente de nuevo.`,
+        );
     }
   }
 }

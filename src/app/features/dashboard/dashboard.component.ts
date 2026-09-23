@@ -68,6 +68,9 @@ export class DashboardComponent implements OnInit {
   protected readonly firstName = computed(
     () => this.auth.currentUser()?.fullName?.split(' ')[0] ?? '',
   );
+  protected readonly welcomeTitle = computed(
+    () => $localize`:@@dashboard.welcome:Bienvenido, ${this.firstName()}:name:`,
+  );
   protected readonly canUpload = computed(() => canUploadDocument(this.role()));
   protected readonly downloadingIds = this.downloads.downloadingIds;
   protected readonly quickActions = computed(() => getQuickActionsForRole(this.role()));
@@ -98,8 +101,8 @@ export class DashboardComponent implements OnInit {
           this.loading.set(false);
           this.notifications.httpError(
             err,
-            'No se pudo cargar el panel de control',
-            'Verifique su conexión e intente nuevamente.',
+            $localize`:@@dashboard.loadError.title:No se pudo cargar el panel de control`,
+            $localize`:@@common.error.checkConnection:Verifique su conexión e intente nuevamente.`,
           );
         },
       });

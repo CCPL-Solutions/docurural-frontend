@@ -101,6 +101,15 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
     ESLint lo exige en `features/` y `shared/`.
   - Todos los componentes usan `OnPush`; la regla de ESLint pasa a `error`.
   - La carga inicial de Usuarios, Categorías y el detalle de documento se hace en `ngOnInit`.
+- Internacionalización (fase 8 de la remediación):
+  - La interfaz está disponible en español y en inglés con `@angular/localize`: un build por
+    idioma, servido en `/es/` y `/en/`. La raíz redirige según el idioma del navegador.
+  - Enlace para cambiar de idioma en el login y en el menú lateral.
+  - Las fechas siguen el formato de cada idioma.
+  - Los mensajes que son oraciones completas terminan en punto, y se corrigen «Se encontró 1
+    documento» y el trato de usted en la pista de la contraseña.
+  - ESLint exige `i18n` en todo texto de las plantillas y el build falla si falta una traducción.
+  - El health check del despliegue comprueba los dos idiomas.
 
 ### Removed
 

@@ -13,8 +13,10 @@ Playwright (E2E), ESLint y Prettier.
 
 ```bash
 npm ci                 # Instalar dependencias
-npm start               # Servidor de desarrollo en http://localhost:4200
-npm run build            # Build de producción en dist/docurural-frontend/browser
+npm start               # Servidor de desarrollo en http://localhost:4200 (en español)
+npm run start:en         # Servidor de desarrollo en inglés
+npm run build            # Build de producción: un build por idioma en dist/docurural-frontend/browser/{es,en}
+npm run extract-i18n     # Extraer los textos a src/locale/messages.xlf
 npm test                 # Pruebas en modo watch
 npm run test:ci          # Pruebas en modo CI (sin watch, con cobertura)
 npm run format:check     # Verificar formato con Prettier
@@ -70,6 +72,31 @@ npm run e2e -- --update-snapshots         # Aceptar un cambio visual intencionad
     Linux, la primera ejecución falla por falta de referencia: generarlas con
     `npm run e2e -- --update-snapshots` y no subirlas salvo acuerdo del equipo.
 - Algunos E2E usan `test.fail()` con el mismo sentido que `it.fails` en los unitarios.
+
+## Idiomas (i18n)
+
+La interfaz está en español (`es-CO`, idioma de origen) y en inglés (`en`), con
+[`@angular/localize`](https://angular.dev/guide/i18n): hay **un build por idioma** y cambiar de
+idioma recarga la página. En los entornos desplegados, Nginx sirve cada build en `/es/` y `/en/`
+y redirige la raíz según el idioma del navegador (`docurural-infra-test`). El enlace para cambiar de
+idioma (`<app-language-switcher>`, en el login y en el menú lateral) solo aparece en esos builds;
+con `npm start` hay un único idioma.
+
+- **Plantillas:** todo texto visible lleva `i18n` (o `i18n-<atributo>`) con un ID personalizado,
+  `@@<feature>.<pantalla>.<clave>` en inglés. Los recuentos usan ICU (`{n, plural, =1 {…} other {…}}`).
+  ESLint (`@angular-eslint/template/i18n`) falla si falta.
+- **TypeScript:** `` $localize`:@@id:Texto ${valor}:nombre:` `` (toasts, `*.messages.ts`, etiquetas
+  de modelos, títulos de ruta, formatos de fecha). Un mismo texto se reutiliza con el mismo ID.
+- **Fechas:** `LOCALE_ID` lo fija cada build; los patrones de `shared/utils/date-formats.ts` también
+  se traducen.
+- **Puntuación:** terminan en punto las oraciones completas (descripciones de toasts, errores,
+  validaciones y pistas); no lo llevan títulos, etiquetas, botones, placeholders ni tooltips.
+- **Al añadir o cambiar un texto:** `npm run extract-i18n` y actualizar
+  `src/locale/messages.en.xlf` (añadir la unidad con su `<target>`, o corregir el `<target>` si
+  cambió el texto de origen). `npm run build` falla si falta una traducción
+  (`i18nMissingTranslation: error`).
+- **No se traducen:** los nombres propios (DocuRural, IERD Miña y Ticha), las áreas responsables
+  (son valores que se guardan en el backend) ni los mensajes que devuelve el backend.
 
 ## Configuración por entorno
 

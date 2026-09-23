@@ -18,7 +18,7 @@ test.describe('Documentos', () => {
     await page.getByLabel('Campo de búsqueda de documentos').press('Enter');
     await request;
 
-    await expect(page.getByText('Se encontraron 1 documento para "acta"')).toBeVisible();
+    await expect(page.getByText('Se encontró 1 documento para "acta"')).toBeVisible();
     await expect(page.locator('table').getByText('Acta de consejo directivo')).toBeVisible();
   });
 

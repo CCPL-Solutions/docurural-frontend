@@ -10,6 +10,7 @@ import { AlertComponent } from '@shared/components/alert/alert.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { applyFieldErrors } from '@shared/forms/apply-field-errors';
 import { FieldErrorComponent } from '@shared/forms/field-error.component';
+import { LanguageSwitcherComponent } from '@shared/components/language-switcher/language-switcher.component';
 import { LOGIN_MESSAGES } from './login.messages';
 import { safeReturnUrl } from './return-url';
 
@@ -22,6 +23,7 @@ import { safeReturnUrl } from './return-url';
     AlertComponent,
     ButtonComponent,
     FieldErrorComponent,
+    LanguageSwitcherComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -45,6 +47,8 @@ export class LoginComponent {
   protected readonly hidePassword = signal(true);
 
   protected readonly messages = LOGIN_MESSAGES;
+  protected readonly showPasswordLabel = $localize`:@@login.password.show:Mostrar contraseña`;
+  protected readonly hidePasswordLabel = $localize`:@@login.password.hide:Ocultar contraseña`;
 
   protected onSubmit(): void {
     if (this.form.invalid) {
@@ -74,15 +78,19 @@ export class LoginComponent {
           // En el login, un 401 son credenciales incorrectas, no una sesión caducada: el
           // interceptor no gestiona /auth/login.
           if (err.status === HttpStatusCode.Unauthorized) {
-            this.submitError.set('Correo o contraseña incorrectos');
+            this.submitError.set(
+              $localize`:@@login.error.credentials:Correo o contraseña incorrectos.`,
+            );
             this.submitErrorVariant.set('error');
           } else if (err.status === HttpStatusCode.Forbidden) {
-            this.submitError.set('Su cuenta ha sido desactivada. Contacte al administrador');
+            this.submitError.set(
+              $localize`:@@login.error.inactive:Su cuenta ha sido desactivada. Contacte al administrador.`,
+            );
             this.submitErrorVariant.set('warning');
             this.accountInactive.set(true);
           } else if (!applyFieldErrors(this.form, err)) {
             this.submitError.set(
-              'No fue posible conectar con el servidor. Intente nuevamente en unos minutos',
+              $localize`:@@login.error.network:No fue posible conectar con el servidor. Intente nuevamente en unos minutos.`,
             );
             this.submitErrorVariant.set('error');
           }

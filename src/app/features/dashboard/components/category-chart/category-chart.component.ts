@@ -88,7 +88,9 @@ export class CategoryChartComponent {
         callbacks: {
           label: (ctx) => {
             const item = this.data()[ctx.dataIndex];
-            return ` ${ctx.label}: ${item.count} documentos (${item.percentage}%)`;
+            return item.count === 1
+              ? $localize`:@@dashboard.chart.tooltip.one: ${ctx.label}:category:: 1 documento (${item.percentage}:percentage:%)`
+              : $localize`:@@dashboard.chart.tooltip.other: ${ctx.label}:category:: ${item.count}:count: documentos (${item.percentage}:percentage:%)`;
           },
         },
       },

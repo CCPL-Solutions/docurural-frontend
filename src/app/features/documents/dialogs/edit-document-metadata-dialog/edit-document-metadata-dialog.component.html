@@ -1,7 +1,13 @@
 <div class="dialog-container">
   <div class="dialog-header">
-    <h2 class="dialog-title">Editar metadatos</h2>
-    <button class="dialog-close" type="button" (click)="cancel()" aria-label="Cerrar formulario">
+    <h2 class="dialog-title" i18n="@@documents.edit.title">Editar metadatos</h2>
+    <button
+      class="dialog-close"
+      type="button"
+      (click)="cancel()"
+      aria-label="Cerrar formulario"
+      i18n-aria-label="@@common.closeForm"
+    >
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -16,7 +22,7 @@
       <app-document-format-icon [format]="data.document.fileFormat" />
       <div class="readonly-block__file-meta">
         <span class="readonly-block__filename">{{ data.document.originalFileName }}</span>
-        <span class="readonly-block__filemeta">
+        <span class="readonly-block__filemeta" i18n="@@documents.edit.fileMeta">
           {{ data.document.fileFormat }} · {{ formatFileSize(data.document.fileSizeBytes) }} ·
           Cargado por {{ data.document.uploadedBy.fullName }} ·
           {{ data.document.createdAt | date: dateTimeFormat }}
@@ -31,7 +37,7 @@
       <div class="field">
         <div class="field__label-row">
           <label class="field__label" for="edit-title">
-            Título del documento
+            <ng-container i18n="@@documents.form.title">Título del documento</ng-container>
             <strong class="field__required" aria-hidden="true">*</strong>
           </label>
           <span
@@ -53,6 +59,7 @@
             [maxlength]="maxTitleLength"
             autocomplete="off"
             placeholder="Ej. Acta Consejo Directivo Marzo 2026"
+            i18n-placeholder="@@documents.form.title.placeholder"
             [attr.aria-required]="true"
             [attr.aria-invalid]="
               (form.controls.title.invalid && form.controls.title.touched) || null
@@ -72,7 +79,7 @@
         <!-- Categoría -->
         <div class="field">
           <span class="field__label" id="edit-category-label">
-            Categoría
+            <ng-container i18n="@@document.field.category">Categoría</ng-container>
             <strong class="field__required" aria-hidden="true">*</strong>
           </span>
           <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
@@ -81,9 +88,7 @@
               formControlName="categoryId"
               aria-labelledby="edit-category-label"
               aria-describedby="edit-category-error edit-category-hint"
-              [placeholder]="
-                loadingCategories() ? 'Cargando categorías...' : 'Seleccione una categoría'
-              "
+              [placeholder]="loadingCategories() ? labels.loadingCategories : labels.selectCategory"
             >
               @for (cat of categories(); track cat.id) {
                 <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
@@ -94,9 +99,11 @@
           @if (loadCategoriesError()) {
             <div class="categories-error">
               <mat-icon aria-hidden="true">warning</mat-icon>
-              <span>No se pudieron cargar las categorías.</span>
+              <span i18n="@@documents.form.category.loadError"
+                >No se pudieron cargar las categorías.</span
+              >
               <button type="button" class="categories-retry" (click)="loadCategories()">
-                Reintentar
+                <ng-container i18n="@@common.retry">Reintentar</ng-container>
               </button>
             </div>
           }
@@ -107,7 +114,10 @@
             errorId="edit-category-error"
           >
             @if (!loadCategoriesError()) {
-              <small class="field__hint" id="edit-category-hint"
+              <small
+                class="field__hint"
+                id="edit-category-hint"
+                i18n="@@documents.form.category.hint"
                 >Solo aparecen las categorías activas.</small
               >
             }
@@ -117,7 +127,7 @@
         <!-- Área responsable -->
         <div class="field">
           <span class="field__label" id="edit-area-label">
-            Área responsable
+            <ng-container i18n="@@document.field.area">Área responsable</ng-container>
             <strong class="field__required" aria-hidden="true">*</strong>
           </span>
           <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
@@ -127,6 +137,7 @@
               aria-labelledby="edit-area-label"
               aria-describedby="edit-area-error"
               placeholder="Seleccione un área"
+              i18n-placeholder="@@documents.form.area.placeholder"
             >
               @for (area of areas; track area) {
                 <mat-option [value]="area">{{ area }}</mat-option>
@@ -144,7 +155,7 @@
       <!-- Fecha del documento -->
       <div class="field">
         <label class="field__label" for="edit-documentDate">
-          Fecha del documento
+          <ng-container i18n="@@document.field.documentDate">Fecha del documento</ng-container>
           <strong class="field__required" aria-hidden="true">*</strong>
         </label>
         <div
@@ -160,6 +171,7 @@
             [matDatepicker]="picker"
             formControlName="documentDate"
             placeholder="DD/MM/AAAA"
+            i18n-placeholder="@@documents.form.date.placeholder"
             readonly
             (click)="picker.open()"
             [attr.aria-required]="true"
@@ -174,6 +186,7 @@
             (click)="picker.open()"
             [disabled]="form.disabled"
             aria-label="Abrir calendario"
+            i18n-aria-label="@@documents.form.date.openCalendar"
           >
             <mat-icon aria-hidden="true">calendar_month</mat-icon>
           </button>
@@ -184,7 +197,7 @@
           [messages]="messages.documentDate"
           errorId="edit-date-error"
         >
-          <small class="field__hint" id="edit-date-hint"
+          <small class="field__hint" id="edit-date-hint" i18n="@@documents.form.date.hint"
             >Fecha real del documento original, no la fecha de carga.</small
           >
         </app-field-error>
@@ -193,7 +206,7 @@
       <!-- Nivel de sensibilidad -->
       <div class="field">
         <span class="field__label">
-          Nivel de sensibilidad
+          <ng-container i18n="@@sensitivity.field.label">Nivel de sensibilidad</ng-container>
           <strong class="field__required" aria-hidden="true">*</strong>
         </span>
 
@@ -237,8 +250,8 @@
       <div class="field">
         <div class="field__label-row">
           <label class="field__label" for="edit-description">
-            Descripción
-            <span class="field__optional">(opcional)</span>
+            <ng-container i18n="@@document.field.description">Descripción</ng-container>
+            <span class="field__optional" i18n="@@common.optional">(opcional)</span>
           </label>
           <span
             class="field__counter"
@@ -261,6 +274,7 @@
             [maxlength]="maxDescriptionLength"
             autocomplete="off"
             placeholder="Información adicional sobre el contenido del documento (opcional)."
+            i18n-placeholder="@@documents.form.description.placeholder"
             [attr.aria-invalid]="
               (form.controls.description.invalid && form.controls.description.touched) || null
             "
@@ -278,11 +292,15 @@
 
     <div class="dialog-footer">
       <app-button variant="secondary" type="button" [disabled]="loading()" (click)="cancel()">
-        Cancelar
+        <ng-container i18n="@@common.cancel">Cancelar</ng-container>
       </app-button>
       <app-button variant="primary" type="submit" [loading]="loading()">
         <mat-icon aria-hidden="true">save</mat-icon>
-        <span>{{ loading() ? 'Guardando...' : 'Guardar cambios' }}</span>
+        @if (loading()) {
+          <span i18n="@@common.saving">Guardando…</span>
+        } @else {
+          <span i18n="@@common.saveChanges">Guardar cambios</span>
+        }
       </app-button>
     </div>
   </form>

@@ -1,12 +1,15 @@
 <!-- Cabecera de página -->
 <app-page-header
   kicker="Administración"
+  i18n-kicker="@@layout.nav.admin"
   title="Categorías"
+  i18n-title="@@layout.nav.categories"
   subtitle="Clasifique los documentos del repositorio según el tipo y la procedencia."
+  i18n-subtitle="@@categories.list.subtitle"
 >
   <app-button actions variant="primary" class="header-action" (click)="goToCreate()">
     <mat-icon>add</mat-icon>
-    <span>Nueva categoría</span>
+    <span i18n="@@categories.form.titleCreate">Nueva categoría</span>
   </app-button>
 </app-page-header>
 
@@ -24,32 +27,43 @@
 <div class="counter">
   <span class="counter__total">
     <mat-icon aria-hidden="true">local_offer</mat-icon>
-    <strong
-      >{{ totalCategories() }} {{ totalCategories() === 1 ? 'categoría' : 'categorías' }}</strong
-    >
+    <strong i18n="@@categories.list.counter">{totalCategories(), plural,
+      =1 {1 categoría}
+      other {{{ totalCategories() }} categorías}
+    }</strong>
   </span>
   <span class="counter__pill counter__pill--active">
     <span class="counter__dot counter__dot--active" aria-hidden="true"></span>
-    {{ activeCategories() }} activas
+    <ng-container i18n="@@categories.list.activeCount">{activeCategories(), plural,
+      =1 {1 activa}
+      other {{{ activeCategories() }} activas}
+    }</ng-container>
   </span>
   <span class="counter__pill counter__pill--inactive">
     <span class="counter__dot counter__dot--inactive" aria-hidden="true"></span>
-    {{ inactiveCategories() }} inactivas
+    <ng-container i18n="@@categories.list.inactiveCount">{inactiveCategories(), plural,
+      =1 {1 inactiva}
+      other {{{ inactiveCategories() }} inactivas}
+    }</ng-container>
   </span>
 </div>
 
 @if (loading()) {
-  <app-empty-state variant="loading">Cargando categorías…</app-empty-state>
+  <app-empty-state variant="loading" i18n="@@categories.list.loading"
+    >Cargando categorías…</app-empty-state
+  >
 } @else if (totalCategories() === 0) {
   <app-empty-state
     variant="empty"
     icon="local_offer"
     title="No hay categorías registradas en el sistema"
+    i18n-title="@@categories.list.empty.title"
     description="Cree la primera categoría para empezar a clasificar los documentos del repositorio."
+    i18n-description="@@categories.list.empty.description"
   >
     <app-button actions variant="primary" (click)="goToCreate()">
       <mat-icon>add</mat-icon>
-      <span>Nueva categoría</span>
+      <span i18n="@@categories.form.titleCreate">Nueva categoría</span>
     </app-button>
   </app-empty-state>
 } @else {
@@ -67,15 +81,17 @@
       </colgroup>
       <thead>
         <tr>
-          <th>Categoría</th>
-          <th>Descripción</th>
+          <th i18n="@@document.field.category">Categoría</th>
+          <th i18n="@@document.field.description">Descripción</th>
           <th>
-            <span class="th-sensitivity"> Sensibilidad por defecto </span>
+            <span class="th-sensitivity" i18n="@@categories.field.defaultSensitivity"
+              >Sensibilidad por defecto</span
+            >
           </th>
-          <th class="th-right">Documentos</th>
-          <th>Estado</th>
-          <th>Fecha de creación</th>
-          <th class="th-actions">Acciones</th>
+          <th class="th-right" i18n="@@layout.nav.documents">Documentos</th>
+          <th i18n="@@users.list.col.status">Estado</th>
+          <th i18n="@@users.list.col.createdAt">Fecha de creación</th>
+          <th class="th-actions" i18n="@@common.actions">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -86,7 +102,9 @@
                 <app-category-icon-badge [name]="category.name" [muted]="isMuted(category)" />
                 <div class="cell-category__info">
                   <span class="cell-category__name">{{ category.name }}</span>
-                  <span class="cell-category__meta">Creada por {{ category.createdBy }}</span>
+                  <span class="cell-category__meta" i18n="@@categories.list.createdBy"
+                    >Creada por {{ category.createdBy }}</span
+                  >
                 </div>
               </div>
             </td>
@@ -136,7 +154,9 @@
             <app-sensitivity-badge [level]="category.defaultSensitivityLevel" size="sm" />
             <span class="doc-count-pill" [class.doc-count-pill--muted]="isMuted(category)">
               <mat-icon aria-hidden="true">description</mat-icon>
-              {{ category.documentCount }} doc.
+              <ng-container i18n="@@categories.list.docCountShort"
+                >{{ category.documentCount }} doc.</ng-container
+              >
             </span>
           </div>
           <app-category-row-actions

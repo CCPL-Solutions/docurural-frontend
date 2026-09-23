@@ -1,7 +1,13 @@
 <div class="dialog-container">
   <div class="dialog-header">
     <h2 class="dialog-title">{{ title() }}</h2>
-    <button class="dialog-close" type="button" (click)="cancel()" aria-label="Cerrar formulario">
+    <button
+      class="dialog-close"
+      type="button"
+      (click)="cancel()"
+      aria-label="Cerrar formulario"
+      i18n-aria-label="@@common.closeForm"
+    >
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -14,7 +20,7 @@
     <!-- Nombre completo -->
     <div class="field">
       <label class="field__label" for="fullName">
-        Nombre completo
+        <ng-container i18n="@@users.form.fullName">Nombre completo</ng-container>
         <strong class="field__required" aria-hidden="true">*</strong>
       </label>
       <div
@@ -30,6 +36,7 @@
           formControlName="fullName"
           autocomplete="name"
           placeholder="Nombre y apellidos"
+          i18n-placeholder="@@users.form.fullName.placeholder"
           [attr.aria-required]="true"
           [attr.aria-invalid]="
             (form.controls.fullName.invalid && form.controls.fullName.touched) || null
@@ -42,7 +49,7 @@
     <!-- Correo electrónico -->
     <div class="field">
       <label class="field__label" for="email">
-        Correo electrónico
+        <ng-container i18n="@@users.form.email">Correo electrónico</ng-container>
         <strong class="field__required" aria-hidden="true">*</strong>
       </label>
       <div
@@ -56,6 +63,7 @@
           formControlName="email"
           autocomplete="email"
           placeholder="correo@minayticha.edu.co"
+          i18n-placeholder="@@login.email.placeholder"
           [attr.aria-required]="true"
           [attr.aria-invalid]="(form.controls.email.invalid && form.controls.email.touched) || null"
         />
@@ -66,13 +74,14 @@
     <!-- Rol -->
     <div class="field">
       <label class="field__label" for="role">
-        Rol
+        <ng-container i18n="@@users.form.role">Rol</ng-container>
         <strong class="field__required" aria-hidden="true">*</strong>
       </label>
       <div
         class="field__control"
         [class.field__control--error]="form.controls.role.invalid && form.controls.role.touched"
-        [matTooltip]="'No puede cambiar su propio rol'"
+        matTooltip="No puede cambiar su propio rol"
+        i18n-matTooltip="@@users.form.role.selfTooltip"
         [matTooltipDisabled]="!isSelfEdit()"
         matTooltipPosition="above"
       >
@@ -83,7 +92,9 @@
           [attr.aria-required]="true"
           [attr.aria-invalid]="(form.controls.role.invalid && form.controls.role.touched) || null"
         >
-          <option value="" disabled hidden>Seleccione un rol</option>
+          <option value="" disabled hidden i18n="@@users.form.role.placeholder">
+            Seleccione un rol
+          </option>
           @for (opt of roleOptions; track opt[0]) {
             <option [value]="opt[0]">{{ opt[1] }}</option>
           }
@@ -95,9 +106,9 @@
     <!-- Contraseña -->
     <div class="field field--password">
       <label class="field__label" for="password">
-        Contraseña
+        <ng-container i18n="@@users.form.password">Contraseña</ng-container>
         @if (isEdit()) {
-          <span class="field__optional">(opcional)</span>
+          <span class="field__optional" i18n="@@common.optional">(opcional)</span>
         } @else {
           <strong class="field__required" aria-hidden="true">*</strong>
         }
@@ -124,15 +135,17 @@
           class="field__toggle"
           type="button"
           (click)="hidePassword.set(!hidePassword())"
-          [attr.aria-label]="hidePassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+          [attr.aria-label]="hidePassword() ? labels.showPassword : labels.hidePassword"
         >
           <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
         </button>
       </div>
       @if (isEdit()) {
-        <small class="field__hint">Déjalo en blanco para mantener la contraseña actual</small>
+        <small class="field__hint" i18n="@@users.form.password.keepHint"
+          >Déjelo en blanco para mantener la contraseña actual.</small
+        >
       }
-      <small class="field__hint"
+      <small class="field__hint" i18n="@@users.form.password.rulesHint"
         >Mínimo 12 caracteres, con una mayúscula, una minúscula, un número y un símbolo.</small
       >
       <app-field-error [control]="form.controls.password" [messages]="messages.password" />
@@ -141,7 +154,7 @@
     <!-- Confirmar contraseña -->
     <div class="field">
       <label class="field__label" for="confirmPassword">
-        Confirmar contraseña
+        <ng-container i18n="@@users.form.confirmPassword">Confirmar contraseña</ng-container>
         @if (!isEdit()) {
           <strong class="field__required" aria-hidden="true">*</strong>
         }
@@ -172,7 +185,7 @@
           type="button"
           (click)="hideConfirmPassword.set(!hideConfirmPassword())"
           [attr.aria-label]="
-            hideConfirmPassword() ? 'Mostrar confirmación' : 'Ocultar confirmación'
+            hideConfirmPassword() ? labels.showConfirmation : labels.hideConfirmation
           "
         >
           <mat-icon>{{ hideConfirmPassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
@@ -187,7 +200,7 @@
 
     <div class="dialog-footer">
       <app-button variant="secondary" type="button" [disabled]="loading()" (click)="cancel()">
-        Cancelar
+        <ng-container i18n="@@common.cancel">Cancelar</ng-container>
       </app-button>
       <app-button variant="primary" type="submit" [loading]="loading()">
         {{ loading() ? loadingLabel() : primaryLabel() }}

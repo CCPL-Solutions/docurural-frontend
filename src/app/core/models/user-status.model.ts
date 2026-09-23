@@ -1,6 +1,6 @@
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 
 export const STATUS_LABELS: Record<UserStatus, string> = {
-  ACTIVE: 'Activo',
-  INACTIVE: 'Inactivo',
+  ACTIVE: $localize`:@@userStatus.active:Activo`,
+  INACTIVE: $localize`:@@userStatus.inactive:Inactivo`,
 };

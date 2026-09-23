@@ -11,6 +11,7 @@ import { DocumentFormatIconComponent } from '@shared/components/document-format-
 import { CategoryPillComponent } from '@shared/components/category-pill/category-pill.component';
 import { DatePipe } from '@angular/common';
 import { SHORT_DATE_FORMAT } from '@shared/utils/date-formats';
+import { downloadAriaLabel, downloadTooltip } from '@shared/i18n/download-labels';
 
 function truncateTitle(title: string, max = 50): string {
   return title.length > max ? title.slice(0, max - 1) + '…' : title;
@@ -45,4 +46,6 @@ export class RecentDocsTableComponent {
 
   protected readonly truncateTitle = truncateTitle;
   protected readonly dateFormat = SHORT_DATE_FORMAT;
+  protected readonly downloadTooltip = downloadTooltip;
+  protected readonly downloadAriaLabel = downloadAriaLabel;
 }

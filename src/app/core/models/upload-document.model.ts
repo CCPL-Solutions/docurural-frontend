@@ -1,6 +1,8 @@
 import { DocumentFormat } from './document-format.model';
 import { SensitivityLevel } from './sensitivity-level.model';
 
+// Las áreas son valores que se guardan en el backend y nombres propios de la institución: no se
+// traducen (Fase 8).
 export type ResponsibleArea =
   | 'Rectoría'
   | 'Secretaría'

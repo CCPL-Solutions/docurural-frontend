@@ -3,16 +3,19 @@
   <div class="filters-panel__header">
     <span class="filters-panel__header-title" id="filters-panel-title">
       <mat-icon aria-hidden="true">tune</mat-icon>
-      Filtros avanzados
+      <ng-container i18n="@@documents.filters.advanced">Filtros avanzados</ng-container>
     </span>
     <span class="filters-panel__header-note">
       <mat-icon aria-hidden="true">info_outline</mat-icon>
-      Todos los filtros son opcionales y se combinan con criterio &ldquo;Y&rdquo;
+      <ng-container i18n="@@documents.filters.note"
+        >Todos los filtros son opcionales y se combinan con criterio &ldquo;Y&rdquo;.</ng-container
+      >
     </span>
     <button
       type="button"
       class="filters-panel__close"
       aria-label="Cerrar panel de filtros"
+      i18n-aria-label="@@documents.filters.closePanelAriaLabel"
       (click)="onClose()"
     >
       <mat-icon aria-hidden="true">close</mat-icon>
@@ -27,7 +30,9 @@
     >
       <!-- Categoría -->
       <div class="field">
-        <span class="field__label" id="filter-category-label">Categoría</span>
+        <span class="field__label" id="filter-category-label" i18n="@@document.field.category"
+          >Categoría</span
+        >
         <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
           <mat-icon matPrefix class="select-icon">local_offer</mat-icon>
           <mat-select
@@ -35,9 +40,12 @@
             [value]="draft().categoryId"
             [disabled]="loadingOptions()"
             placeholder="Todas las categorías"
+            i18n-placeholder="@@documents.filters.allCategories"
             (selectionChange)="onCategoryChange($event.value)"
           >
-            <mat-option [value]="null">Todas las categorías</mat-option>
+            <mat-option [value]="null" i18n="@@documents.filters.allCategories"
+              >Todas las categorías</mat-option
+            >
             @for (cat of options()?.categories ?? []; track cat.id) {
               <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
             }
@@ -47,7 +55,9 @@
 
       <!-- Área responsable -->
       <div class="field">
-        <label class="field__label" for="filter-area">Área responsable</label>
+        <label class="field__label" for="filter-area" i18n="@@document.field.area"
+          >Área responsable</label
+        >
         <div class="field__control">
           <span class="field__icon">
             <mat-icon aria-hidden="true">business</mat-icon>
@@ -57,6 +67,7 @@
             type="text"
             class="field__input field__input--with-icon"
             placeholder="Ej. Rectoría"
+            i18n-placeholder="@@documents.filters.area.placeholder"
             [value]="draft().responsibleArea ?? ''"
             (input)="onResponsibleAreaInput($event)"
           />
@@ -65,7 +76,9 @@
 
       <!-- Fecha desde -->
       <div class="field">
-        <label class="field__label" for="filter-date-from">Fecha desde</label>
+        <label class="field__label" for="filter-date-from" i18n="@@documents.filters.dateFrom"
+          >Fecha desde</label
+        >
         <div class="field__control" [class.field__control--error]="!!dateError()">
           <input
             id="filter-date-from"
@@ -74,6 +87,7 @@
             [matDatepicker]="pickerFrom"
             [value]="parseYmd(draft().dateFrom)"
             placeholder="DD/MM/AAAA"
+            i18n-placeholder="@@documents.form.date.placeholder"
             readonly
             (click)="pickerFrom.open()"
             (dateChange)="onDateFromChange($event)"
@@ -83,6 +97,7 @@
             class="field__toggle"
             (click)="pickerFrom.open()"
             aria-label="Abrir calendario fecha desde"
+            i18n-aria-label="@@documents.filters.dateFrom.openCalendar"
           >
             <mat-icon aria-hidden="true">calendar_month</mat-icon>
           </button>
@@ -92,7 +107,9 @@
 
       <!-- Fecha hasta -->
       <div class="field">
-        <label class="field__label" for="filter-date-to">Fecha hasta</label>
+        <label class="field__label" for="filter-date-to" i18n="@@documents.filters.dateTo"
+          >Fecha hasta</label
+        >
         <div class="field__control" [class.field__control--error]="!!dateError()">
           <input
             id="filter-date-to"
@@ -101,6 +118,7 @@
             [matDatepicker]="pickerTo"
             [value]="parseYmd(draft().dateTo)"
             placeholder="DD/MM/AAAA"
+            i18n-placeholder="@@documents.form.date.placeholder"
             readonly
             (click)="pickerTo.open()"
             (dateChange)="onDateToChange($event)"
@@ -110,6 +128,7 @@
             class="field__toggle"
             (click)="pickerTo.open()"
             aria-label="Abrir calendario fecha hasta"
+            i18n-aria-label="@@documents.filters.dateTo.openCalendar"
           >
             <mat-icon aria-hidden="true">calendar_month</mat-icon>
           </button>
@@ -121,8 +140,10 @@
       @if (canSeeUploadedBy()) {
         <div class="field">
           <div class="field__label-row">
-            <span class="field__label" id="filter-uploader-label">Subido por</span>
-            <span class="field__hint-inline">Solo ADMIN</span>
+            <span class="field__label" id="filter-uploader-label" i18n="@@document.field.uploadedBy"
+              >Subido por</span
+            >
+            <span class="field__hint-inline" i18n="@@documents.filters.adminOnly">Solo ADMIN</span>
           </div>
           <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
             <mat-icon matPrefix class="select-icon">person</mat-icon>
@@ -131,9 +152,12 @@
               [value]="draft().uploadedBy"
               [disabled]="loadingOptions()"
               placeholder="Cualquier usuario"
+              i18n-placeholder="@@documents.filters.anyUser"
               (selectionChange)="onUploadedByChange($event.value)"
             >
-              <mat-option [value]="null">Cualquier usuario</mat-option>
+              <mat-option [value]="null" i18n="@@documents.filters.anyUser"
+                >Cualquier usuario</mat-option
+              >
               @for (user of options()?.users ?? []; track user.id) {
                 <mat-option [value]="user.id">{{ user.fullName }}</mat-option>
               }
@@ -156,11 +180,11 @@
   <div class="filters-panel__footer">
     <app-button variant="secondary" (click)="onReset()">
       <mat-icon aria-hidden="true">restart_alt</mat-icon>
-      <span>Restablecer</span>
+      <span i18n="@@documents.filters.reset">Restablecer</span>
     </app-button>
     <app-button variant="primary" [disabled]="!!dateError()" (click)="onApply()">
       <mat-icon aria-hidden="true">check</mat-icon>
-      <span>Aplicar filtros</span>
+      <span i18n="@@documents.filters.apply">Aplicar filtros</span>
     </app-button>
   </div>
 </div>

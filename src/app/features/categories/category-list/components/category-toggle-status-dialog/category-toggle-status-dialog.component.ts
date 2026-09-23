@@ -56,14 +56,18 @@ export class CategoryToggleStatusDialogComponent {
 
   protected readonly isDeactivate = computed(() => this.data.action === 'deactivate');
   protected readonly title = computed(() =>
-    this.isDeactivate() ? 'Desactivar categoría' : 'Reactivar categoría',
+    this.isDeactivate()
+      ? $localize`:@@categories.toggle.titleDeactivate:Desactivar categoría`
+      : $localize`:@@categories.toggle.titleActivate:Reactivar categoría`,
   );
   protected readonly headerIcon = computed(() => (this.isDeactivate() ? 'warning' : 'restart_alt'));
   protected readonly actionIcon = computed(() =>
     this.isDeactivate() ? 'delete_outline' : 'check',
   );
   protected readonly actionLabel = computed(() =>
-    this.isDeactivate() ? 'Desactivar' : 'Activar categoría',
+    this.isDeactivate()
+      ? $localize`:@@users.action.deactivate:Desactivar`
+      : $localize`:@@categories.toggle.submitActivate:Activar categoría`,
   );
   protected readonly actionVariant = computed<'warning' | 'primary'>(() =>
     this.isDeactivate() ? 'warning' : 'primary',
@@ -109,22 +113,26 @@ export class CategoryToggleStatusDialogComponent {
     switch (err.status) {
       case 400:
         this.errorMessage.set(
-          'La categoría ya tiene este estado. Cierre el diálogo y recargue el listado.',
+          $localize`:@@categories.toggle.error.sameStatus:La categoría ya tiene este estado. Cierre el diálogo y recargue el listado.`,
         );
         this.errorBlocksAction.set(true);
         break;
       case 403:
-        this.errorMessage.set('No tiene permisos para realizar esta acción.');
+        this.errorMessage.set(
+          $localize`:@@common.error.forbidden:No tiene permisos para realizar esta acción.`,
+        );
         this.errorBlocksAction.set(true);
         break;
       case 404:
         this.errorMessage.set(
-          'La categoría ya no existe. Cierre el diálogo y recargue el listado.',
+          $localize`:@@categories.toggle.error.notFound:La categoría ya no existe. Cierre el diálogo y recargue el listado.`,
         );
         this.errorBlocksAction.set(true);
         break;
       default:
-        this.errorMessage.set('No fue posible actualizar el estado. Intente de nuevo.');
+        this.errorMessage.set(
+          $localize`:@@categories.toggle.error.generic:No fue posible actualizar el estado. Intente de nuevo.`,
+        );
         this.errorBlocksAction.set(false);
     }
   }

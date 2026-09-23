@@ -17,6 +17,18 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": {
+          "code": "es-CO",
+          "subPath": "es"
+        },
+        "locales": {
+          "en": {
+            "translation": "src/locale/messages.en.xlf",
+            "subPath": "en"
+          }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -33,7 +45,9 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": ["src/styles.scss"],
+            "polyfills": ["@angular/localize/init"],
+            "i18nMissingTranslation": "error"
           },
           "configurations": {
             "production": {
@@ -55,7 +69,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "localize": true
             },
             "development": {
               "optimization": false,
@@ -83,6 +98,9 @@
                   "with": "src/environments/environment.qa.ts"
                 }
               ]
+            },
+            "en": {
+              "localize": ["en"]
             }
           },
           "defaultConfiguration": "production"
@@ -103,6 +121,9 @@
             "qa": {
               "buildTarget": "docurural-frontend:build:qa",
               "proxyConfig": "proxy.conf.qa.json"
+            },
+            "en": {
+              "buildTarget": "docurural-frontend:build:development,en"
             }
           },
           "defaultConfiguration": "development"
@@ -131,6 +152,14 @@
             "production": {
               "devServerTarget": "docurural-frontend:serve:production"
             }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "buildTarget": "docurural-frontend:build",
+            "format": "xlf",
+            "outputPath": "src/locale"
           }
         }
       }

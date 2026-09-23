@@ -1,33 +1,47 @@
 <app-page-header
-  [title]="'Bienvenido, ' + firstName()"
+  [title]="welcomeTitle()"
   subtitle="Resumen general del repositorio institucional · IERD Miña y Ticha"
+  i18n-subtitle="@@dashboard.subtitle"
 >
   @if (canUpload()) {
     <app-button actions variant="primary" (click)="onUploadDoc()">
       <mat-icon aria-hidden="true">upload</mat-icon>
-      <span>{{ isEmptyRepo() ? 'Cargar primer documento' : 'Subir documento' }}</span>
+      @if (isEmptyRepo()) {
+        <span i18n="@@dashboard.uploadFirst">Cargar primer documento</span>
+      } @else {
+        <span i18n="@@dashboard.upload">Subir documento</span>
+      }
     </app-button>
   }
 </app-page-header>
 
 @if (loading()) {
-  <app-empty-state variant="loading">Cargando panel de control…</app-empty-state>
+  <app-empty-state variant="loading" i18n="@@dashboard.loading"
+    >Cargando panel de control…</app-empty-state
+  >
 } @else if (stats(); as s) {
   <div class="dashboard__body">
     <!-- Desktop: arriba. Mobile: al final (order: 10) -->
     <app-quick-actions class="dashboard__qa-block" [role]="role()" [actions]="quickActions()" />
 
-    <section class="dashboard__grid-kpis" aria-label="Indicadores del repositorio">
+    <section
+      class="dashboard__grid-kpis"
+      aria-label="Indicadores del repositorio"
+      i18n-aria-label="@@dashboard.kpis.ariaLabel"
+    >
       <app-kpi-card
         icon="description"
         label="Total de documentos"
+        i18n-label="@@dashboard.kpi.total.label"
         [value]="s.summary.totalActiveDocuments"
         hint="Activos en el repositorio"
+        i18n-hint="@@dashboard.kpi.total.hint"
         accent="primary"
       />
       <app-kpi-card
         icon="event"
         label="Subidos este mes"
+        i18n-label="@@dashboard.kpi.month.label"
         [value]="s.summary.documentsUploadedThisMonth"
         [hint]="currentMonthLabel"
         accent="success"
@@ -57,11 +71,13 @@
     variant="empty"
     icon="cloud_off"
     title="No hay datos del panel de control"
+    i18n-title="@@dashboard.error.title"
     description="No fue posible obtener la información del repositorio."
+    i18n-description="@@dashboard.error.description"
   >
     <app-button actions variant="secondary" (click)="loadStats()">
       <mat-icon aria-hidden="true">refresh</mat-icon>
-      <span>Reintentar</span>
+      <span i18n="@@common.retry">Reintentar</span>
     </app-button>
   </app-empty-state>
 }

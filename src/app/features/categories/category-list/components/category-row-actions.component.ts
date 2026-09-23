@@ -12,7 +12,9 @@ import { IconButtonComponent } from '@shared/components/icon-button/icon-button.
       @if (category().status === 'ACTIVE') {
         <app-icon-button
           tooltip="Editar"
+          i18n-tooltip="@@common.edit"
           ariaLabel="Editar categoría"
+          i18n-ariaLabel="@@categories.row.editAriaLabel"
           (click)="edit.emit(category())"
         >
           <mat-icon>edit</mat-icon>
@@ -20,7 +22,9 @@ import { IconButtonComponent } from '@shared/components/icon-button/icon-button.
         <app-icon-button
           variant="danger"
           tooltip="Desactivar"
+          i18n-tooltip="@@users.action.deactivate"
           ariaLabel="Desactivar categoría"
+          i18n-ariaLabel="@@categories.row.deactivateAriaLabel"
           (click)="toggleStatus.emit(category())"
         >
           <mat-icon>delete_outline</mat-icon>
@@ -28,7 +32,9 @@ import { IconButtonComponent } from '@shared/components/icon-button/icon-button.
       } @else {
         <app-icon-button
           tooltip="Activar"
+          i18n-tooltip="@@users.action.activate"
           ariaLabel="Activar categoría"
+          i18n-ariaLabel="@@categories.row.activateAriaLabel"
           (click)="toggleStatus.emit(category())"
         >
           <mat-icon>restart_alt</mat-icon>
