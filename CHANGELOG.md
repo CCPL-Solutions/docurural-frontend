@@ -54,6 +54,19 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   - ESLint pasa a `error` las reglas que el código ya cumple: signals en inputs y outputs, outputs
     sin nombre de evento DOM, `NgClass`, estilos inline, `standalone`, imports relativos de más de
     dos niveles y `<label>` sin control.
+- Estructura y utilidades compartidas (fase 3 de la remediación):
+  - Los contratos de los diálogos de usuarios viven en su diálogo, y el modelo de filtros de
+    documentos en la feature de documentos.
+  - El icono de formato, el pill de categoría (`app-category-pill`) y las utilidades de
+    descarga, tamaño, fechas y formato pasan a `shared/`. Los diálogos de subida y edición de
+    documentos pasan a `features/documents/dialogs/`, su superficie pública.
+  - Una sola implementación de iniciales, colores por nombre, `inferFormat` y conversión de
+    fechas `YYYY-MM-DD` en `shared/utils/`.
+  - Fechas con el pipe `date` y `LOCALE_ID` `es-CO`, formatos de datepicker registrados una vez,
+    tamaños de diálogo con nombre (`shared/ui/dialog-sizes.ts`) y permisos por rol centralizados
+    en `core/auth/permissions.ts`.
+  - ESLint pasa a `error` los imports entre features y la cobertura exige ≥ 80 % de líneas en
+    `shared/utils/`.
 
 ### Removed
 
@@ -61,3 +74,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   barril `shared/sensitivity/index.ts`, `DocumentStatus`, los mixins de `src/styles/_utils.scss`,
   las inyecciones de `MAT_DIALOG_DATA` sin uso de los diálogos de subida y el `BreakpointObserver`
   de `NotificationService`.
+
+### Fixed
+
+- La fecha de los documentos ya no se muestra un día antes en Colombia (R11): las fechas
+  `YYYY-MM-DD` se interpretan como fecha local en el listado, el detalle y el diálogo de edición.
