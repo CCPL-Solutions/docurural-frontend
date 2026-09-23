@@ -158,6 +158,17 @@ jobs:
             fi
           done
 
+          # Un build por idioma (@angular/localize): cada carpeta debe servir su index.html con
+          # su <base href>. La raíz redirige a una de ellas (Nginx, docurural-infra-test).
+          for LANG in es en; do
+            BASE=$($CURL -s "https://$DOMAIN/$LANG/" | grep -o "<base href=\"/$LANG/\"" || true)
+            if [ -z "$BASE" ]; then
+              echo "/$LANG/ no sirve el build de ese idioma."
+              exit 1
+            fi
+            echo "Idioma /$LANG/ OK."
+          done
+
           DEPLOYED_VERSION=$($CURL -s "https://$DOMAIN/version.json" | grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | cut -d'"' -f4)
           echo "Versión reportada por /version.json: $DEPLOYED_VERSION (esperada: ${{ inputs.version }})"
           if [ "$DEPLOYED_VERSION" != "${{ inputs.version }}" ]; then
