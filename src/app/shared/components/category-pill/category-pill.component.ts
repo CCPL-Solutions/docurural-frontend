@@ -25,7 +25,7 @@ function pillColor(name: string): PillColor {
 }
 
 @Component({
-  selector: 'app-document-category-pill',
+  selector: 'app-category-pill',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span class="category-pill" [style.background]="color().bg" [style.color]="color().fg">
@@ -33,9 +33,9 @@ function pillColor(name: string): PillColor {
       <span class="category-pill__label">{{ name() }}</span>
     </span>
   `,
-  styleUrl: './document-category-pill.component.scss',
+  styleUrl: './category-pill.component.scss',
 })
-export class DocumentCategoryPillComponent {
+export class CategoryPillComponent {
   readonly name = input.required<string>();
 
   protected readonly color = computed(() => pillColor(this.name()));

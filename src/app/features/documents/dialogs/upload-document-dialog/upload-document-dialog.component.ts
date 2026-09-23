@@ -19,7 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertComponent } from '@shared/components/alert/alert.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
-import { DocumentFormatIconComponent } from '../document-format-icon.component';
+import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
 import { CategoriesService } from '@core/services/categories.service';
 import { DocumentsService } from '@core/services/documents.service';
 import { NotificationService } from '@core/services/notification.service';
@@ -37,8 +37,8 @@ import { SensitivityLockBannerComponent } from '@shared/sensitivity/sensitivity-
 import { SensitivityInheritedBannerComponent } from '@shared/sensitivity/sensitivity-inherited-banner.component';
 import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
 import { SensitivityMobileFieldComponent } from '@shared/sensitivity/sensitivity-mobile-field.component';
-import { formatFileSize } from '../../utils/file-size';
-import { formatYmd } from '../../utils/format-ymd';
+import { formatFileSize } from '@shared/utils/file-size';
+import { formatYmd } from '@shared/utils/format-ymd';
 
 const MY_DATE_FORMATS = {
   parse: {

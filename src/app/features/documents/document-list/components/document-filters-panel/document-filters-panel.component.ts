@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { DocumentFilters, EMPTY_FILTERS } from '../../document-filters.model';
 import { FilterOptionsResponse } from '@core/models/filter-options.model';
-import { formatYmd } from '../../utils/format-ymd';
+import { formatYmd } from '@shared/utils/format-ymd';
 
 const FILTER_DATE_FORMATS = {
   parse: {

@@ -152,7 +152,7 @@
               </div>
             </td>
             <td>
-              <app-document-category-pill [name]="doc.category" />
+              <app-category-pill [name]="doc.category" />
             </td>
             <td class="cell-area">{{ doc.responsibleArea }}</td>
             <td class="cell-date">{{ formatDocumentDate(doc.documentDate) }}</td>
@@ -191,7 +191,7 @@
           <app-document-format-icon [format]="doc.fileFormat" />
           <div class="doc-card__info">
             <span class="doc-card__title">{{ doc.title }}</span>
-            <app-document-category-pill [name]="doc.category" />
+            <app-category-pill [name]="doc.category" />
           </div>
         </div>
         <div class="doc-card__meta">

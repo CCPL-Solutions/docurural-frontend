@@ -20,24 +20,24 @@ import { NotificationService } from '@core/services/notification.service';
 import { DocumentDetailResponse, isPreviewableFormat } from '@core/models/document-detail.model';
 import { DOCUMENT_FORMAT_LABELS } from '@core/models/document-format.model';
 import { ApiError } from '@core/models/api-error.model';
-import { formatFileSize } from '../document-list/utils/file-size';
+import { formatFileSize } from '@shared/utils/file-size';
 import {
   parseBlobError,
   parseFilenameFromContentDisposition,
   triggerBlobDownload,
-} from '../document-list/utils/download-blob';
-import { canEditDocument } from '../document-list/utils/document-permissions';
+} from '@shared/utils/download-blob';
+import { canEditDocument } from '@core/auth/permissions';
 import {
   EditDocumentMetadataDialogComponent,
   EditDocumentMetadataDialogData,
   EditDocumentMetadataDialogResult,
-} from '../document-list/components/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
+} from '../dialogs/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
-import { DocumentFormatIconComponent } from '../document-list/components/document-format-icon.component';
-import { DocumentCategoryPillComponent } from '../document-list/components/document-category-pill.component';
+import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
+import { CategoryPillComponent } from '@shared/components/category-pill/category-pill.component';
 import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
 
 type ErrorKind = 'not-found' | 'file-missing' | 'network';
@@ -54,7 +54,7 @@ type ErrorKind = 'not-found' | 'file-missing' | 'network';
     ButtonComponent,
     IconButtonComponent,
     DocumentFormatIconComponent,
-    DocumentCategoryPillComponent,
+    CategoryPillComponent,
     SensitivityBadgeComponent,
   ],
   templateUrl: './document-detail.component.html',

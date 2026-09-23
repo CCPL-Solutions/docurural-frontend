@@ -32,19 +32,19 @@ import {
   hasAnyFilter,
 } from './document-filters.model';
 import { FilterOptionsResponse } from '@core/models/filter-options.model';
-import { canUploadDocument } from './utils/document-permissions';
-import { formatFileSize } from './utils/file-size';
+import { canUploadDocument } from '@core/auth/permissions';
+import { formatFileSize } from '@shared/utils/file-size';
 import {
   buildFallbackFilename,
   parseBlobError,
   parseFilenameFromContentDisposition,
   triggerBlobDownload,
-} from './utils/download-blob';
+} from '@shared/utils/download-blob';
 import {
   UploadDocumentDialogComponent,
   UploadDocumentDialogData,
   UploadDocumentDialogResult,
-} from './components/upload-document-dialog/upload-document-dialog.component';
+} from '../dialogs/upload-document-dialog/upload-document-dialog.component';
 import {
   UploadDocumentsBatchDialogComponent,
   UploadDocumentsBatchDialogData,
@@ -54,14 +54,14 @@ import {
   EditDocumentMetadataDialogComponent,
   EditDocumentMetadataDialogData,
   EditDocumentMetadataDialogResult,
-} from './components/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
+} from '../dialogs/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
 import {
   DeleteDocumentDialogComponent,
   DeleteDocumentDialogData,
   DeleteDocumentDialogResult,
 } from './components/delete-document-dialog/delete-document-dialog.component';
-import { DocumentFormatIconComponent } from './components/document-format-icon.component';
-import { DocumentCategoryPillComponent } from './components/document-category-pill.component';
+import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
+import { CategoryPillComponent } from '@shared/components/category-pill/category-pill.component';
 import { DocumentRowActionsComponent } from './components/document-row-actions.component';
 import { DocumentSearchBarComponent } from './components/document-search-bar/document-search-bar.component';
 import { DocumentFiltersPanelComponent } from './components/document-filters-panel/document-filters-panel.component';
@@ -124,7 +124,7 @@ const PAGE_SIZE = 10;
     MatMenuModule,
     MatProgressSpinnerModule,
     DocumentFormatIconComponent,
-    DocumentCategoryPillComponent,
+    CategoryPillComponent,
     DocumentRowActionsComponent,
     DocumentSearchBarComponent,
     DocumentFiltersPanelComponent,

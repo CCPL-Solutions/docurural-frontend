@@ -4,7 +4,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Document } from '@core/models/document.model';
 import { Role } from '@core/models/role.model';
 import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
-import { canEditDocument, canDeleteDocument } from '../utils/document-permissions';
+import { canEditDocument, canDeleteDocument } from '@core/auth/permissions';
 
 @Component({
   selector: 'app-document-row-actions',

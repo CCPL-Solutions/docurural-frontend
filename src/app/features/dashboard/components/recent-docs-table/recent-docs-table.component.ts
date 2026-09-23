@@ -5,8 +5,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RecentDocumentItem } from '@core/models/dashboard-stats.model';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
-import { DocumentFormatIconComponent } from '@features/documents/document-list/components/document-format-icon.component';
-import { DocumentCategoryPillComponent } from '@features/documents/document-list/components/document-category-pill.component';
+import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
+import { CategoryPillComponent } from '@shared/components/category-pill/category-pill.component';
 
 function truncateTitle(title: string, max = 50): string {
   return title.length > max ? title.slice(0, max - 1) + '…' : title;
@@ -29,7 +29,7 @@ function formatCreatedAt(iso: string): string {
     EmptyStateComponent,
     IconButtonComponent,
     DocumentFormatIconComponent,
-    DocumentCategoryPillComponent,
+    CategoryPillComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './recent-docs-table.component.html',

@@ -22,12 +22,12 @@ import {
   buildFallbackFilename,
   triggerBlobDownload,
   parseBlobError,
-} from '@features/documents/document-list/utils/download-blob';
+} from '@shared/utils/download-blob';
 import {
   UploadDocumentDialogComponent,
   UploadDocumentDialogData,
   UploadDocumentDialogResult,
-} from '@features/documents/document-list/components/upload-document-dialog/upload-document-dialog.component';
+} from '@features/documents/dialogs/upload-document-dialog/upload-document-dialog.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { KpiCardComponent } from './components/kpi-card/kpi-card.component';

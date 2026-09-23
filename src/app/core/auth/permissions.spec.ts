@@ -1,4 +1,4 @@
-import { canDeleteDocument, canEditDocument, canUploadDocument } from './document-permissions';
+import { canDeleteDocument, canEditDocument, canUploadDocument } from './permissions';
 
 describe('document-permissions', () => {
   describe('canEditDocument', () => {
