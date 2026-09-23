@@ -78,6 +78,18 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
     `<app-button>`.
   - El snackbar y el toast se cargan con el primer aviso: el bundle inicial baja de 527 kB a
     406 kB.
+- Capa HTTP, errores y formularios (fase 5 de la remediación):
+  - Una sola política de errores HTTP: `NotificationService.httpError` y `shared/http/api-error.ts`.
+    Los errores de carga ya no tapan el toast «Sesión expirada» (R1).
+  - `DocumentDownloadService`: la misma descarga, con spinner y toasts, en el listado, el detalle
+    y los recientes del dashboard.
+  - Si falla la carga del dashboard, se muestran un toast y un estado vacío con «Reintentar».
+  - Formularios con `fb.nonNullable`, límites como constantes, mensajes de error con
+    `<app-field-error>` y `*.messages.ts`, y la longitud mínima del nombre de usuario sobre el
+    valor recortado.
+  - Los diálogos de documentos comparten la sincronización de la sensibilidad con la categoría y
+    la carga de categorías activas.
+  - ESLint pasa a `error` la restricción de `FormsModule`.
 
 ### Removed
 
@@ -88,6 +100,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Los errores de campo del backend (400 con `fieldErrors`) y el de duplicado (409) se muestran
+  junto a cada campo: al rehabilitar el formulario se borraban (R12). En el login se ven aunque
+  se envíe con Enter sin salir del campo (R9).
 - A 1280 px con el menú lateral, el dashboard ya no corta la quinta tarjeta de accesos rápidos
   ni solapa columnas en la tabla de recientes, y Categorías ya no corta la columna de acciones.
 - El botón «Limpiar búsqueda y filtros» del estado vacío de resultados tiene estilo (R8).
