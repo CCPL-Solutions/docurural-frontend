@@ -2,8 +2,13 @@
 // §7: UI-01, UI-03, UI-05, UI-09). Sin dependencias: recorre src/ y cuenta literales prohibidos.
 //
 // Uso: node scripts/check-styles.mjs [--verbose]
-// Una categoría con `strict: true` hace fallar el proceso (y la CI) si tiene hallazgos.
-// Mientras la Fase 4 de docs/plan-remediacion.md no termine, todas solo informan.
+// Una categoría con `strict: true` hace fallar el proceso (y la CI) si tiene hallazgos. Desde la
+// Fase 4 de docs/plan-remediacion.md todas son estrictas.
+//
+// Excepciones de UI-09 (no se cuentan):
+// - `0` en cualquier propiedad y `1px` en padding/margin/gap (líneas finas y ajustes ópticos).
+// - Tamaños de icono: son intrínsecos y se escriben con el mixin `icon.size(Npx)` de
+//   src/styles/_icons.scss, que no es una declaración `font-size` en el componente.
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
@@ -20,21 +25,21 @@ const CHECKS = [
   {
     id: 'UI-01 hex-scss',
     description: 'Colores hex en SCSS de componente (usar var(--color-*))',
-    strict: false, // TODO(Fase 4): true
+    strict: true,
     files: (p) => p.startsWith('src/app/') && p.endsWith('.scss'),
     pattern: /#[0-9a-fA-F]{3,8}\b/g,
   },
   {
     id: 'UI-01 hex-ts',
-    description: 'Colores hex en TypeScript (solo permitidos en el módulo único de paletas)',
-    strict: false, // TODO(Fase 4): true, con allowlist de shared/utils/name-color.ts
+    description: 'Colores hex en TypeScript (usar var(--color-*); chart.js lee los tokens del DOM)',
+    strict: true,
     files: (p) => p.startsWith('src/app/') && p.endsWith('.ts') && !p.endsWith('.spec.ts'),
     pattern: /['"`]#[0-9a-fA-F]{3,8}['"`]/g,
   },
   {
     id: 'UI-03 raw-media',
     description: '@media escritas a mano (usar @include bp.lg/md/sm)',
-    strict: false, // TODO(Fase 4): true
+    strict: true,
     files: (p) =>
       p.startsWith('src/') && p.endsWith('.scss') && !p.endsWith('styles/_breakpoints.scss'),
     pattern: /@media\s*\(/g,
@@ -42,14 +47,14 @@ const CHECKS = [
   {
     id: 'UI-03 window-width',
     description: 'window.innerWidth en TypeScript (usar BreakpointObserver)',
-    strict: false, // TODO(Fase 4): true
+    strict: true,
     files: (p) => p.startsWith('src/app/') && p.endsWith('.ts'),
     pattern: /window\.innerWidth/g,
   },
   {
     id: 'UI-05 raw-btn-class',
     description: 'class="btn…" fuera de <app-button> (usar el componente)',
-    strict: false, // TODO(Fase 4): true
+    strict: true,
     files: (p) =>
       p.startsWith('src/app/') &&
       (p.endsWith('.html') || p.endsWith('.ts')) &&
@@ -59,23 +64,26 @@ const CHECKS = [
   {
     id: 'UI-09 font-size-px',
     description: 'font-size en px (usar var(--text-*))',
-    strict: false, // TODO(Fase 4): true, con las excepciones de iconos documentadas aquí
+    strict: true,
     files: (p) => p.startsWith('src/app/') && p.endsWith('.scss'),
     pattern: /^\s*font-size\s*:[^;]*\b\d+px/gm,
   },
   {
     id: 'UI-09 spacing-px',
     description: 'padding/margin/gap en px (usar var(--space-*))',
-    strict: false, // TODO(Fase 4): true
+    strict: true,
     files: (p) => p.startsWith('src/app/') && p.endsWith('.scss'),
-    pattern: /^\s*(?:padding|margin|gap|row-gap|column-gap)[a-z-]*\s*:[^;]*\b\d+px/gm,
+    // Cualquier px distinto de 0 y 1.
+    pattern:
+      /^\s*(?:padding|margin|gap|row-gap|column-gap)[a-z-]*\s*:[^;]*(?<![\d.])(?:[2-9]|[1-9]\d+)px/gm,
   },
   {
     id: 'UI-09 radius-px',
     description: 'border-radius literal (usar var(--radius-*))',
-    strict: false, // TODO(Fase 4): true
+    strict: true,
     files: (p) => p.startsWith('src/app/') && p.endsWith('.scss'),
-    pattern: /^\s*border-[a-z-]*radius\s*:\s*\d/gm,
+    // Cualquier literal distinto de 0 (px o %).
+    pattern: /^\s*border-[a-z-]*radius\s*:[^;]*(?<![\d.-])[1-9]\d*(?:\.\d+)?(?:px|%)/gm,
   },
 ];
 
