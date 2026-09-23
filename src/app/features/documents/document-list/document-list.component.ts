@@ -1,13 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -155,6 +157,13 @@ export class DocumentListComponent implements OnInit {
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly downloads = inject(DocumentDownloadService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Cada emisión pide el listado con el estado actual. `switchMap` cancela la petición anterior:
+   * si se pagina, ordena o busca rápido, solo cuenta la última respuesta (R2).
+   */
+  private readonly reload$ = new Subject<void>();
 
   // ── Signals existentes ──────────────────────────────────────────────
   protected readonly loading = signal(false);
@@ -251,13 +260,19 @@ export class DocumentListComponent implements OnInit {
     return pages;
   });
 
-  constructor() {
-    effect(() => {
-      if (this.searchInput()) this.searchError.set(null);
-    });
-  }
-
   ngOnInit(): void {
+    this.reload$
+      .pipe(
+        switchMap(() => this.fetchDocuments()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res) => {
+        this.documents.set(res.documents);
+        this.totalDocuments.set(res.totalDocuments);
+        this.totalPages.set(res.totalPages);
+        this.activeFiltersMeta.set(res.activeFilters ?? null);
+        this.loading.set(false);
+      });
     this.loadDocuments();
     this.loadFilterOptions();
   }
@@ -265,6 +280,11 @@ export class DocumentListComponent implements OnInit {
   // ── Carga de datos ──────────────────────────────────────────────────
 
   protected loadDocuments(): void {
+    this.reload$.next();
+  }
+
+  /** Petición del listado con el estado actual. Un error se notifica y no corta `reload$`. */
+  private fetchDocuments() {
     const opt = this.currentSortConfig();
     const filters = this.appliedFilters();
     this.loading.set(true);
@@ -273,7 +293,7 @@ export class DocumentListComponent implements OnInit {
       ? (filters.uploadedBy ?? undefined)
       : undefined;
 
-    this.documentsService
+    return this.documentsService
       .list({
         page: this.currentPage(),
         size: PAGE_SIZE,
@@ -286,42 +306,40 @@ export class DocumentListComponent implements OnInit {
         dateTo: filters.dateTo ?? undefined,
         uploadedBy,
       })
-      .subscribe({
-        next: (res) => {
-          this.documents.set(res.documents);
-          this.totalDocuments.set(res.totalDocuments);
-          this.totalPages.set(res.totalPages);
-          this.activeFiltersMeta.set(res.activeFilters ?? null);
-          this.loading.set(false);
-        },
-        error: (err: unknown) => {
+      .pipe(
+        catchError((err: unknown) => {
           this.loading.set(false);
           this.notifications.httpError(
             err,
             'No se pudo cargar el listado',
             'Verifique su conexión e intente nuevamente.',
           );
-        },
-      });
+          return EMPTY;
+        }),
+      );
   }
 
   private loadFilterOptions(): void {
     this.loadingFilterOptions.set(true);
-    this.documentsService.filterOptions().subscribe({
-      next: (opts) => {
-        this.filterOptions.set(opts);
-        this.loadingFilterOptions.set(false);
-      },
-      error: () => {
-        this.loadingFilterOptions.set(false);
-      },
-    });
+    this.documentsService
+      .filterOptions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (opts) => {
+          this.filterOptions.set(opts);
+          this.loadingFilterOptions.set(false);
+        },
+        error: () => {
+          this.loadingFilterOptions.set(false);
+        },
+      });
   }
 
   // ── Búsqueda (HU-20) ────────────────────────────────────────────────
 
   protected onSearchInputChange(value: string): void {
     this.searchInput.set(value);
+    if (value) this.searchError.set(null);
   }
 
   protected onSearchSubmit(): void {
@@ -361,11 +379,14 @@ export class DocumentListComponent implements OnInit {
         },
         panelClass: 'filters-bottom-sheet',
       });
-      ref.afterDismissed().subscribe((result: FiltersBottomSheetResult) => {
-        if (result?.action === 'apply') {
-          this.onFiltersApply(result.draft);
-        }
-      });
+      ref
+        .afterDismissed()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((result: FiltersBottomSheetResult) => {
+          if (result?.action === 'apply') {
+            this.onFiltersApply(result.draft);
+          }
+        });
     } else {
       const willOpen = !this.filtersPanelOpen();
       if (willOpen) {
@@ -475,37 +496,43 @@ export class DocumentListComponent implements OnInit {
   }
 
   protected onEdit(doc: Document): void {
-    this.documentsService.getById(doc.id).subscribe({
-      next: (detail) => {
-        const ref = this.dialog.open<
-          EditDocumentMetadataDialogComponent,
-          EditDocumentMetadataDialogData,
-          EditDocumentMetadataDialogResult
-        >(EditDocumentMetadataDialogComponent, {
-          data: { document: detail },
-          ...DIALOG_LG,
-        });
-        ref.afterClosed().subscribe((result) => {
-          if (result?.kind === 'updated') {
-            this.loadDocuments();
+    this.documentsService
+      .getById(doc.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (detail) => {
+          const ref = this.dialog.open<
+            EditDocumentMetadataDialogComponent,
+            EditDocumentMetadataDialogData,
+            EditDocumentMetadataDialogResult
+          >(EditDocumentMetadataDialogComponent, {
+            data: { document: detail },
+            ...DIALOG_LG,
+          });
+          ref
+            .afterClosed()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((result) => {
+              if (result?.kind === 'updated') {
+                this.loadDocuments();
+              }
+            });
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === HttpStatusCode.NotFound) {
+            this.notifications.error(
+              'Documento no encontrado',
+              'El documento ya no existe o fue eliminado.',
+            );
+            return;
           }
-        });
-      },
-      error: (err: HttpErrorResponse) => {
-        if (err.status === HttpStatusCode.NotFound) {
-          this.notifications.error(
-            'Documento no encontrado',
-            'El documento ya no existe o fue eliminado.',
+          this.notifications.httpError(
+            err,
+            'Error al abrir el editor',
+            'No fue posible cargar los datos del documento. Intente nuevamente.',
           );
-          return;
-        }
-        this.notifications.httpError(
-          err,
-          'Error al abrir el editor',
-          'No fue posible cargar los datos del documento. Intente nuevamente.',
-        );
-      },
-    });
+        },
+      });
   }
 
   protected onDelete(doc: Document): void {
@@ -518,11 +545,14 @@ export class DocumentListComponent implements OnInit {
       ...DIALOG_MD,
     });
 
-    ref.afterClosed().subscribe((result) => {
-      if (!result?.success) return;
-      this.notifications.success('Documento eliminado', result.message);
-      this.reloadAfterDelete();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result?.success) return;
+        this.notifications.success('Documento eliminado', result.message);
+        this.reloadAfterDelete();
+      });
   }
 
   protected onUploadSingle(): void {
@@ -535,13 +565,16 @@ export class DocumentListComponent implements OnInit {
       data: {},
       ...DIALOG_LG,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'uploaded') {
-        this.selectedSort.set('createdAtDesc');
-        this.currentPage.set(1);
-        this.loadDocuments();
-      }
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'uploaded') {
+          this.selectedSort.set('createdAtDesc');
+          this.currentPage.set(1);
+          this.loadDocuments();
+        }
+      });
   }
 
   protected onUploadBatch(): void {
@@ -554,13 +587,16 @@ export class DocumentListComponent implements OnInit {
       data: {},
       ...DIALOG_XL,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'uploaded' && result.uploadedCount > 0) {
-        this.selectedSort.set('createdAtDesc');
-        this.currentPage.set(1);
-        this.loadDocuments();
-      }
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'uploaded' && result.uploadedCount > 0) {
+          this.selectedSort.set('createdAtDesc');
+          this.currentPage.set(1);
+          this.loadDocuments();
+        }
+      });
   }
 
   protected canEdit(doc: Document): boolean {

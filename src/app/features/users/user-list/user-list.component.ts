@@ -1,4 +1,14 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -47,6 +57,7 @@ const SORT_OPTIONS: SortOptionConfig[] = [
 
 @Component({
   selector: 'app-user-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
     MatIconModule,
@@ -65,10 +76,14 @@ const SORT_OPTIONS: SortOptionConfig[] = [
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
 })
-export class UserListComponent {
+export class UserListComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** `switchMap` descarta la respuesta anterior si se cambia de orden rápido (R2). */
+  private readonly reload$ = new Subject<void>();
 
   protected readonly loading = signal(false);
   protected readonly users = signal<User[]>([]);
@@ -92,28 +107,39 @@ export class UserListComponent {
   protected readonly dateFormat = DATE_FORMAT;
   protected readonly dateTimeFormat = DATE_TIME_24H_FORMAT;
 
-  constructor() {
+  ngOnInit(): void {
+    this.reload$
+      .pipe(
+        switchMap(() => this.fetch()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res) => {
+        this.users.set(res.users);
+        this.totalUsers.set(res.totalUsers);
+        this.loading.set(false);
+      });
     this.loadUsers();
   }
 
   protected loadUsers(): void {
+    this.reload$.next();
+  }
+
+  /** Petición con el orden actual. Un error se notifica y no corta `reload$`. */
+  private fetch() {
     const opt = this.currentSortConfig();
     this.loading.set(true);
-    this.usersService.list(opt.sortBy, opt.sortDir).subscribe({
-      next: (res) => {
-        this.users.set(res.users);
-        this.totalUsers.set(res.totalUsers);
-        this.loading.set(false);
-      },
-      error: (err: unknown) => {
+    return this.usersService.list(opt.sortBy, opt.sortDir).pipe(
+      catchError((err: unknown) => {
         this.loading.set(false);
         this.notifications.httpError(
           err,
           'No se pudo cargar el listado',
           'Verifique su conexión e intente nuevamente.',
         );
-      },
-    });
+        return EMPTY;
+      }),
+    );
   }
 
   protected onSearchInput(event: Event): void {
@@ -137,11 +163,14 @@ export class UserListComponent {
       ...DIALOG_SM,
     });
 
-    ref.afterClosed().subscribe((result) => {
-      if (!result?.success) return;
-      this.notifications.success('Estado actualizado', result.message);
-      this.loadUsers();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result?.success) return;
+        this.notifications.success('Estado actualizado', result.message);
+        this.loadUsers();
+      });
   }
 
   protected goToCreate(): void {
@@ -149,9 +178,12 @@ export class UserListComponent {
       UserFormDialogComponent,
       { data: { mode: 'create' }, ...DIALOG_MD },
     );
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'created') this.loadUsers();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'created') this.loadUsers();
+      });
   }
 
   protected goToEdit(user: User): void {
@@ -162,9 +194,12 @@ export class UserListComponent {
         ...DIALOG_MD,
       },
     );
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'updated') this.loadUsers();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'updated') this.loadUsers();
+      });
   }
 
   protected isMuted(user: User): boolean {

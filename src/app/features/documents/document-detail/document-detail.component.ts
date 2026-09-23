@@ -1,14 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
-  OnDestroy,
+  OnInit,
   computed,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { EMPTY, Observable, Subject, catchError, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -60,7 +63,7 @@ type ErrorKind = 'not-found' | 'file-missing' | 'network';
   templateUrl: './document-detail.component.html',
   styleUrl: './document-detail.component.scss',
 })
-export class DocumentDetailComponent implements OnDestroy {
+export class DocumentDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
@@ -69,8 +72,16 @@ export class DocumentDetailComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly downloads = inject(DocumentDownloadService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private docId = NaN;
+
+  /**
+   * Cada emisión carga los metadatos y, si se puede previsualizar, el archivo. `switchMap` cancela
+   * la carga anterior (al recargar tras editar) y `takeUntilDestroyed`, la pendiente al salir: una
+   * respuesta tardía ya no crea un object URL que nadie revoca (R3).
+   */
+  private readonly load$ = new Subject<number>();
 
   protected readonly imageContainer = viewChild<ElementRef<HTMLElement>>('imageContainer');
 
@@ -111,6 +122,10 @@ export class DocumentDetailComponent implements OnDestroy {
   protected readonly dateTimeFormat = DATE_TIME_FORMAT;
 
   constructor() {
+    this.destroyRef.onDestroy(() => this.revokeObjectUrl());
+  }
+
+  ngOnInit(): void {
     const raw = this.route.snapshot.paramMap.get('id');
     const id = raw ? parseInt(raw, 10) : NaN;
 
@@ -124,11 +139,23 @@ export class DocumentDetailComponent implements OnDestroy {
     }
 
     this.docId = id;
-    this.loadDocument(id);
-  }
-
-  ngOnDestroy(): void {
-    this.revokeObjectUrl();
+    this.load$
+      .pipe(
+        switchMap((docId) =>
+          this.fetchMetadata(docId).pipe(
+            switchMap((meta) =>
+              isPreviewableFormat(meta.fileFormat) ? this.fetchBlob(docId) : EMPTY,
+            ),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((blob) => {
+        this.revokeObjectUrl();
+        this.objectUrl.set(URL.createObjectURL(blob));
+        this.loadingBlob.set(false);
+      });
+    this.load$.next(id);
   }
 
   protected onEdit(): void {
@@ -142,11 +169,14 @@ export class DocumentDetailComponent implements OnDestroy {
       data: { document: meta },
       ...DIALOG_LG,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'updated') {
-        this.loadDocument(this.docId);
-      }
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'updated') {
+          this.load$.next(this.docId);
+        }
+      });
   }
 
   protected onDownload(): void {
@@ -168,24 +198,20 @@ export class DocumentDetailComponent implements OnDestroy {
     el.requestFullscreen?.().catch(() => {});
   }
 
-  private loadDocument(id: number): void {
+  private fetchMetadata(id: number): Observable<DocumentDetailResponse> {
     this.loadingMetadata.set(true);
     this.errorKind.set(null);
 
-    this.docService.getById(id).subscribe({
-      next: (res) => {
+    return this.docService.getById(id).pipe(
+      tap((res) => {
         this.metadata.set(res);
         this.loadingMetadata.set(false);
-
-        if (isPreviewableFormat(res.fileFormat)) {
-          this.loadBlob(id);
-        }
-      },
-      error: (err: HttpErrorResponse) => {
+      }),
+      catchError((err: HttpErrorResponse) => {
         this.loadingMetadata.set(false);
         if (err.status === HttpStatusCode.NotFound) {
           this.errorKind.set('not-found');
-          return;
+          return EMPTY;
         }
         this.errorKind.set('network');
         this.notifications.httpError(
@@ -193,25 +219,20 @@ export class DocumentDetailComponent implements OnDestroy {
           'No se pudo cargar el documento',
           'Verifique su conexión e intente nuevamente.',
         );
-      },
-    });
+        return EMPTY;
+      }),
+    );
   }
 
-  private loadBlob(id: number): void {
+  private fetchBlob(id: number): Observable<Blob> {
     this.loadingBlob.set(true);
 
-    this.docService.getViewBlob(id).subscribe({
-      next: (blob) => {
-        this.revokeObjectUrl();
-        const url = URL.createObjectURL(blob);
-        this.objectUrl.set(url);
-        this.loadingBlob.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
+    return this.docService.getViewBlob(id).pipe(
+      catchError((err: HttpErrorResponse) => {
         this.loadingBlob.set(false);
         if (err.status === HttpStatusCode.NotFound) {
           this.errorKind.set('file-missing');
-          return;
+          return EMPTY;
         }
         this.errorKind.set('network');
         this.notifications.httpError(
@@ -219,8 +240,9 @@ export class DocumentDetailComponent implements OnDestroy {
           'No se pudo cargar el archivo',
           'Verifique su conexión e intente nuevamente.',
         );
-      },
-    });
+        return EMPTY;
+      }),
+    );
   }
 
   private revokeObjectUrl(): void {

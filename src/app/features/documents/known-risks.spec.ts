@@ -1,7 +1,11 @@
 // Tests que reproducen los riesgos R2 y R3 de docs/auditoria-consistencia.md (Fase 1, tarea 1.7).
-// Están marcados con `it.fails`: describen el comportamiento correcto y hoy fallan. Cuando la
-// Fase 7 los corrija (tareas 7.2 y 7.3), deben pasar a `it`.
-import { signal } from '@angular/core';
+// Eran fallos esperados (`it.fails`) hasta que la Fase 7 los corrigió (tareas 7.2 y 7.3).
+import {
+  EnvironmentInjector,
+  createEnvironmentInjector,
+  runInInjectionContext,
+  signal,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, Subject } from 'rxjs';
@@ -50,7 +54,7 @@ describe('R2 — listado de documentos', () => {
     activeFilters: null,
   });
 
-  it.fails('muestra los datos de la última página pedida aunque su respuesta llegue antes', () => {
+  it('muestra los datos de la última página pedida aunque su respuesta llegue antes', () => {
     const responses: Subject<DocumentListResponse>[] = [];
     const list = vi.fn(() => {
       const response = new Subject<DocumentListResponse>();
@@ -114,16 +118,25 @@ describe('R3 — detalle de documento', () => {
     URL.revokeObjectURL = originalRevoke;
   });
 
+  // Crea el componente en un injector propio: destruirlo equivale a destruir el componente
+  // (dispara `DestroyRef.onDestroy` y `takeUntilDestroyed`).
+  function createDetail() {
+    const injector = createEnvironmentInjector([], TestBed.inject(EnvironmentInjector));
+    const component = runInInjectionContext(injector, () => new DocumentDetailComponent());
+    component.ngOnInit();
+    return { component, destroy: () => injector.destroy() };
+  }
+
   it('revoca la URL de la vista previa al destruirse', () => {
-    const component = TestBed.runInInjectionContext(() => new DocumentDetailComponent());
+    const { destroy } = createDetail();
     blob$.next(new Blob(['%PDF']));
-    component.ngOnDestroy();
+    destroy();
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:preview');
   });
 
-  it.fails('no crea una URL de vista previa si la respuesta llega tras destruirse', () => {
-    const component = TestBed.runInInjectionContext(() => new DocumentDetailComponent());
-    component.ngOnDestroy();
+  it('no crea una URL de vista previa si la respuesta llega tras destruirse', () => {
+    const { destroy } = createDetail();
+    destroy();
     blob$.next(new Blob(['%PDF']));
     expect(URL.createObjectURL).not.toHaveBeenCalled();
   });
