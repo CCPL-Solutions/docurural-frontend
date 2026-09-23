@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastComponent } from '../../shared/components/toast/toast.component';
 import { NotificationService } from './notification.service';
@@ -12,10 +11,7 @@ describe('NotificationService', () => {
     snackBar.dismiss.mockReset();
     snackBar.openFromComponent.mockReset();
     TestBed.configureTestingModule({
-      providers: [
-        { provide: MatSnackBar, useValue: snackBar },
-        { provide: BreakpointObserver, useValue: { isMatched: () => false } },
-      ],
+      providers: [{ provide: MatSnackBar, useValue: snackBar }],
     });
     service = TestBed.inject(NotificationService);
   });
@@ -31,6 +27,7 @@ describe('NotificationService', () => {
           data: { type, title: 'Título', description: 'Descripción' },
           duration: 5000,
           verticalPosition: 'top',
+          horizontalPosition: 'center',
           panelClass: ['docu-toast-panel', `docu-toast-panel--${type}`],
         }),
       );

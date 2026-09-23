@@ -30,7 +30,6 @@ Los componentes no necesitan `@use` ni `@include` para usarlos.
 | Archivo             | Mixin         | Uso                                      |
 |---------------------|---------------|------------------------------------------|
 | `_breakpoints.scss` | `md`, `sm`    | `@media (max-width: 768px / 600px)`      |
-| `_utils.scss`       | `truncate-1`, `clamp-lines($n)`, `focus-ring` | Utilidades CSS comunes |
 | `_data-table.scss`  | `styles`      | Shell de tabla (thead, tbody, td)        |
 | `_entity-card.scss` | `base`        | Card base para listas móviles            |
 
