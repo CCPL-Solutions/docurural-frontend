@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,6 +48,7 @@ export class CategoryToggleStatusDialogComponent {
       >
     >(MatDialogRef);
   private readonly categoriesService = inject(CategoriesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -72,21 +81,24 @@ export class CategoryToggleStatusDialogComponent {
 
     const newStatus: CategoryStatus = this.isDeactivate() ? 'INACTIVE' : 'ACTIVE';
 
-    this.categoriesService.updateStatus(this.data.category.id, newStatus).subscribe({
-      next: (res: UpdateCategoryStatusResponse) => {
-        this.dialogRef.close({
-          success: true,
-          message: res.message,
-          categoryId: res.id,
-          newStatus: res.status,
-        });
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading.set(false);
-        this.dialogRef.disableClose = false;
-        this.handleError(err);
-      },
-    });
+    this.categoriesService
+      .updateStatus(this.data.category.id, newStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: UpdateCategoryStatusResponse) => {
+          this.dialogRef.close({
+            success: true,
+            message: res.message,
+            categoryId: res.id,
+            newStatus: res.status,
+          });
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.dialogRef.disableClose = false;
+          this.handleError(err);
+        },
+      });
   }
 
   protected cancel(): void {

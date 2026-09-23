@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { UsersService } from '@core/services/users.service';
@@ -30,6 +38,7 @@ export class ToggleStatusDialogComponent {
   private readonly dialogRef =
     inject<MatDialogRef<ToggleStatusDialogComponent, ToggleStatusDialogResult>>(MatDialogRef);
   private readonly usersService = inject(UsersService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -58,16 +67,19 @@ export class ToggleStatusDialogComponent {
 
     const newStatus: UserStatus = this.isDeactivate() ? 'INACTIVE' : 'ACTIVE';
 
-    this.usersService.updateStatus(this.data.user.id, newStatus).subscribe({
-      next: (res) => {
-        this.dialogRef.close({ success: true, message: res.message });
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading.set(false);
-        this.dialogRef.disableClose = false;
-        this.handleError(err);
-      },
-    });
+    this.usersService
+      .updateStatus(this.data.user.id, newStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.dialogRef.close({ success: true, message: res.message });
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.dialogRef.disableClose = false;
+          this.handleError(err);
+        },
+      });
   }
 
   cancel(): void {

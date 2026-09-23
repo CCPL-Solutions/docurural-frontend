@@ -3,9 +3,11 @@ import {
   Component,
   OnInit,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
@@ -65,6 +67,7 @@ export class UserFormDialogComponent implements OnInit {
   private readonly dialogRef =
     inject<MatDialogRef<UserFormDialogComponent, UserFormDialogResult>>(MatDialogRef);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly usersService = inject(UsersService);
   private readonly notifications = inject(NotificationService);
   private readonly auth = inject(AuthService);
@@ -152,7 +155,10 @@ export class UserFormDialogComponent implements OnInit {
 
       this.usersService
         .update(this.data.user.id, req)
-        .pipe(finalize(() => this.loading.set(false)))
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
           next: (res) => {
             this.notifications.success(
@@ -175,7 +181,10 @@ export class UserFormDialogComponent implements OnInit {
 
       this.usersService
         .create(req)
-        .pipe(finalize(() => this.loading.set(false)))
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
           next: (res) => {
             this.notifications.success(

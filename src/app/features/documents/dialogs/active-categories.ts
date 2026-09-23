@@ -1,4 +1,5 @@
-import { Signal, inject, signal } from '@angular/core';
+import { DestroyRef, Signal, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { Category } from '@core/models/category.model';
 import { CategoriesService } from '@core/services/categories.service';
@@ -16,6 +17,7 @@ export interface ActiveCategories {
  */
 export function injectActiveCategories(): ActiveCategories {
   const categoriesService = inject(CategoriesService);
+  const destroyRef = inject(DestroyRef);
   const categories = signal<Category[]>([]);
   const loading = signal(false);
   const loadError = signal(false);
@@ -29,7 +31,10 @@ export function injectActiveCategories(): ActiveCategories {
       loadError.set(false);
       categoriesService
         .list('name', 'asc')
-        .pipe(finalize(() => loading.set(false)))
+        .pipe(
+          finalize(() => loading.set(false)),
+          takeUntilDestroyed(destroyRef),
+        )
         .subscribe({
           next: (res) => categories.set(res.categories.filter((c) => c.status === 'ACTIVE')),
           error: () => loadError.set(true),

@@ -33,6 +33,28 @@ const ENFORCED_RESTRICTED_IMPORTS = {
   ],
 };
 
+const SYNTAX_RESTRICTIONS = [
+  {
+    // CMP-07 (D7).
+    selector: "Decorator[expression.callee.name='Component'] Property[key.name='styles']",
+    message: 'CMP-07: usa styleUrl; no declares estilos inline.',
+  },
+  {
+    // CMP-09 (Q3).
+    selector:
+      "Decorator[expression.callee.name=/^(Component|Directive|Pipe)$/] Property[key.name='standalone']",
+    message: 'CMP-09: los componentes, directivas y pipes son standalone por defecto.',
+  },
+];
+
+// EST-02 (D19): todo `.subscribe(` lleva `takeUntilDestroyed` como argumento de un `.pipe()` de su
+// cadena.
+const SUBSCRIBE_WITHOUT_TAKE_UNTIL = {
+  selector:
+    "CallExpression[callee.property.name='subscribe']:not(:has(CallExpression[callee.property.name='pipe'] > CallExpression[callee.name='takeUntilDestroyed']))",
+  message: 'EST-02: añade takeUntilDestroyed(this.destroyRef) al pipe antes de subscribe.',
+};
+
 /**
  * ARQ-02: una feature no importa internals de otra. Solo se permite la superficie pública
  * `features/<feature>/dialogs/`. Cubre imports relativos y el alias `@features/`.
@@ -96,24 +118,17 @@ module.exports = defineConfig([
       '@angular-eslint/prefer-output-emitter-ref': 'error',
       // CMP-06 (D6), FRM-05 (D25) y ARQ-05 (Q3). En features/, además ARQ-02 (ver crossFeatureImportsRule).
       '@typescript-eslint/no-restricted-imports': ['error', ENFORCED_RESTRICTED_IMPORTS],
-      'no-restricted-syntax': [
-        'error',
-        {
-          // CMP-07 (D7).
-          selector: "Decorator[expression.callee.name='Component'] Property[key.name='styles']",
-          message: 'CMP-07: usa styleUrl; no declares estilos inline.',
-        },
-        {
-          // CMP-09 (Q3).
-          selector:
-            "Decorator[expression.callee.name=/^(Component|Directive|Pipe)$/] Property[key.name='standalone']",
-          message: 'CMP-09: los componentes, directivas y pipes son standalone por defecto.',
-        },
-      ],
-
-      // ── Pendientes de remediación: 'warn' ─────────────────────────────────
-      // TODO(Fase 7): 'error' — CMP-01 (D3).
-      '@angular-eslint/prefer-on-push-component-change-detection': 'warn',
+      'no-restricted-syntax': ['error', ...SYNTAX_RESTRICTIONS],
+      // CMP-01 (D3).
+      '@angular-eslint/prefer-on-push-component-change-detection': 'error',
+    },
+  },
+  {
+    // EST-02 (D19). Un bloque posterior reemplaza la regla entera: repite SYNTAX_RESTRICTIONS.
+    files: ['src/app/features/**/*.ts', 'src/app/shared/**/*.ts'],
+    ignores: ['**/*.spec.ts'],
+    rules: {
+      'no-restricted-syntax': ['error', ...SYNTAX_RESTRICTIONS, SUBSCRIBE_WITHOUT_TAKE_UNTIL],
     },
   },
   ...FEATURES.map(crossFeatureImportsRule),

@@ -4,9 +4,11 @@ import {
   LOCALE_ID,
   OnInit,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ButtonComponent } from '@shared/components/button/button.component';
@@ -53,6 +55,7 @@ import { DIALOG_LG } from '@shared/ui/dialog-sizes';
 })
 export class DashboardComponent implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly dashboardSvc = inject(DashboardService);
   private readonly downloads = inject(DocumentDownloadService);
   private readonly notifications = inject(NotificationService);
@@ -83,20 +86,23 @@ export class DashboardComponent implements OnInit {
 
   protected loadStats(): void {
     this.loading.set(true);
-    this.dashboardSvc.getStats().subscribe({
-      next: (s) => {
-        this.stats.set(s);
-        this.loading.set(false);
-      },
-      error: (err: unknown) => {
-        this.loading.set(false);
-        this.notifications.httpError(
-          err,
-          'No se pudo cargar el panel de control',
-          'Verifique su conexión e intente nuevamente.',
-        );
-      },
-    });
+    this.dashboardSvc
+      .getStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (s) => {
+          this.stats.set(s);
+          this.loading.set(false);
+        },
+        error: (err: unknown) => {
+          this.loading.set(false);
+          this.notifications.httpError(
+            err,
+            'No se pudo cargar el panel de control',
+            'Verifique su conexión e intente nuevamente.',
+          );
+        },
+      });
   }
 
   protected onDownload(doc: RecentDocumentItem): void {
@@ -113,10 +119,13 @@ export class DashboardComponent implements OnInit {
       data: {},
       ...DIALOG_LG,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'uploaded') {
-        this.loadStats();
-      }
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'uploaded') {
+          this.loadStats();
+        }
+      });
   }
 }

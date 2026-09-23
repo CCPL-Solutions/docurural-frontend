@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -64,10 +74,14 @@ const SORT_OPTIONS: SortOptionConfig[] = [
   templateUrl: './category-list.component.html',
   styleUrl: './category-list.component.scss',
 })
-export class CategoryListComponent {
+export class CategoryListComponent implements OnInit {
   private readonly categoriesService = inject(CategoriesService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** `switchMap` descarta la respuesta anterior si se cambia de orden rápido (R2). */
+  private readonly reload$ = new Subject<void>();
 
   protected readonly loading = signal(false);
   protected readonly categories = signal<Category[]>([]);
@@ -81,30 +95,41 @@ export class CategoryListComponent {
 
   protected readonly dateFormat = DATE_FORMAT;
 
-  constructor() {
-    this.loadCategories();
-  }
-
-  protected loadCategories(): void {
-    const opt = this.currentSortConfig();
-    this.loading.set(true);
-    this.categoriesService.list(opt.sortBy, opt.sortDir).subscribe({
-      next: (res) => {
+  ngOnInit(): void {
+    this.reload$
+      .pipe(
+        switchMap(() => this.fetch()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res) => {
         this.categories.set(res.categories);
         this.totalCategories.set(res.totalCategories);
         this.activeCategories.set(res.activeCategories);
         this.inactiveCategories.set(res.inactiveCategories);
         this.loading.set(false);
-      },
-      error: (err: unknown) => {
+      });
+    this.loadCategories();
+  }
+
+  protected loadCategories(): void {
+    this.reload$.next();
+  }
+
+  /** Petición con el orden actual. Un error se notifica y no corta `reload$`. */
+  private fetch() {
+    const opt = this.currentSortConfig();
+    this.loading.set(true);
+    return this.categoriesService.list(opt.sortBy, opt.sortDir).pipe(
+      catchError((err: unknown) => {
         this.loading.set(false);
         this.notifications.httpError(
           err,
           'No se pudo cargar el listado',
           'Verifique su conexión e intente nuevamente.',
         );
-      },
-    });
+        return EMPTY;
+      }),
+    );
   }
 
   protected onSortChange(value: SortOption): void {
@@ -121,9 +146,12 @@ export class CategoryListComponent {
       data: { mode: 'create' },
       ...DIALOG_LG,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'created') this.loadCategories();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'created') this.loadCategories();
+      });
   }
 
   protected goToEdit(category: Category): void {
@@ -135,9 +163,12 @@ export class CategoryListComponent {
       data: { mode: 'edit', category },
       ...DIALOG_LG,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'updated') this.loadCategories();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'updated') this.loadCategories();
+      });
   }
 
   protected onToggleStatus(category: Category): void {
@@ -152,11 +183,14 @@ export class CategoryListComponent {
       ...DIALOG_SM,
     });
 
-    ref.afterClosed().subscribe((result) => {
-      if (!result?.success) return;
-      this.notifications.success('Estado actualizado', result.message);
-      this.loadCategories();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result?.success) return;
+        this.notifications.success('Estado actualizado', result.message);
+        this.loadCategories();
+      });
   }
 
   protected isMuted(category: Category): boolean {
