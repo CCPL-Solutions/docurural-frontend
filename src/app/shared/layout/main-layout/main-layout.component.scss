@@ -258,6 +258,18 @@
   }
 }
 
+// Enlace al otro idioma (solo en los builds por idioma).
+.sb-user__language {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-2);
+  color: var(--sidebar-fg-soft);
+
+  &:not(:has(a)) {
+    display: none;
+  }
+}
+
 // ─── Área principal ───────────────────────────────────────────────────────────
 .main-wrap {
   flex: 1;

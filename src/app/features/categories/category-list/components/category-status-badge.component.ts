@@ -3,8 +3,8 @@ import { CategoryStatus } from '@core/models/category-status.model';
 import { BadgeComponent, BadgeVariant } from '@shared/components/badge/badge.component';
 
 const STATUS_LABELS: Record<CategoryStatus, string> = {
-  ACTIVE: 'Activa',
-  INACTIVE: 'Inactiva',
+  ACTIVE: $localize`:@@categoryStatus.active:Activa`,
+  INACTIVE: $localize`:@@categoryStatus.inactive:Inactiva`,
 };
 
 const STATUS_VARIANT: Record<CategoryStatus, BadgeVariant> = {

@@ -5,6 +5,7 @@ import { Document } from '@core/models/document.model';
 import { Role } from '@core/models/role.model';
 import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
 import { canEditDocument, canDeleteDocument } from '@core/auth/permissions';
+import { downloadAriaLabel, downloadTooltip } from '@shared/i18n/download-labels';
 
 @Component({
   selector: 'app-document-row-actions',
@@ -14,18 +15,16 @@ import { canEditDocument, canDeleteDocument } from '@core/auth/permissions';
     <div class="row-actions">
       <app-icon-button
         tooltip="Ver documento"
+        i18n-tooltip="@@documents.row.view"
         ariaLabel="Ver documento"
+        i18n-ariaLabel="@@documents.row.view"
         [link]="['/documents', doc().id]"
       >
         <mat-icon>visibility</mat-icon>
       </app-icon-button>
       <app-icon-button
-        [tooltip]="downloading() ? 'Descargando…' : 'Descargar'"
-        [ariaLabel]="
-          downloading()
-            ? 'Descargando documento ' + doc().title
-            : 'Descargar documento ' + doc().title
-        "
+        [tooltip]="downloadTooltip(downloading())"
+        [ariaLabel]="downloadAriaLabel(doc().title, downloading())"
         [disabled]="downloading()"
         (click)="download.emit(doc())"
       >
@@ -36,7 +35,13 @@ import { canEditDocument, canDeleteDocument } from '@core/auth/permissions';
         }
       </app-icon-button>
       @if (canEdit()) {
-        <app-icon-button tooltip="Editar" ariaLabel="Editar documento" (click)="edit.emit(doc())">
+        <app-icon-button
+          tooltip="Editar"
+          i18n-tooltip="@@common.edit"
+          ariaLabel="Editar documento"
+          i18n-ariaLabel="@@documents.row.editAriaLabel"
+          (click)="edit.emit(doc())"
+        >
           <mat-icon>edit</mat-icon>
         </app-icon-button>
       }
@@ -44,7 +49,9 @@ import { canEditDocument, canDeleteDocument } from '@core/auth/permissions';
         <app-icon-button
           variant="danger"
           tooltip="Eliminar"
+          i18n-tooltip="@@common.delete"
           ariaLabel="Eliminar documento"
+          i18n-ariaLabel="@@documents.row.deleteAriaLabel"
           (click)="delete.emit(doc())"
         >
           <mat-icon>delete_outline</mat-icon>
@@ -68,4 +75,6 @@ export class DocumentRowActionsComponent {
     canEditDocument(this.role(), this.currentUserId(), this.doc().uploadedById),
   );
   protected readonly canDelete = computed(() => canDeleteDocument(this.role()));
+  protected readonly downloadTooltip = downloadTooltip;
+  protected readonly downloadAriaLabel = downloadAriaLabel;
 }

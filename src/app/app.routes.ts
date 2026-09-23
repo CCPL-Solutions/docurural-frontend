@@ -17,14 +17,14 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () =>
           import('@features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
-        title: 'Inicio — DocuRural',
+        title: $localize`:@@routeTitle.dashboard:Inicio — DocuRural`,
       },
       {
         path: 'users',
         canActivate: [roleGuard(['ADMIN'])],
         loadComponent: () =>
           import('@features/users/user-list/user-list.component').then((m) => m.UserListComponent),
-        title: 'Usuarios — DocuRural',
+        title: $localize`:@@routeTitle.users:Usuarios — DocuRural`,
       },
       {
         path: 'documents',
@@ -32,7 +32,7 @@ export const routes: Routes = [
           import('@features/documents/document-list/document-list.component').then(
             (m) => m.DocumentListComponent,
           ),
-        title: 'Documentos — DocuRural',
+        title: $localize`:@@routeTitle.documents:Documentos — DocuRural`,
       },
       {
         path: 'documents/:id',
@@ -40,7 +40,7 @@ export const routes: Routes = [
           import('@features/documents/document-detail/document-detail.component').then(
             (m) => m.DocumentDetailComponent,
           ),
-        title: 'Documento — DocuRural',
+        title: $localize`:@@routeTitle.document:Documento — DocuRural`,
       },
       {
         path: 'categories',
@@ -49,7 +49,7 @@ export const routes: Routes = [
           import('@features/categories/category-list/category-list.component').then(
             (m) => m.CategoryListComponent,
           ),
-        title: 'Categorías — DocuRural',
+        title: $localize`:@@routeTitle.categories:Categorías — DocuRural`,
       },
     ],
   },
@@ -58,12 +58,12 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadComponent: () =>
       import('@features/auth/login/login.component').then((m) => m.LoginComponent),
-    title: 'Iniciar sesión — DocuRural',
+    title: $localize`:@@routeTitle.login:Iniciar sesión — DocuRural`,
   },
   {
     path: '**',
     loadComponent: () =>
       import('@features/not-found/not-found.component').then((m) => m.NotFoundComponent),
-    title: 'Página no encontrada — DocuRural',
+    title: $localize`:@@routeTitle.notFound:Página no encontrada — DocuRural`,
   },
 ];

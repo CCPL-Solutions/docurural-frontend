@@ -114,10 +114,14 @@ export class CategoryFormDialogComponent implements OnInit {
 
   protected readonly isEdit = computed(() => this.data.mode === 'edit');
   protected readonly title = computed(() =>
-    this.isEdit() ? 'Editar categoría' : 'Nueva categoría',
+    this.isEdit()
+      ? $localize`:@@categories.form.titleEdit:Editar categoría`
+      : $localize`:@@categories.form.titleCreate:Nueva categoría`,
   );
   protected readonly loadingLabel = computed(() =>
-    this.isEdit() ? 'Actualizando...' : 'Guardando...',
+    this.isEdit()
+      ? $localize`:@@common.updating:Actualizando…`
+      : $localize`:@@common.saving:Guardando…`,
   );
 
   protected readonly showDocumentBanner = computed(
@@ -149,9 +153,11 @@ export class CategoryFormDialogComponent implements OnInit {
   );
 
   protected readonly primaryLabel = computed(() => {
-    if (this.warningKind() === 'edit-raise') return 'Guardar y actualizar documentos';
-    if (this.isEdit()) return 'Guardar cambios';
-    return 'Crear categoría';
+    if (this.warningKind() === 'edit-raise') {
+      return $localize`:@@categories.form.submitRaise:Guardar y actualizar documentos`;
+    }
+    if (this.isEdit()) return $localize`:@@common.saveChanges:Guardar cambios`;
+    return $localize`:@@categories.form.submitCreate:Crear categoría`;
   });
 
   protected readonly primaryVariant = computed<ButtonVariant>(() =>
@@ -220,8 +226,8 @@ export class CategoryFormDialogComponent implements OnInit {
   private handleSuccess(res: CreateCategoryResponse | UpdateCategoryResponse): void {
     if (this.isEdit() && this.data.category) {
       this.notifications.success(
-        'Categoría actualizada',
-        'Los cambios se guardaron correctamente.',
+        $localize`:@@categories.toast.updated.title:Categoría actualizada`,
+        $localize`:@@users.toast.updated.description:Los cambios se guardaron correctamente.`,
       );
       const updated: Category = {
         ...this.data.category,
@@ -233,8 +239,8 @@ export class CategoryFormDialogComponent implements OnInit {
       this.dialogRef.close({ kind: 'updated', category: updated });
     } else {
       this.notifications.success(
-        'Categoría creada',
-        'La categoría está disponible para clasificar documentos.',
+        $localize`:@@categories.toast.created.title:Categoría creada`,
+        $localize`:@@categories.toast.created.description:La categoría está disponible para clasificar documentos.`,
       );
       this.dialogRef.close({ kind: 'created', category: res as CreateCategoryResponse });
     }
@@ -246,32 +252,36 @@ export class CategoryFormDialogComponent implements OnInit {
     this.dialogRef.disableClose = false;
     switch (err.status) {
       case HttpStatusCode.Conflict:
-        this.submitError.set('Ya existe una categoría con este nombre.');
+        this.submitError.set(
+          $localize`:@@categories.form.error.duplicate:Ya existe una categoría con este nombre.`,
+        );
         this.form.controls.name.setErrors({ duplicate: true });
         this.form.controls.name.markAsTouched();
         break;
       case HttpStatusCode.BadRequest:
         if (!applyFieldErrors(this.form, err)) {
-          this.submitError.set('Los datos enviados no son válidos. Revise el formulario.');
+          this.submitError.set(
+            $localize`:@@common.error.invalidData:Los datos enviados no son válidos. Revise el formulario.`,
+          );
         }
         break;
       case HttpStatusCode.Forbidden:
         this.submitError.set(
           this.isEdit()
-            ? 'No es posible editar la categoría. Verifique sus permisos o que la categoría siga activa.'
-            : 'No tiene permisos para crear categorías.',
+            ? $localize`:@@categories.form.error.editForbidden:No es posible editar la categoría. Verifique sus permisos o que la categoría siga activa.`
+            : $localize`:@@categories.form.error.createForbidden:No tiene permisos para crear categorías.`,
         );
         break;
       case HttpStatusCode.NotFound:
         this.submitError.set(
-          'La categoría ya no existe. Cierre el formulario y recargue el listado.',
+          $localize`:@@categories.form.error.notFound:La categoría ya no existe. Cierre el formulario y recargue el listado.`,
         );
         break;
       default:
         this.submitError.set(
           this.isEdit()
-            ? 'No fue posible guardar los cambios. Intente de nuevo.'
-            : 'No fue posible crear la categoría. Intente de nuevo.',
+            ? $localize`:@@common.error.saveChanges:No fue posible guardar los cambios. Intente de nuevo.`
+            : $localize`:@@categories.form.error.create:No fue posible crear la categoría. Intente de nuevo.`,
         );
     }
   }

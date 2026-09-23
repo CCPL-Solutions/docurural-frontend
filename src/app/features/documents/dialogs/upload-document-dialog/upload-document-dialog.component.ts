@@ -45,7 +45,7 @@ import { formatYmd } from '@shared/utils/format-ymd';
 import { isEditor } from '@core/auth/permissions';
 import { inferFormat } from '@shared/utils/document-format';
 import { FieldErrorComponent } from '@shared/forms/field-error.component';
-import { DOCUMENT_FORM_MESSAGES } from '../document-form.messages';
+import { DOCUMENT_FORM_LABELS, DOCUMENT_FORM_MESSAGES } from '../document-form.messages';
 
 export type UploadDocumentDialogData = Record<string, never>;
 
@@ -99,6 +99,7 @@ export class UploadDocumentDialogComponent implements OnInit {
   protected readonly areas = RESPONSIBLE_AREAS;
 
   protected readonly messages = DOCUMENT_FORM_MESSAGES;
+  protected readonly labels = DOCUMENT_FORM_LABELS;
   protected readonly maxTitleLength = MAX_TITLE_LENGTH;
   protected readonly maxDescriptionLength = MAX_DESCRIPTION_LENGTH;
 
@@ -149,12 +150,16 @@ export class UploadDocumentDialogComponent implements OnInit {
   protected onFileSelected(file: File): void {
     const ext = file.name.split('.').pop()?.toLowerCase();
     if (!ext || !(ALLOWED_EXTENSIONS as readonly string[]).includes(ext)) {
-      this.fileError.set('Formato no permitido. Use PDF, DOCX, XLSX, JPG o PNG.');
+      this.fileError.set(
+        $localize`:@@documents.upload.error.format:Formato no permitido. Use PDF, DOCX, XLSX, JPG o PNG.`,
+      );
       this.selectedFile.set(null);
       return;
     }
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      this.fileError.set('El archivo supera los 10 MB permitidos.');
+      this.fileError.set(
+        $localize`:@@documents.upload.error.size:El archivo supera los 10 MB permitidos.`,
+      );
       this.selectedFile.set(null);
       return;
     }
@@ -210,7 +215,9 @@ export class UploadDocumentDialogComponent implements OnInit {
     if (this.form.invalid || !this.selectedFile()) {
       this.form.markAllAsTouched();
       if (!this.selectedFile()) {
-        this.fileError.set('Seleccione un archivo para continuar.');
+        this.fileError.set(
+          $localize`:@@documents.upload.error.noFile:Seleccione un archivo para continuar.`,
+        );
       }
       return;
     }
@@ -254,7 +261,10 @@ export class UploadDocumentDialogComponent implements OnInit {
   }
 
   private handleSuccess(res: UploadDocumentResponse): void {
-    this.notifications.success('Documento cargado', `"${res.title}" se subió correctamente.`);
+    this.notifications.success(
+      $localize`:@@documents.upload.toast.title:Documento cargado`,
+      $localize`:@@documents.upload.toast.description:"${res.title}:title:" se subió correctamente.`,
+    );
     this.dialogRef.close({ kind: 'uploaded', document: res });
   }
 
@@ -275,27 +285,34 @@ export class UploadDocumentDialogComponent implements OnInit {
         // El archivo no es un control del formulario: su error va a la zona de carga.
         if (!applyFieldErrors(this.form, err, { file: (msg) => this.fileError.set(msg) })) {
           this.submitError.set(
-            toApiError(err)?.message ?? 'Los datos enviados no son válidos. Revise el formulario.',
+            toApiError(err)?.message ??
+              $localize`:@@common.error.invalidData:Los datos enviados no son válidos. Revise el formulario.`,
           );
         }
         break;
       case HttpStatusCode.Forbidden:
-        this.submitError.set('No tiene permisos para cargar documentos.');
+        this.submitError.set(
+          $localize`:@@documents.upload.error.forbidden:No tiene permisos para cargar documentos.`,
+        );
         break;
       case HttpStatusCode.NotFound:
         this.submitError.set(
-          'La categoría seleccionada ya no existe o está inactiva. Cierre el formulario y vuelva a intentarlo.',
+          $localize`:@@documents.upload.error.categoryNotFound:La categoría seleccionada ya no existe o está inactiva. Cierre el formulario y vuelva a intentarlo.`,
         );
         break;
       case HttpStatusCode.PayloadTooLarge:
-        this.fileError.set('El archivo supera los 10 MB permitidos.');
+        this.fileError.set(
+          $localize`:@@documents.upload.error.size:El archivo supera los 10 MB permitidos.`,
+        );
         break;
       case HttpStatusCode.UnsupportedMediaType:
-        this.fileError.set('Formato no permitido. Solo se aceptan PDF, DOCX, XLSX, JPG y PNG.');
+        this.fileError.set(
+          $localize`:@@documents.upload.error.unsupportedMedia:Formato no permitido. Solo se aceptan PDF, DOCX, XLSX, JPG y PNG.`,
+        );
         break;
       default:
         this.submitError.set(
-          'No fue posible cargar el documento. Intente nuevamente en unos momentos.',
+          $localize`:@@documents.upload.error.generic:No fue posible cargar el documento. Intente nuevamente en unos momentos.`,
         );
     }
   }

@@ -45,7 +45,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { isEditor } from '@core/auth/permissions';
 import { inferFormat } from '@shared/utils/document-format';
 import { FieldErrorComponent } from '@shared/forms/field-error.component';
-import { DOCUMENT_FORM_MESSAGES } from '@features/documents/dialogs/document-form.messages';
+import {
+  DOCUMENT_FORM_LABELS,
+  DOCUMENT_FORM_MESSAGES,
+} from '@features/documents/dialogs/document-form.messages';
 
 export type UploadDocumentsBatchDialogData = Record<string, never>;
 
@@ -105,6 +108,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   protected readonly maxTitleLength = MAX_TITLE_LENGTH;
 
   protected readonly messages = DOCUMENT_FORM_MESSAGES;
+  protected readonly labels = DOCUMENT_FORM_LABELS;
 
   protected readonly form = this.fb.nonNullable.group({
     categoryId: [null as number | null, [Validators.required]],
@@ -141,6 +145,25 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     };
   });
 
+  protected readonly dropzoneAriaLabel = computed(() => {
+    const remaining = this.maxBatchFiles - this.files().length;
+    return this.files().length === 0
+      ? $localize`:@@documents.batch.dropzone.ariaLabel:Zona de carga. Haga clic o arrastre archivos aquí.`
+      : $localize`:@@documents.batch.dropzone.addMoreAriaLabel:Agregar más archivos. Puede añadir ${remaining}:remaining: más.`;
+  });
+
+  protected titleAriaLabel(fileName: string): string {
+    return $localize`:@@documents.batch.titleAriaLabel:Título para ${fileName}:fileName:`;
+  }
+
+  protected progressAriaLabel(fileName: string): string {
+    return $localize`:@@documents.batch.progressAriaLabel:Progreso de carga de ${fileName}:fileName:`;
+  }
+
+  protected removeAriaLabel(fileName: string): string {
+    return $localize`:@@documents.batch.removeAriaLabel:Quitar ${fileName}:fileName:`;
+  }
+
   protected readonly canSubmit = computed(
     () => this.formStatus() === 'VALID' && this.files().length > 0 && this.phase() === 'compose',
   );
@@ -158,7 +181,9 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     const current = this.files();
 
     if (current.length + incoming.length > MAX_BATCH_FILES) {
-      this.fileError.set('Solo puede cargar hasta 5 archivos a la vez');
+      this.fileError.set(
+        $localize`:@@documents.batch.error.tooMany:Solo puede cargar hasta ${MAX_BATCH_FILES}:max: archivos a la vez.`,
+      );
       return;
     }
 
@@ -169,12 +194,14 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
       const ext = file.name.split('.').pop()?.toLowerCase();
       if (!ext || !(ALLOWED_EXTENSIONS as readonly string[]).includes(ext)) {
         this.fileError.set(
-          `"${file.name}" tiene un formato no permitido. Use PDF, DOCX, XLSX, JPG o PNG.`,
+          $localize`:@@documents.batch.error.format:"${file.name}:fileName:" tiene un formato no permitido. Use PDF, DOCX, XLSX, JPG o PNG.`,
         );
         continue;
       }
       if (file.size > MAX_FILE_SIZE_BYTES) {
-        this.fileError.set(`"${file.name}" supera los 10 MB permitidos.`);
+        this.fileError.set(
+          $localize`:@@documents.batch.error.size:"${file.name}:fileName:" supera los 10 MB permitidos.`,
+        );
         continue;
       }
       valid.push({
@@ -305,7 +332,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
           return {
             ...item,
             status: 'error' as BatchFileStatus,
-            errorMessage: 'Sin respuesta del servidor.',
+            errorMessage: $localize`:@@documents.batch.error.noResponse:Sin respuesta del servidor.`,
           };
         }
         return {
@@ -320,8 +347,8 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
 
     if (body.totalSuccessful > 0) {
       this.notifications.success(
-        'Carga finalizada',
-        `${body.totalSuccessful} de ${body.totalReceived} archivos cargados correctamente.`,
+        $localize`:@@documents.batch.toast.title:Carga finalizada`,
+        $localize`:@@documents.batch.toast.description:${body.totalSuccessful}:success: de ${body.totalReceived}:total: archivos cargados correctamente.`,
       );
     }
     this.phase.set('done');
@@ -347,22 +374,29 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     switch (err.status) {
       case HttpStatusCode.BadRequest:
         this.submitError.set(
-          toApiError(err)?.message ?? 'Los datos del lote no son válidos. Revise el formulario.',
+          toApiError(err)?.message ??
+            $localize`:@@documents.batch.error.invalidData:Los datos del lote no son válidos. Revise el formulario.`,
         );
         break;
       case HttpStatusCode.Forbidden:
-        this.submitError.set('No tiene permisos para cargar documentos.');
+        this.submitError.set(
+          $localize`:@@documents.upload.error.forbidden:No tiene permisos para cargar documentos.`,
+        );
         break;
       case HttpStatusCode.NotFound:
-        this.submitError.set('La categoría seleccionada no existe o está inactiva.');
+        this.submitError.set(
+          $localize`:@@documents.batch.error.categoryNotFound:La categoría seleccionada no existe o está inactiva.`,
+        );
         this.loadCategories();
         break;
       case HttpStatusCode.PayloadTooLarge:
-        this.submitError.set('El tamaño total del lote excede el límite del servidor.');
+        this.submitError.set(
+          $localize`:@@documents.batch.error.tooLarge:El tamaño total del lote excede el límite del servidor.`,
+        );
         break;
       default:
         this.submitError.set(
-          'No fue posible cargar los documentos. Intente nuevamente en unos momentos.',
+          $localize`:@@documents.batch.error.generic:No fue posible cargar los documentos. Intente nuevamente en unos momentos.`,
         );
     }
   }

@@ -15,4 +15,8 @@ export class DocumentFilterChipsComponent {
 
   readonly remove = output<FilterChipDescriptor['key']>();
   readonly clearAll = output<void>();
+
+  protected removeAriaLabel(label: string): string {
+    return $localize`:@@documents.chips.removeAriaLabel:Eliminar filtro ${label}:filter:`;
+  }
 }

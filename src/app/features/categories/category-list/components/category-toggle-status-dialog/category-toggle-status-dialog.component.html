@@ -16,13 +16,15 @@
       <h2 class="dialog__title" mat-dialog-title>{{ title() }}</h2>
       <p class="dialog__message">
         @if (isDeactivate()) {
-          ¿Está seguro de desactivar la categoría
-          <strong>"{{ data.category.name }}"</strong>? No podrá usarse para clasificar nuevos
-          documentos.
+          <ng-container i18n="@@categories.toggle.confirmDeactivate"
+            >¿Está seguro de desactivar la categoría <strong>"{{ data.category.name }}"</strong>? No
+            podrá usarse para clasificar nuevos documentos.</ng-container
+          >
         } @else {
-          La categoría
-          <strong>"{{ data.category.name }}"</strong>
-          volverá a estar disponible para clasificar nuevos documentos.
+          <ng-container i18n="@@categories.toggle.confirmActivate"
+            >La categoría <strong>"{{ data.category.name }}"</strong> volverá a estar disponible
+            para clasificar nuevos documentos.</ng-container
+          >
         }
       </p>
     </div>
@@ -32,16 +34,12 @@
     <div class="dialog__docs">
       <div class="dialog__docs-head">
         <mat-icon aria-hidden="true">description</mat-icon>
-        <strong>
-          {{ documentCount() }}
-          {{
-            documentCount() === 1
-              ? 'documento seguirá siendo accesible'
-              : 'documentos seguirán siendo accesibles'
-          }}
-        </strong>
+        <strong i18n="@@categories.toggle.documentsAccessible">{documentCount(), plural,
+          =1 {1 documento seguirá siendo accesible}
+          other {{{ documentCount() }} documentos seguirán siendo accesibles}
+        }</strong>
       </div>
-      <p>
+      <p i18n="@@categories.toggle.documentsHint">
         Los documentos ya clasificados conservan su categoría. Podrá reactivarla en cualquier
         momento.
       </p>
@@ -50,7 +48,7 @@
 
   <div class="dialog__actions">
     <app-button variant="secondary" [disabled]="loading()" (click)="cancel()">
-      Cancelar
+      <ng-container i18n="@@common.cancel">Cancelar</ng-container>
     </app-button>
     <app-button
       [variant]="actionVariant()"

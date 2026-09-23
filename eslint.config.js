@@ -55,6 +55,30 @@ const SUBSCRIBE_WITHOUT_TAKE_UNTIL = {
   message: 'EST-02: añade takeUntilDestroyed(this.destroyRef) al pipe antes de subscribe.',
 };
 
+// CAL-02: atributos que no contienen texto para el usuario (la regla i18n los ignora).
+const NON_TEXT_ATTRIBUTES = [
+  'accent',
+  'accept',
+  'align',
+  'appearance',
+  'aria-controls',
+  'aria-describedby',
+  'aria-labelledby',
+  'aria-live',
+  'errorId',
+  'icon',
+  'link',
+  'matTooltipPosition',
+  'mode',
+  'panelClass',
+  'raiseHint',
+  'rel',
+  'size',
+  'subscriptSizing',
+  'variant',
+  'xPosition',
+];
+
 /**
  * ARQ-02: una feature no importa internals de otra. Solo se permite la superficie pública
  * `features/<feature>/dialogs/`. Cubre imports relativos y el alias `@features/`.
@@ -139,6 +163,9 @@ module.exports = defineConfig([
   },
   {
     files: ['**/*.html'],
+    // index.html no pasa por el compilador de Angular: @angular/localize solo ajusta su `lang`.
+    // Las plantillas de los specs son componentes de prueba, no interfaz.
+    ignores: ['src/index.html', '**/*.spec.ts/**'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
     rules: {
       // ── Ya se cumplen: 'error' ────────────────────────────────────────────
@@ -147,8 +174,23 @@ module.exports = defineConfig([
       '@angular-eslint/template/prefer-class-binding': 'error',
       // UI-10 (Q5): <label> sin control → <span> con id + aria-labelledby.
       '@angular-eslint/template/label-has-associated-control': 'error',
-
-      // Fase 8 (CAL-02): activar '@angular-eslint/template/i18n' al adoptar @angular/localize.
+      // CAL-02 (P5, Q1): todo texto visible lleva i18n con ID personalizado.
+      '@angular-eslint/template/i18n': [
+        'error',
+        {
+          checkId: true,
+          checkText: true,
+          checkAttributes: true,
+          // Un mismo texto se reutiliza con su ID en varias plantillas (p. ej. «Cancelar»). Un ID
+          // repetido con otro texto lo detecta `ng extract-i18n`.
+          checkDuplicateId: false,
+          requireDescription: false,
+          // Ligaduras de Material Icons: son nombres de icono, no texto.
+          ignoreTags: ['mat-icon'],
+          // Entradas de componentes y atributos técnicos que no son texto visible.
+          ignoreAttributes: NON_TEXT_ATTRIBUTES,
+        },
+      ],
     },
   },
 ]);

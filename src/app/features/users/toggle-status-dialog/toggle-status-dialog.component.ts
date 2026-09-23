@@ -47,16 +47,22 @@ export class ToggleStatusDialogComponent {
   protected readonly isDeactivate = computed(() => this.data.action === 'deactivate');
 
   protected readonly title = computed(() =>
-    this.isDeactivate() ? '¿Desactivar usuario?' : '¿Activar usuario?',
+    this.isDeactivate()
+      ? $localize`:@@users.toggle.titleDeactivate:¿Desactivar usuario?`
+      : $localize`:@@users.toggle.titleActivate:¿Activar usuario?`,
   );
 
   protected readonly secondaryMessage = computed(() =>
     this.isDeactivate()
-      ? 'El usuario no podrá acceder al sistema. Sus documentos permanecerán disponibles.'
-      : 'El usuario podrá volver a acceder al sistema.',
+      ? $localize`:@@users.toggle.hintDeactivate:El usuario no podrá acceder al sistema. Sus documentos permanecerán disponibles.`
+      : $localize`:@@users.toggle.hintActivate:El usuario podrá volver a acceder al sistema.`,
   );
 
-  protected readonly actionLabel = computed(() => (this.isDeactivate() ? 'Desactivar' : 'Activar'));
+  protected readonly actionLabel = computed(() =>
+    this.isDeactivate()
+      ? $localize`:@@users.action.deactivate:Desactivar`
+      : $localize`:@@users.action.activate:Activar`,
+  );
 
   protected readonly actionDisabled = computed(() => this.loading() || this.errorBlocksAction());
 
@@ -88,10 +94,15 @@ export class ToggleStatusDialogComponent {
 
   private handleError(err: HttpErrorResponse): void {
     if (err.status === HttpStatusCode.Forbidden) {
-      this.errorMessage.set(toApiError(err)?.message ?? 'No puede desactivar su propia cuenta');
+      this.errorMessage.set(
+        toApiError(err)?.message ??
+          $localize`:@@users.toggle.errorSelf:No puede desactivar su propia cuenta.`,
+      );
       this.errorBlocksAction.set(true);
     } else {
-      this.errorMessage.set('Ocurrió un error inesperado. Por favor, inténtelo de nuevo');
+      this.errorMessage.set(
+        $localize`:@@common.error.unexpected:Ocurrió un error inesperado. Por favor, inténtelo de nuevo.`,
+      );
       this.errorBlocksAction.set(false);
     }
   }

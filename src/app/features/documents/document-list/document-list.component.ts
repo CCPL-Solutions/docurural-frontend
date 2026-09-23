@@ -4,6 +4,7 @@ import {
   DestroyRef,
   OnInit,
   computed,
+  LOCALE_ID,
   inject,
   signal,
 } from '@angular/core';
@@ -42,6 +43,7 @@ import {
   canUploadDocument,
 } from '@core/auth/permissions';
 import { DATE_FORMAT, DATE_TIME_FORMAT } from '@shared/utils/date-formats';
+import { downloadAriaLabel, downloadTooltip } from '@shared/i18n/download-labels';
 import { userInitials } from '@shared/utils/user-initials';
 import { formatFileSize } from '@shared/utils/file-size';
 import {
@@ -81,7 +83,7 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
 import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
 import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
-import { DatePipe } from '@angular/common';
+import { DatePipe, formatDate } from '@angular/common';
 import { BREAKPOINT_MD } from '@shared/ui/breakpoints';
 import { DIALOG_LG, DIALOG_MD, DIALOG_XL } from '@shared/ui/dialog-sizes';
 
@@ -101,19 +103,39 @@ interface SortOptionConfig {
 }
 
 const SORT_OPTIONS: SortOptionConfig[] = [
-  { value: 'createdAtDesc', label: 'Más recientes', sortBy: 'createdAt', sortDir: 'desc' },
-  { value: 'createdAtAsc', label: 'Más antiguos', sortBy: 'createdAt', sortDir: 'asc' },
-  { value: 'titleAsc', label: 'Título A–Z', sortBy: 'title', sortDir: 'asc' },
-  { value: 'titleDesc', label: 'Título Z–A', sortBy: 'title', sortDir: 'desc' },
+  {
+    value: 'createdAtDesc',
+    label: $localize`:@@sort.newest:Más recientes`,
+    sortBy: 'createdAt',
+    sortDir: 'desc',
+  },
+  {
+    value: 'createdAtAsc',
+    label: $localize`:@@sort.oldest:Más antiguos`,
+    sortBy: 'createdAt',
+    sortDir: 'asc',
+  },
+  {
+    value: 'titleAsc',
+    label: $localize`:@@sort.titleAsc:Título A–Z`,
+    sortBy: 'title',
+    sortDir: 'asc',
+  },
+  {
+    value: 'titleDesc',
+    label: $localize`:@@sort.titleDesc:Título Z–A`,
+    sortBy: 'title',
+    sortDir: 'desc',
+  },
   {
     value: 'documentDateDesc',
-    label: 'Fecha doc. más reciente',
+    label: $localize`:@@sort.documentDateDesc:Fecha doc. más reciente`,
     sortBy: 'documentDate',
     sortDir: 'desc',
   },
   {
     value: 'documentDateAsc',
-    label: 'Fecha doc. más antigua',
+    label: $localize`:@@sort.documentDateAsc:Fecha doc. más antigua`,
     sortBy: 'documentDate',
     sortDir: 'asc',
   },
@@ -158,6 +180,7 @@ export class DocumentListComponent implements OnInit {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly downloads = inject(DocumentDownloadService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly localeId = inject(LOCALE_ID);
 
   /**
    * Cada emisión pide el listado con el estado actual. `switchMap` cancela la petición anterior:
@@ -198,6 +221,8 @@ export class DocumentListComponent implements OnInit {
   protected readonly dateFormat = DATE_FORMAT;
   protected readonly dateTimeFormat = DATE_TIME_FORMAT;
   protected readonly userInitials = userInitials;
+  protected readonly downloadTooltip = downloadTooltip;
+  protected readonly downloadAriaLabel = downloadAriaLabel;
   protected readonly isEmpty = computed(() => !this.loading() && this.totalDocuments() === 0);
 
   protected readonly appliedFilterCount = computed(() => countActiveFilters(this.appliedFilters()));
@@ -226,21 +251,31 @@ export class DocumentListComponent implements OnInit {
     const total = this.totalDocuments();
     const term = this.appliedSearchTerm();
     const hasFilter = hasAnyFilter(this.appliedFilters());
-    const docWord = total === 1 ? 'documento' : 'documentos';
-    if (term && hasFilter)
-      return `Se encontraron ${total} ${docWord} para "${term}" con los filtros aplicados`;
-    if (term) return `Se encontraron ${total} ${docWord} para "${term}"`;
-    if (hasFilter) return `Se encontraron ${total} ${docWord} con los filtros aplicados`;
+    const one = total === 1;
+    if (term && hasFilter) {
+      return one
+        ? $localize`:@@documents.list.result.termAndFilters.one:Se encontró 1 documento para "${term}:term:" con los filtros aplicados`
+        : $localize`:@@documents.list.result.termAndFilters.other:Se encontraron ${total}:count: documentos para "${term}:term:" con los filtros aplicados`;
+    }
+    if (term) {
+      return one
+        ? $localize`:@@documents.list.result.term.one:Se encontró 1 documento para "${term}:term:"`
+        : $localize`:@@documents.list.result.term.other:Se encontraron ${total}:count: documentos para "${term}:term:"`;
+    }
+    if (hasFilter) {
+      return one
+        ? $localize`:@@documents.list.result.filters.one:Se encontró 1 documento con los filtros aplicados`
+        : $localize`:@@documents.list.result.filters.other:Se encontraron ${total}:count: documentos con los filtros aplicados`;
+    }
     return null;
   });
 
   protected readonly pageRangeLabel = computed(() => {
     const page = this.currentPage();
     const total = this.totalDocuments();
-    if (total === 0) return '0 documentos';
     const from = (page - 1) * PAGE_SIZE + 1;
     const to = Math.min(page * PAGE_SIZE, total);
-    return `Mostrando ${from}–${to} de ${total} documentos`;
+    return $localize`:@@pagination.range:Mostrando ${from}:from:–${to}:to: de ${total}:total: documentos`;
   });
 
   protected readonly pageNumbers = computed(() => {
@@ -311,8 +346,8 @@ export class DocumentListComponent implements OnInit {
           this.loading.set(false);
           this.notifications.httpError(
             err,
-            'No se pudo cargar el listado',
-            'Verifique su conexión e intente nuevamente.',
+            $localize`:@@common.error.listLoad:No se pudo cargar el listado`,
+            $localize`:@@common.error.checkConnection:Verifique su conexión e intente nuevamente.`,
           );
           return EMPTY;
         }),
@@ -345,11 +380,15 @@ export class DocumentListComponent implements OnInit {
   protected onSearchSubmit(): void {
     const term = this.searchInput().trim();
     if (term.length > 0 && term.length < 2) {
-      this.searchError.set('Ingrese al menos 2 caracteres para buscar.');
+      this.searchError.set(
+        $localize`:@@documents.search.error.minLength:Ingrese al menos 2 caracteres para buscar.`,
+      );
       return;
     }
     if (term.length > 100) {
-      this.searchError.set('El texto de búsqueda no puede superar los 100 caracteres.');
+      this.searchError.set(
+        $localize`:@@documents.search.error.maxLength:El texto de búsqueda no puede superar los 100 caracteres.`,
+      );
       return;
     }
     this.searchError.set(null);
@@ -521,15 +560,15 @@ export class DocumentListComponent implements OnInit {
         error: (err: HttpErrorResponse) => {
           if (err.status === HttpStatusCode.NotFound) {
             this.notifications.error(
-              'Documento no encontrado',
-              'El documento ya no existe o fue eliminado.',
+              $localize`:@@documents.detail.notFound.title:Documento no encontrado`,
+              $localize`:@@documents.list.error.editNotFound:El documento ya no existe o fue eliminado.`,
             );
             return;
           }
           this.notifications.httpError(
             err,
-            'Error al abrir el editor',
-            'No fue posible cargar los datos del documento. Intente nuevamente.',
+            $localize`:@@documents.list.error.openEditor.title:Error al abrir el editor`,
+            $localize`:@@documents.list.error.openEditor.description:No fue posible cargar los datos del documento. Intente nuevamente.`,
           );
         },
       });
@@ -550,7 +589,10 @@ export class DocumentListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
         if (!result?.success) return;
-        this.notifications.success('Documento eliminado', result.message);
+        this.notifications.success(
+          $localize`:@@documents.delete.toast.title:Documento eliminado`,
+          result.message,
+        );
         this.reloadAfterDelete();
       });
   }
@@ -603,6 +645,10 @@ export class DocumentListComponent implements OnInit {
     return canEditDocument(this.role(), this.currentUser()?.id, doc.uploadedById);
   }
 
+  protected pageAriaLabel(page: number): string {
+    return $localize`:@@pagination.pageAriaLabel:Página ${page}:page:`;
+  }
+
   protected formatSize(bytes: number): string {
     return formatFileSize(bytes);
   }
@@ -621,12 +667,13 @@ export class DocumentListComponent implements OnInit {
 
   private validateDateRange(from: string | null, to: string | null): string | null {
     if (!from || !to) return null;
-    return from > to ? 'La fecha de inicio no puede ser posterior a la fecha de fin.' : null;
+    return from > to
+      ? $localize`:@@documents.filters.error.dateRange:La fecha de inicio no puede ser posterior a la fecha de fin.`
+      : null;
   }
 
   private formatChipDate(ymd: string): string {
-    const [y, m, d] = ymd.split('-');
-    return `${d}/${m}/${y}`;
+    return formatDate(ymd, DATE_FORMAT, this.localeId);
   }
 
   private buildChips(
@@ -636,28 +683,45 @@ export class DocumentListComponent implements OnInit {
   ): FilterChipDescriptor[] {
     const chips: FilterChipDescriptor[] = [];
     if (term) {
-      chips.push({ key: 'q', label: 'Búsqueda', value: `"${term}"`, kind: 'search' });
+      chips.push({
+        key: 'q',
+        label: $localize`:@@documents.chips.search:Búsqueda`,
+        value: `"${term}"`,
+        kind: 'search',
+      });
     }
     if (filters.categoryId !== null) {
       chips.push({
         key: 'categoryId',
-        label: 'Categoría',
+        label: $localize`:@@document.field.category:Categoría`,
         value: meta?.categoryName ?? `#${filters.categoryId}`,
       });
     }
     if (filters.responsibleArea) {
-      chips.push({ key: 'responsibleArea', label: 'Área', value: filters.responsibleArea });
+      chips.push({
+        key: 'responsibleArea',
+        label: $localize`:@@documents.chips.area:Área`,
+        value: filters.responsibleArea,
+      });
     }
     if (filters.dateFrom) {
-      chips.push({ key: 'dateFrom', label: 'Desde', value: this.formatChipDate(filters.dateFrom) });
+      chips.push({
+        key: 'dateFrom',
+        label: $localize`:@@documents.chips.from:Desde`,
+        value: this.formatChipDate(filters.dateFrom),
+      });
     }
     if (filters.dateTo) {
-      chips.push({ key: 'dateTo', label: 'Hasta', value: this.formatChipDate(filters.dateTo) });
+      chips.push({
+        key: 'dateTo',
+        label: $localize`:@@documents.chips.to:Hasta`,
+        value: this.formatChipDate(filters.dateTo),
+      });
     }
     if (filters.uploadedBy !== null) {
       chips.push({
         key: 'uploadedBy',
-        label: 'Subido por',
+        label: $localize`:@@document.field.uploadedBy:Subido por`,
         value: meta?.uploadedByName ?? `#${filters.uploadedBy}`,
       });
     }

@@ -78,18 +78,32 @@ export class UserFormDialogComponent implements OnInit {
   protected readonly hideConfirmPassword = signal(true);
 
   protected readonly isEdit = computed(() => this.data.mode === 'edit');
-  protected readonly title = computed(() => (this.isEdit() ? 'Editar usuario' : 'Nuevo usuario'));
+  protected readonly title = computed(() =>
+    this.isEdit()
+      ? $localize`:@@users.form.titleEdit:Editar usuario`
+      : $localize`:@@users.form.titleCreate:Nuevo usuario`,
+  );
   protected readonly primaryLabel = computed(() =>
-    this.isEdit() ? 'Guardar cambios' : 'Crear usuario',
+    this.isEdit()
+      ? $localize`:@@common.saveChanges:Guardar cambios`
+      : $localize`:@@users.form.submitCreate:Crear usuario`,
   );
   protected readonly loadingLabel = computed(() =>
-    this.isEdit() ? 'Actualizando...' : 'Guardando...',
+    this.isEdit()
+      ? $localize`:@@common.updating:Actualizando…`
+      : $localize`:@@common.saving:Guardando…`,
   );
   protected readonly isSelfEdit = computed(
     () => this.isEdit() && this.data.user?.id === this.auth.currentUser()?.id,
   );
 
   protected readonly messages = USER_FORM_MESSAGES;
+  protected readonly labels = {
+    showPassword: $localize`:@@login.password.show:Mostrar contraseña`,
+    hidePassword: $localize`:@@login.password.hide:Ocultar contraseña`,
+    showConfirmation: $localize`:@@users.form.confirmPassword.show:Mostrar confirmación`,
+    hideConfirmation: $localize`:@@users.form.confirmPassword.hide:Ocultar confirmación`,
+  };
   protected readonly roleOptions = Object.entries(ROLE_LABELS) as [Role, string][];
 
   protected readonly form = this.fb.nonNullable.group(
@@ -162,8 +176,8 @@ export class UserFormDialogComponent implements OnInit {
         .subscribe({
           next: (res) => {
             this.notifications.success(
-              'Usuario actualizado',
-              'Los cambios se guardaron correctamente.',
+              $localize`:@@users.toast.updated.title:Usuario actualizado`,
+              $localize`:@@users.toast.updated.description:Los cambios se guardaron correctamente.`,
             );
             this.dialogRef.close({ kind: 'updated', user: res });
           },
@@ -188,8 +202,8 @@ export class UserFormDialogComponent implements OnInit {
         .subscribe({
           next: (res) => {
             this.notifications.success(
-              'Usuario creado',
-              'Ya puede iniciar sesión con sus credenciales.',
+              $localize`:@@users.toast.created.title:Usuario creado`,
+              $localize`:@@users.toast.created.description:Ya puede iniciar sesión con sus credenciales.`,
             );
             this.dialogRef.close({ kind: 'created', user: res });
           },
@@ -215,19 +229,29 @@ export class UserFormDialogComponent implements OnInit {
     switch (err.status) {
       case HttpStatusCode.BadRequest:
         if (!applyFieldErrors(this.form, err)) {
-          this.submitError.set('Los datos enviados no son válidos. Revise el formulario');
+          this.submitError.set(
+            $localize`:@@common.error.invalidData:Los datos enviados no son válidos. Revise el formulario.`,
+          );
         }
         break;
       case HttpStatusCode.Conflict:
-        this.submitError.set('Ya existe un usuario registrado con este correo electrónico');
-        this.form.controls.email.setErrors({ backend: 'Este correo ya está registrado' });
+        this.submitError.set(
+          $localize`:@@users.form.error.emailConflict:Ya existe un usuario registrado con este correo electrónico.`,
+        );
+        this.form.controls.email.setErrors({
+          backend: $localize`:@@users.form.error.emailTaken:Este correo ya está registrado.`,
+        });
         this.form.controls.email.markAsTouched();
         break;
       case HttpStatusCode.Forbidden:
-        this.submitError.set('No tiene permisos para realizar esta acción');
+        this.submitError.set(
+          $localize`:@@common.error.forbidden:No tiene permisos para realizar esta acción.`,
+        );
         break;
       default:
-        this.submitError.set('Ocurrió un error inesperado. Por favor, inténtelo de nuevo');
+        this.submitError.set(
+          $localize`:@@common.error.unexpected:Ocurrió un error inesperado. Por favor, inténtelo de nuevo.`,
+        );
     }
   }
 }

@@ -22,11 +22,11 @@ export class DocumentEmptyResultsComponent {
   get title(): string {
     switch (this.variant()) {
       case 'search':
-        return 'No se encontraron documentos';
+        return $localize`:@@documents.emptyResults.search.title:No se encontraron documentos`;
       case 'filters':
-        return 'Sin documentos con los filtros aplicados';
+        return $localize`:@@documents.emptyResults.filters.title:Sin documentos con los filtros aplicados`;
       case 'combined':
-        return 'Sin resultados para la búsqueda y los filtros';
+        return $localize`:@@documents.emptyResults.combined.title:Sin resultados para la búsqueda y los filtros`;
     }
   }
 
@@ -34,12 +34,12 @@ export class DocumentEmptyResultsComponent {
     switch (this.variant()) {
       case 'search':
         return this.searchTerm()
-          ? `No se encontraron documentos que coincidan con "${this.searchTerm()}". Intente con otras palabras clave.`
-          : 'No se encontraron documentos. Intente con otras palabras clave.';
+          ? $localize`:@@documents.emptyResults.search.messageWithTerm:No se encontraron documentos que coincidan con "${this.searchTerm()}:term:". Intente con otras palabras clave.`
+          : $localize`:@@documents.emptyResults.search.message:No se encontraron documentos. Intente con otras palabras clave.`;
       case 'filters':
-        return 'No hay documentos que coincidan con los filtros aplicados.';
+        return $localize`:@@documents.emptyResults.filters.message:No hay documentos que coincidan con los filtros aplicados.`;
       case 'combined':
-        return 'No se encontraron documentos que coincidan con la búsqueda y los filtros aplicados.';
+        return $localize`:@@documents.emptyResults.combined.message:No se encontraron documentos que coincidan con la búsqueda y los filtros aplicados.`;
     }
   }
 }

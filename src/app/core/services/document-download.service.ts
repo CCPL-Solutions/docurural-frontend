@@ -19,7 +19,7 @@ export interface DownloadableDocument {
   originalFileName?: string;
 }
 
-const DOWNLOAD_ERROR_TITLE = 'No se pudo descargar el documento';
+const DOWNLOAD_ERROR_TITLE = $localize`:@@download.error.title:No se pudo descargar el documento`;
 
 /**
  * Único flujo de descarga de documentos (API-05): marca el documento como "descargando" (para
@@ -53,13 +53,13 @@ export class DocumentDownloadService {
             doc.originalFileName ??
             buildFallbackFilename(doc.title, doc.fileFormat);
           triggerBlobDownload(response.body!, filename);
-          this.notifications.success('Descarga iniciada', filename);
+          this.notifications.success($localize`:@@download.started:Descarga iniciada`, filename);
         },
         error: (err: HttpErrorResponse) => {
           const fallback =
             err.status === HttpStatusCode.NotFound
-              ? 'El archivo no está disponible. Contacte al administrador.'
-              : 'Verifique su conexión e intente nuevamente.';
+              ? $localize`:@@download.error.notFound:El archivo no está disponible. Contacte al administrador.`
+              : $localize`:@@download.error.network:Verifique su conexión e intente nuevamente.`;
           this.notifications.httpError(err, DOWNLOAD_ERROR_TITLE, fallback);
         },
       });

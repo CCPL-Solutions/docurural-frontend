@@ -69,8 +69,8 @@ export class AuthService {
     if (this._state().token === null) return;
     if (reason === 'expired') {
       this.notifications.error(
-        'Sesión expirada',
-        'Por inactividad. Por favor, inicie sesión nuevamente.',
+        $localize`:@@auth.sessionExpired.title:Sesión expirada`,
+        $localize`:@@auth.sessionExpired.description:Por inactividad. Por favor, inicie sesión nuevamente.`,
       );
     }
     const returnUrl = this.router.url;

@@ -35,7 +35,8 @@ export interface DeleteDocumentDialogResult {
   styleUrl: './delete-document-dialog.component.scss',
 })
 export class DeleteDocumentDialogComponent {
-  private static readonly CONFIRM_PHRASE = 'ELIMINAR';
+  // Palabra que se escribe para confirmar; se traduce con el resto de la interfaz.
+  private static readonly CONFIRM_PHRASE = $localize`:@@documents.delete.confirmPhrase:ELIMINAR`;
 
   protected readonly data = inject<DeleteDocumentDialogData>(MAT_DIALOG_DATA);
   private readonly dialogRef =
@@ -51,6 +52,7 @@ export class DeleteDocumentDialogComponent {
   protected readonly confirmationText = signal('');
 
   protected readonly confirmPhrase = DeleteDocumentDialogComponent.CONFIRM_PHRASE;
+  protected readonly confirmAriaLabel = $localize`:@@documents.delete.confirmAriaLabel:Escriba ${this.confirmPhrase}:phrase: para confirmar la eliminación`;
 
   protected readonly canConfirm = computed(
     () => this.confirmationText().trim().toUpperCase() === this.confirmPhrase,
@@ -99,17 +101,21 @@ export class DeleteDocumentDialogComponent {
   private handleError(err: HttpErrorResponse): void {
     switch (err.status) {
       case 403:
-        this.errorMessage.set('No tiene permisos para eliminar documentos.');
+        this.errorMessage.set(
+          $localize`:@@documents.delete.error.forbidden:No tiene permisos para eliminar documentos.`,
+        );
         this.errorBlocksAction.set(true);
         break;
       case 404:
         this.errorMessage.set(
-          'El documento ya no existe o fue eliminado. Cierre este diálogo y actualice el listado.',
+          $localize`:@@documents.delete.error.notFound:El documento ya no existe o fue eliminado. Cierre este diálogo y actualice el listado.`,
         );
         this.errorBlocksAction.set(true);
         break;
       default:
-        this.errorMessage.set('No fue posible eliminar el documento. Intente nuevamente.');
+        this.errorMessage.set(
+          $localize`:@@documents.delete.error.generic:No fue posible eliminar el documento. Intente nuevamente.`,
+        );
         this.errorBlocksAction.set(false);
     }
   }

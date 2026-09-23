@@ -1,14 +1,18 @@
 <!-- Cabecera de página -->
-<app-page-header kicker="Documentos" [title]="metadata()?.title ?? 'Cargando documento…'">
+<app-page-header
+  kicker="Documentos"
+  i18n-kicker="@@layout.nav.documents"
+  [title]="metadata()?.title ?? loadingTitle"
+>
   <div actions class="header-actions">
     <app-button class="header-actions-buttons" variant="secondary" link="/documents">
-      <span>Volver</span>
+      <span i18n="@@common.back">Volver</span>
     </app-button>
     @if (metadata() && !loadingBlob()) {
       @if (canEdit()) {
         <app-button class="header-actions-buttons" variant="secondary" (click)="onEdit()">
           <mat-icon>edit</mat-icon>
-          <span>Editar metadatos</span>
+          <span i18n="@@documents.edit.title">Editar metadatos</span>
         </app-button>
       }
       <app-button
@@ -18,7 +22,11 @@
         (click)="onDownload()"
       >
         <mat-icon>download</mat-icon>
-        <span>{{ downloading() ? 'Descargando…' : 'Descargar' }}</span>
+        @if (downloading()) {
+          <span i18n="@@download.button.downloading">Descargando…</span>
+        } @else {
+          <span i18n="@@download.button.download">Descargar</span>
+        }
       </app-button>
     }
   </div>
@@ -26,7 +34,9 @@
 
 <!-- Estado: cargando metadatos -->
 @if (loadingMetadata()) {
-  <app-empty-state variant="loading">Cargando documento…</app-empty-state>
+  <app-empty-state variant="loading" i18n="@@documents.detail.loading"
+    >Cargando documento…</app-empty-state
+  >
 
   <!-- Estado: documento no encontrado -->
 } @else if (errorKind() === 'not-found') {
@@ -34,11 +44,13 @@
     variant="empty"
     icon="search_off"
     title="Documento no encontrado"
+    i18n-title="@@documents.detail.notFound.title"
     description="El documento que intenta abrir no existe o fue eliminado."
+    i18n-description="@@documents.detail.notFound.description"
   >
     <div actions>
       <app-button variant="secondary" link="/documents">
-        <span>Volver</span>
+        <span i18n="@@common.back">Volver</span>
       </app-button>
     </div>
   </app-empty-state>
@@ -49,7 +61,9 @@
     variant="empty"
     icon="wifi_off"
     title="No se pudo cargar el documento"
+    i18n-title="@@documents.detail.loadError.title"
     description="Verifique su conexión e intente nuevamente."
+    i18n-description="@@common.error.checkConnection"
   />
 
   <!-- Vista principal: metadatos cargados -->
@@ -58,13 +72,17 @@
     <!-- Área del visor -->
     <div class="doc-detail__viewer">
       @if (loadingBlob()) {
-        <app-empty-state variant="loading">Cargando archivo…</app-empty-state>
+        <app-empty-state variant="loading" i18n="@@documents.detail.loadingFile"
+          >Cargando archivo…</app-empty-state
+        >
       } @else if (errorKind() === 'file-missing') {
         <app-empty-state
           variant="empty"
           icon="error_outline"
           title="Archivo no disponible"
+          i18n-title="@@documents.detail.fileMissing.title"
           description="El archivo no está disponible. Contacte al administrador."
+          i18n-description="@@download.error.notFound"
         />
       } @else if (metadata()!.fileFormat === 'PDF') {
         @if (safeUrl()) {
@@ -72,6 +90,7 @@
             class="doc-detail__pdf-frame"
             [src]="safeUrl()"
             title="Visor de documento PDF"
+            i18n-title="@@documents.detail.pdfViewer"
           ></iframe>
         }
       } @else if (metadata()!.fileFormat === 'JPG' || metadata()!.fileFormat === 'PNG') {
@@ -80,7 +99,9 @@
             <div class="doc-detail__image-controls">
               <app-icon-button
                 tooltip="Reducir zoom"
+                i18n-tooltip="@@documents.detail.zoomOut"
                 ariaLabel="Reducir zoom"
+                i18n-ariaLabel="@@documents.detail.zoomOut"
                 [disabled]="zoomLevel() <= 0.25"
                 (click)="zoomOut()"
               >
@@ -89,7 +110,9 @@
               <span class="doc-detail__zoom-label" aria-live="polite">{{ zoomPercent() }}%</span>
               <app-icon-button
                 tooltip="Aumentar zoom"
+                i18n-tooltip="@@documents.detail.zoomIn"
                 ariaLabel="Aumentar zoom"
+                i18n-ariaLabel="@@documents.detail.zoomIn"
                 [disabled]="zoomLevel() >= 4"
                 (click)="zoomIn()"
               >
@@ -97,7 +120,9 @@
               </app-icon-button>
               <app-icon-button
                 tooltip="Tamaño completo"
+                i18n-tooltip="@@documents.detail.fullscreen"
                 ariaLabel="Ver a tamaño completo"
+                i18n-ariaLabel="@@documents.detail.fullscreenAriaLabel"
                 (click)="onFullscreen()"
               >
                 <mat-icon>fullscreen</mat-icon>
@@ -119,16 +144,17 @@
           variant="empty"
           icon="description"
           title="Vista previa no disponible"
-          [description]="
-            'Los archivos ' +
-            formatLabel() +
-            ' se pueden descargar pero no se previsualizan en el navegador.'
-          "
+          i18n-title="@@documents.detail.noPreview.title"
+          [description]="noPreviewDescription()"
         >
           <div actions>
             <app-button variant="primary" [loading]="downloading()" (click)="onDownload()">
               <mat-icon>download</mat-icon>
-              <span>{{ downloading() ? 'Descargando…' : 'Descargar para ver' }}</span>
+              @if (downloading()) {
+                <span i18n="@@download.button.downloading">Descargando…</span>
+              } @else {
+                <span i18n="@@documents.detail.downloadToView">Descargar para ver</span>
+              }
             </app-button>
           </div>
         </app-empty-state>
@@ -137,51 +163,53 @@
 
     <!-- Panel de metadatos -->
     <aside class="doc-detail__meta">
-      <h2 class="doc-detail__meta-title">Información del documento</h2>
+      <h2 class="doc-detail__meta-title" i18n="@@documents.detail.info">
+        Información del documento
+      </h2>
       <dl class="meta-list">
         <div class="meta-list__item">
-          <dt>Título</dt>
+          <dt i18n="@@document.field.title">Título</dt>
           <dd>{{ metadata()!.title }}</dd>
         </div>
         @if (metadata()!.description) {
           <div class="meta-list__item">
-            <dt>Descripción</dt>
+            <dt i18n="@@document.field.description">Descripción</dt>
             <dd>{{ metadata()!.description }}</dd>
           </div>
         }
         <div class="meta-list__item">
-          <dt>Categoría</dt>
+          <dt i18n="@@document.field.category">Categoría</dt>
           <dd>
             <app-category-pill [name]="metadata()!.category.name" />
           </dd>
         </div>
         <div class="meta-list__item">
-          <dt>Sensibilidad</dt>
+          <dt i18n="@@document.field.sensitivity">Sensibilidad</dt>
           <dd>
             <app-sensitivity-badge [level]="metadata()!.sensitivityLevel" />
           </dd>
         </div>
         <div class="meta-list__item">
-          <dt>Área responsable</dt>
+          <dt i18n="@@document.field.area">Área responsable</dt>
           <dd>{{ metadata()!.responsibleArea }}</dd>
         </div>
         <div class="meta-list__item">
-          <dt>Fecha del documento</dt>
+          <dt i18n="@@document.field.documentDate">Fecha del documento</dt>
           <dd>{{ metadata()!.documentDate | date: dateFormat }}</dd>
         </div>
         <div class="meta-list__item">
-          <dt>Formato</dt>
+          <dt i18n="@@document.field.format">Formato</dt>
           <dd class="meta-format">
             <app-document-format-icon [format]="metadata()!.fileFormat" />
             <span>{{ formatLabel() }}</span>
           </dd>
         </div>
         <div class="meta-list__item">
-          <dt>Tamaño</dt>
+          <dt i18n="@@document.field.size">Tamaño</dt>
           <dd>{{ formatFileSize(metadata()!.fileSizeBytes) }}</dd>
         </div>
         <div class="meta-list__item">
-          <dt>Subido por</dt>
+          <dt i18n="@@document.field.uploadedBy">Subido por</dt>
           <dd>
             <div class="meta-uploader">
               <div class="meta-uploader__avatar" aria-hidden="true">
@@ -192,7 +220,7 @@
           </dd>
         </div>
         <div class="meta-list__item">
-          <dt>Fecha de carga</dt>
+          <dt i18n="@@document.field.uploadDate">Fecha de carga</dt>
           <dd>{{ metadata()!.createdAt | date: dateTimeFormat }}</dd>
         </div>
       </dl>

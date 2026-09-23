@@ -48,10 +48,30 @@ interface SortOptionConfig {
 }
 
 const SORT_OPTIONS: SortOptionConfig[] = [
-  { value: 'nameAsc', label: 'Nombre A–Z', sortBy: 'name', sortDir: 'asc' },
-  { value: 'nameDesc', label: 'Nombre Z–A', sortBy: 'name', sortDir: 'desc' },
-  { value: 'createdAtDesc', label: 'Más recientes', sortBy: 'createdAt', sortDir: 'desc' },
-  { value: 'createdAtAsc', label: 'Más antiguos', sortBy: 'createdAt', sortDir: 'asc' },
+  {
+    value: 'nameAsc',
+    label: $localize`:@@sort.nameAsc:Nombre A–Z`,
+    sortBy: 'name',
+    sortDir: 'asc',
+  },
+  {
+    value: 'nameDesc',
+    label: $localize`:@@sort.nameDesc:Nombre Z–A`,
+    sortBy: 'name',
+    sortDir: 'desc',
+  },
+  {
+    value: 'createdAtDesc',
+    label: $localize`:@@sort.newest:Más recientes`,
+    sortBy: 'createdAt',
+    sortDir: 'desc',
+  },
+  {
+    value: 'createdAtAsc',
+    label: $localize`:@@sort.oldest:Más antiguos`,
+    sortBy: 'createdAt',
+    sortDir: 'asc',
+  },
 ];
 
 @Component({
@@ -124,8 +144,8 @@ export class CategoryListComponent implements OnInit {
         this.loading.set(false);
         this.notifications.httpError(
           err,
-          'No se pudo cargar el listado',
-          'Verifique su conexión e intente nuevamente.',
+          $localize`:@@common.error.listLoad:No se pudo cargar el listado`,
+          $localize`:@@common.error.checkConnection:Verifique su conexión e intente nuevamente.`,
         );
         return EMPTY;
       }),
@@ -188,7 +208,10 @@ export class CategoryListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
         if (!result?.success) return;
-        this.notifications.success('Estado actualizado', result.message);
+        this.notifications.success(
+          $localize`:@@users.toast.statusUpdated:Estado actualizado`,
+          result.message,
+        );
         this.loadCategories();
       });
   }
