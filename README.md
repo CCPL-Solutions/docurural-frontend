@@ -18,18 +18,31 @@ npm run build            # Build de producción en dist/docurural-frontend/brows
 npm test                 # Pruebas en modo watch
 npm run test:ci          # Pruebas en modo CI (sin watch, con cobertura)
 npm run format:check     # Verificar formato con Prettier
+npm run lint             # Analizar el código con ESLint (angular-eslint)
+npm run check:styles     # Verificar el uso de tokens de diseño y breakpoints
 ```
+
+Las convenciones del proyecto están en `CLAUDE.md` y en `docs/`.
 
 ## Configuración por entorno
 
-`src/environments/environment.ts` (desarrollo) y `environment.prod.ts` (producción)
-definen `apiBaseUrl`. En producción es relativo (`/api`): Nginx en el servidor
-proxea `/api/` hacia el backend de Spring Boot en `localhost:8080`.
+Cada archivo de `src/environments/` define `apiBaseUrl` y `tokenStorageKey`:
+
+| Archivo                  | Configuración (`angular.json`)                                     | `apiBaseUrl`                |
+| ------------------------ | ------------------------------------------------------------------ | --------------------------- |
+| `environment.ts`         | `development` (`npm start`)                                        | `http://localhost:8080/api` |
+| `environment.develop.ts` | `develop` (`npm run start:develop`, con `proxy.conf.develop.json`) | `/api`                      |
+| `environment.qa.ts`      | `qa` (`npm run start:qa`, con `proxy.conf.qa.json`)                | `/api`                      |
+| `environment.prod.ts`    | `production` (`npm run build`)                                     | `/api`                      |
+
+En los entornos desplegados, Nginx proxea `/api/` hacia el backend de Spring Boot en
+`localhost:8080`.
 
 ## CI/CD
 
-El pipeline de GitHub Actions replica el del backend: `ci.yml` compila y prueba en
-cada push/PR; `cd-dev.yml`, `cd-qa.yml` y `cd-prod.yml` despliegan a Desarrollo, QA
+El pipeline de GitHub Actions replica el del backend: `ci.yml` verifica formato
+(Prettier), analiza el código (ESLint y `check:styles`), prueba y compila en cada push a
+ramas `feature/**`, `bugfix/**` y `hotfix/**` (no se ejecuta en PR); `cd-dev.yml`, `cd-qa.yml` y `cd-prod.yml` despliegan a Desarrollo, QA
 y Producción sobre runners self-hosted (provistos por
 [`docurural-infra-test`](https://github.com/CCPL-Solutions/docurural-infra-test)),
 con health check y rollback automático. La estrategia de ramas, el esquema de
