@@ -28,8 +28,7 @@ const ENFORCED_RESTRICTED_IMPORTS = {
   ],
 };
 
-// Restricciones pendientes de remediación ('warn'). Se comparten con el bloque por feature: en
-// flat config, un bloque posterior reemplaza la configuración completa de la regla, no la fusiona.
+// Restricciones pendientes de remediación ('warn').
 const RESTRICTED_IMPORT_PATHS = [
   {
     // TODO(Fase 5): 'error' — FRM-05 (D25).
@@ -41,7 +40,9 @@ const RESTRICTED_IMPORT_PATHS = [
 
 /**
  * ARQ-02: una feature no importa internals de otra. Solo se permite la superficie pública
- * `features/<feature>/dialogs/`. Cubre imports relativos y el alias `@features/` (Fase 2).
+ * `features/<feature>/dialogs/`. Cubre imports relativos y el alias `@features/`.
+ * En flat config, un bloque posterior reemplaza la configuración completa de la regla, así que
+ * este bloque repite las restricciones globales de ENFORCED_RESTRICTED_IMPORTS.
  * @param {string} feature
  */
 function crossFeatureImportsRule(feature) {
@@ -49,12 +50,12 @@ function crossFeatureImportsRule(feature) {
   return {
     files: [`src/app/features/${feature}/**/*.ts`],
     rules: {
-      // TODO(Fase 3): pasar a 'error' al mover las piezas compartidas a shared/ (D11).
-      'no-restricted-imports': [
-        'warn',
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
         {
-          paths: RESTRICTED_IMPORT_PATHS,
+          paths: ENFORCED_RESTRICTED_IMPORTS.paths,
           patterns: [
+            ...ENFORCED_RESTRICTED_IMPORTS.patterns,
             {
               regex: `^(?:(?:\\.\\./)+|@features/)(?:${others})/(?!dialogs/)`,
               message:
@@ -98,7 +99,7 @@ module.exports = defineConfig([
       // CMP-02 (D1).
       '@angular-eslint/prefer-signals': 'error',
       '@angular-eslint/prefer-output-emitter-ref': 'error',
-      // CMP-06 (D6) y ARQ-05 (Q3).
+      // CMP-06 (D6) y ARQ-05 (Q3). En features/, además ARQ-02 (ver crossFeatureImportsRule).
       '@typescript-eslint/no-restricted-imports': ['error', ENFORCED_RESTRICTED_IMPORTS],
       'no-restricted-syntax': [
         'error',
