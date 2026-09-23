@@ -96,6 +96,11 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
     «Volver» son enlaces: un documento se puede abrir en otra pestaña. `<app-button>` y
     `<app-icon-button>` aceptan `link`.
   - La acción rápida «Subir documento» ya no añade `?action=upload`, que no tenía efecto.
+- Estado, suscripciones y detección de cambios (fase 7 de la remediación):
+  - Todas las suscripciones de componentes se cancelan al destruirse (`takeUntilDestroyed`), y
+    ESLint lo exige en `features/` y `shared/`.
+  - Todos los componentes usan `OnPush`; la regla de ESLint pasa a `error`.
+  - La carga inicial de Usuarios, Categorías y el detalle de documento se hace en `ngOnInit`.
 
 ### Removed
 
@@ -106,6 +111,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Al paginar, ordenar o buscar rápido en Documentos (y al cambiar de orden en Usuarios y
+  Categorías), una respuesta antigua que llega tarde ya no reemplaza a la última (R2).
+- Salir del detalle de un documento antes de que cargue la vista previa ya no deja el archivo
+  retenido en memoria (R3).
 - La sesión se cierra al vencer el token, sin esperar a un error del servidor, y se comprueba en
   cada navegación entre páginas (R4).
 - Al iniciar sesión desde un enlace con varios parámetros, se vuelve a la dirección completa (R7).

@@ -70,6 +70,8 @@ src/styles/   tokens de diseño (_tokens.scss) y parciales globales (ver src/sty
   con `DocumentDownloadService`.
 - Navegación pura con `routerLink` (en botones, `<app-button link>` / `<app-icon-button link>`);
   `router.navigate` solo tras una lógica. Los permisos sobre un recurso comparan ids, nunca nombres.
+- Suscripciones en componentes con `takeUntilDestroyed(this.destroyRef)` (lo exige ESLint); recargas
+  repetibles con un `Subject` + `switchMap`. `effect()` solo como puente con APIs imperativas.
 - El estado es de signals. La sesión es el único estado global (`AuthService`).
 
 ## Convenciones clave

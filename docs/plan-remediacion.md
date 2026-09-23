@@ -355,7 +355,20 @@ Las fases van ordenadas por dependencia y riesgo. Primero lo que no rompe nada (
 
 ---
 
-## Fase 7 — Estado, suscripciones y detección de cambios · Esfuerzo **M** · Riesgo **medio**
+## Fase 7 — Estado, suscripciones y detección de cambios · Esfuerzo **M** · Riesgo **medio** · ✅ Completada (2026-09-23)
+
+> **Resultado:** R2 y R3 corregidos: **ya no queda ningún fallo esperado** en los tests. Criterios de búsqueda: `effect(` solo en `sensitivity-sync.ts` (`syncSensitivityWithCategory`); ninguna carga en un constructor; las 32 `subscribe` de `features/` y `shared/` llevan `takeUntilDestroyed`. Lint: **0 errores y 0 avisos**; `prefer-on-push-component-change-detection` pasa a `error` (51 de 51 componentes con OnPush). Tests: **171** en verde. Cobertura global: **48,57 %** de líneas (trinquete: 51 / 52 / 43 / 48). E2E: 25 en verde y las 12 capturas no cambian. Build: bundle inicial de 410,43 kB, sin aviso, y los mismos 5 avisos de presupuesto de estilos.
+>
+> **Tests nuevos:** `user-list` y `category-list` (carga en `ngOnInit`, cambio de orden rápido con respuestas fuera de orden y recarga tras un error). Los tests de R2 y R3 de la Fase 1 pasan a `it`.
+>
+> **Desviaciones respecto al plan:**
+>
+> - **7.1 — verificación con ESLint sin dependencias nuevas:** en lugar de `eslint-plugin-rxjs-x`, un selector de `no-restricted-syntax` (`SUBSCRIBE_WITHOUT_TAKE_UNTIL` en `eslint.config.js`) exige, en `features/` y `shared/` (sin specs), que cada `.subscribe(` tenga un `.pipe(…)` con `takeUntilDestroyed(…)` en su cadena. Se probó que marca una `subscribe` sin él. `active-categories.ts` también lo usa, con el `DestroyRef` del diálogo. `DocumentDownloadService` (en `core/`, singleton) queda fuera a propósito: la descarga debe terminar aunque se salga de la página.
+> - **7.1 — diálogos:** `takeUntilDestroyed` cancelaría un guardado si el diálogo se cerrara a mitad, pero los 8 diálogos con guardado ya ponen `disableClose` mientras esperan la respuesta.
+> - **7.2:** cada lista tiene un `reload$ = new Subject<void>()` con `switchMap`, suscrito en `ngOnInit`. `loadDocuments()`, `loadUsers()` y `loadCategories()` conservan su nombre y ahora solo emiten, así que los 11 métodos que llaman a `loadDocuments` no cambian. Los errores se capturan dentro del `switchMap` (`catchError` → `EMPTY`), así que un fallo no corta las recargas siguientes.
+> - **7.3:** el detalle encadena metadatos y archivo en un `load$` con `switchMap` anidado: recargar tras editar cancela también la carga del archivo anterior. La revocación se registra con `DestroyRef.onDestroy` y desaparece `ngOnDestroy`. El test de R3 crea el componente en un `EnvironmentInjector` propio y lo destruye, en lugar de llamar a `ngOnDestroy`.
+> - **7.6:** además de los 5 componentes del plan, ya no queda ninguno sin OnPush. `toast` recibe datos inmutables y `main-layout` solo depende de signals.
+> - **`document-list.component.ts`** (§9, «No hacer»): pasa de 705 a 666 líneas. No se divide: lo que queda es estado y manejadores de una sola pantalla.
 
 **Objetivo.** Corregir R2 y R3 y converger en D3, D4, D19 y D20. Va la última porque es la que más afecta al comportamiento en tiempo de ejecución.
 
