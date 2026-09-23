@@ -47,11 +47,10 @@ test.describe('Documentos', () => {
     await expect(dialog.getByText('El título es obligatorio.')).toBeVisible();
   });
 
-  // R11 (fallo esperado): `new Date('YYYY-MM-DD')` se interpreta en UTC y, en Colombia (UTC-5), la
-  // fecha del documento se muestra un día antes. Se corrige en la Fase 3 (tarea 3.6, DatePipe con
-  // LOCALE_ID); entonces debe quitarse `test.fail()` y actualizar las capturas de referencia.
+  // R11 (corregido en la Fase 3, tarea 3.6): `new Date('YYYY-MM-DD')` se interpretaba en UTC y, en
+  // Colombia (UTC-5), la fecha del documento se mostraba un día antes. El pipe `date` la interpreta
+  // como fecha local.
   test('R11: muestra la fecha del documento sin desfase horario', async ({ page }) => {
-    test.fail();
     await page.locator('table').getByRole('button', { name: 'Ver documento' }).first().click();
     await expect(page.getByText('01/03/2026')).toBeVisible({ timeout: 2000 });
   });
