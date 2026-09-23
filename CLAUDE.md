@@ -24,7 +24,9 @@ Para lo idiomático de Angular, usa la skill `angular-developer` (`.claude/skill
 npm ci                   # Instalar dependencias
 npm start                # Dev server (http://localhost:4200, API en localhost:8080)
 npm run start:develop    # Dev server con proxy al backend de Desarrollo
-npm run build            # Build de producción
+npm run build            # Build de producción (un build por idioma: es y en)
+npm run start:en         # Dev server en inglés
+npm run extract-i18n     # Extraer textos a src/locale/messages.xlf
 npm test                 # Tests en modo watch
 npm run test:ci          # Tests sin watch y con cobertura (lo que corre la CI)
 npm run lint             # ESLint
@@ -79,6 +81,12 @@ src/styles/   tokens de diseño (_tokens.scss) y parciales globales (ver src/sty
 - **Idioma:** el código (identificadores, archivos, rutas, clases CSS) va en **inglés**. Los
   comentarios, los textos de la interfaz, la documentación, el CHANGELOG y los commits van en
   **español**. En la interfaz se trata al usuario de **usted**.
+- **i18n (`@angular/localize`):** todo texto visible lleva `i18n="@@id"` (o `i18n-<atributo>`) en
+  plantillas y `` $localize`:@@id:Texto` `` en TypeScript, con IDs en inglés
+  (`@@<ámbito>.<pantalla>.<clave>`); los recuentos, con ICU `plural`. Nada de texto en ternarios de
+  bindings. Al añadir o cambiar un texto: `npm run extract-i18n` y actualizar
+  `src/locale/messages.en.xlf`. Oraciones completas (toasts, errores, validaciones, pistas) con
+  punto final; títulos, etiquetas y botones sin él. Detalle en la sección "Idiomas" del README.
 - **Componentes:** `OnPush`, `input()`/`output()`, `inject()`, `@if`/`@for`, `styleUrl`.
 - **Commits:** Conventional Commits con descripción en español, por ejemplo
   `fix: tolerar espacios en el grep de version.json`.
