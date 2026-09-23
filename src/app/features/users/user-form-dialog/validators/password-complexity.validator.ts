@@ -1,4 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from '@core/models/user-form.model';
 
 export function passwordComplexityValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -6,8 +7,8 @@ export function passwordComplexityValidator(): ValidatorFn {
     if (!value) return null;
 
     const errors: ValidationErrors = {};
-    if (value.length < 12) errors['minLength'] = true;
-    if (value.length > 128) errors['maxLength'] = true;
+    if (value.length < MIN_PASSWORD_LENGTH) errors['minLength'] = true;
+    if (value.length > MAX_PASSWORD_LENGTH) errors['maxLength'] = true;
     if (!/[a-z]/.test(value)) errors['noLowercase'] = true;
     if (!/[A-Z]/.test(value)) errors['noUppercase'] = true;
     if (!/\d/.test(value)) errors['noDigit'] = true;

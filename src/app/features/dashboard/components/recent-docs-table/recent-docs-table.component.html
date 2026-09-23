@@ -80,11 +80,20 @@
                     <mat-icon>visibility</mat-icon>
                   </app-icon-button>
                   <app-icon-button
-                    tooltip="Descargar"
-                    ariaLabel="Descargar documento"
+                    [tooltip]="downloadingIds().has(doc.id) ? 'Descargando…' : 'Descargar'"
+                    [ariaLabel]="
+                      (downloadingIds().has(doc.id)
+                        ? 'Descargando documento '
+                        : 'Descargar documento ') + doc.title
+                    "
+                    [disabled]="downloadingIds().has(doc.id)"
                     (click)="download.emit(doc)"
                   >
-                    <mat-icon>download</mat-icon>
+                    @if (downloadingIds().has(doc.id)) {
+                      <mat-progress-spinner diameter="18" mode="indeterminate" />
+                    } @else {
+                      <mat-icon>download</mat-icon>
+                    }
                   </app-icon-button>
                 </div>
               </td>
@@ -112,11 +121,19 @@
               <mat-icon>visibility</mat-icon>
             </app-icon-button>
             <app-icon-button
-              tooltip="Descargar"
-              ariaLabel="Descargar documento"
+              [tooltip]="downloadingIds().has(doc.id) ? 'Descargando…' : 'Descargar'"
+              [ariaLabel]="
+                (downloadingIds().has(doc.id) ? 'Descargando documento ' : 'Descargar documento ') +
+                doc.title
+              "
+              [disabled]="downloadingIds().has(doc.id)"
               (click)="download.emit(doc)"
             >
-              <mat-icon>download</mat-icon>
+              @if (downloadingIds().has(doc.id)) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                <mat-icon>download</mat-icon>
+              }
             </app-icon-button>
           </div>
         </li>

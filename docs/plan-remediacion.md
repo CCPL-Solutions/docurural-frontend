@@ -266,7 +266,24 @@ Las fases van ordenadas por dependencia y riesgo. Primero lo que no rompe nada (
 
 ---
 
-## Fase 5 — Capa HTTP, errores y formularios · Esfuerzo **L** · Riesgo **medio**
+## Fase 5 — Capa HTTP, errores y formularios · Esfuerzo **L** · Riesgo **medio** · ✅ Completada (2026-09-23)
+
+> **Resultado:** los 7 criterios de búsqueda dan 0 en `src/app/features`. `triggerBlobDownload` solo aparece en `DocumentDownloadService`. Lint: 0 errores y 5 avisos (OnPush, Fase 7); `FormsModule` pasa a `error`. Tests: **147** en verde y 4 fallos esperados. Los tests de caracterización de sensibilidad (1.6) siguen en verde **sin cambios**. Cobertura global: **35,26 %** de líneas (trinquete: 36 / 43 / 34 / 35). E2E: **23** en verde (+ error de carga del dashboard); las 12 capturas no cambian.
+>
+> **Tests nuevos:** `toApiError`/`readApiError`/`fieldErrorsOf`, `applyFieldErrors`, `httpError` (incluido el 401 ignorado), `DocumentDownloadService`, `fieldErrorMessage` y `<app-field-error>` (con OnPush y sin zone.js), `trimmedMinLength` y el componente de login (R9 y R12).
+>
+> **Hallazgo nuevo — R12 (alta, en producción; ver §6 de la auditoría):** los 6 formularios rehabilitaban el formulario en `finalize`, que se ejecuta **después** del callback de error. `enable()` vuelve a validar y borraba los errores `backend` y la marca de duplicado del 409: **ningún error de campo del servidor llegaba a verse**. R9 (falta de `markAsTouched` en el login) era solo una parte. Ahora cada formulario se rehabilita al empezar el manejo del error y después se aplican los errores. `login.component.spec.ts` lo cubre y se comprobó que falla con el orden anterior.
+>
+> **Desviaciones respecto al plan:**
+>
+> - **5.1:** dos funciones en lugar de una. `toApiError` es síncrona (cuerpos JSON: formularios); `readApiError` es asíncrona y además lee cuerpos `Blob` (descargas y visor), porque leer un `Blob` es asíncrono. `readApiError` absorbe `parseBlobError`, que se elimina.
+> - **5.2:** `httpError` es asíncrono por dentro (lee el `Blob` si hace falta), sin cambios para quien lo llama. El **login** conserva su rama de 401 con `HttpStatusCode.Unauthorized`: el interceptor no gestiona `/auth/login` y ahí el 401 significa credenciales incorrectas. En el detalle, al quitar el `return` del 401 puede verse un instante el estado de error de red antes de que el interceptor redirija al login.
+> - **5.3:** `applyFieldErrors(form, err, otherFields)` acepta campos que no son controles (el `file` de la subida va a la zona de carga).
+> - **5.4:** el estado vacío del dashboard conserva un botón «Reintentar», ahora `<app-button>` (desaparece el `.retry-btn` propio).
+> - **5.5:** `DocumentDownloadService` vive en `core/services/` (lo usan el dashboard y documentos). Los recientes del dashboard ganan el spinner por documento y el toast de éxito que no tenían.
+> - **5.7:** además de los `Validators`, los contadores de caracteres y los `maxlength` de las plantillas usan las mismas constantes. Los textos de ayuda («Entre 3 y 100 caracteres») se quedan como están: se extraen en la Fase 8.
+> - **5.8:** `<app-field-error>` acepta `errorId` (para el `aria-describedby`), `groupErrors` (p. ej. `passwordMismatch`) y contenido proyectado que se muestra cuando no hay error (la ayuda del campo).
+> - **5.11:** en lugar de un `ActiveCategoriesService` inyectable, es una función `injectActiveCategories()`: los tests de caracterización crean los diálogos con `new` dentro de un contexto de inyección, donde no se aplican los `providers` del componente, y el plan exige no cambiarlos. Mantiene el estado por diálogo. `syncSensitivityWithCategory` y `injectActiveCategories` viven en `features/documents/dialogs/`.
 
 **Objetivo.** Una sola política de errores (corrige R1 y R9), un solo flujo de descarga y formularios sin duplicación.
 

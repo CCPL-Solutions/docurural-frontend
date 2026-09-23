@@ -36,9 +36,9 @@
           </label>
           <span
             class="field__counter"
-            [class.field__counter--over]="titleLen() > 255"
+            [class.field__counter--over]="titleLen() > maxTitleLength"
             aria-hidden="true"
-            >{{ titleLen() }}/255</span
+            >{{ titleLen() }}/{{ maxTitleLength }}</span
           >
         </div>
         <div
@@ -50,7 +50,7 @@
             id="edit-title"
             type="text"
             formControlName="title"
-            maxlength="255"
+            [maxlength]="maxTitleLength"
             autocomplete="off"
             placeholder="Ej. Acta Consejo Directivo Marzo 2026"
             [attr.aria-required]="true"
@@ -60,12 +60,11 @@
             aria-describedby="edit-title-error"
           />
         </div>
-        @if (titleError(); as msg) {
-          <p class="field__error" id="edit-title-error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        }
+        <app-field-error
+          [control]="form.controls.title"
+          [messages]="messages.title"
+          errorId="edit-title-error"
+        />
       </div>
 
       <!-- Categoría y Área (fila de dos columnas) -->
@@ -102,16 +101,17 @@
             </div>
           }
 
-          @if (categoryError(); as msg) {
-            <p class="field__error" id="edit-category-error">
-              <mat-icon aria-hidden="true">error</mat-icon>
-              {{ msg }}
-            </p>
-          } @else if (!loadCategoriesError()) {
-            <small class="field__hint" id="edit-category-hint"
-              >Solo aparecen las categorías activas.</small
-            >
-          }
+          <app-field-error
+            [control]="form.controls.categoryId"
+            [messages]="messages.categoryId"
+            errorId="edit-category-error"
+          >
+            @if (!loadCategoriesError()) {
+              <small class="field__hint" id="edit-category-hint"
+                >Solo aparecen las categorías activas.</small
+              >
+            }
+          </app-field-error>
         </div>
 
         <!-- Área responsable -->
@@ -133,12 +133,11 @@
               }
             </mat-select>
           </mat-form-field>
-          @if (areaError(); as msg) {
-            <p class="field__error" id="edit-area-error">
-              <mat-icon aria-hidden="true">error</mat-icon>
-              {{ msg }}
-            </p>
-          }
+          <app-field-error
+            [control]="form.controls.responsibleArea"
+            [messages]="messages.responsibleArea"
+            errorId="edit-area-error"
+          />
         </div>
       </div>
 
@@ -180,16 +179,15 @@
           </button>
           <mat-datepicker #picker></mat-datepicker>
         </div>
-        @if (dateError(); as msg) {
-          <p class="field__error" id="edit-date-error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        } @else {
+        <app-field-error
+          [control]="form.controls.documentDate"
+          [messages]="messages.documentDate"
+          errorId="edit-date-error"
+        >
           <small class="field__hint" id="edit-date-hint"
             >Fecha real del documento original, no la fecha de carga.</small
           >
-        }
+        </app-field-error>
       </div>
 
       <!-- Nivel de sensibilidad -->
@@ -229,12 +227,10 @@
           />
         </div>
 
-        @if (sensitivityError(); as msg) {
-          <p class="field__error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        }
+        <app-field-error
+          [control]="form.controls.sensitivityLevel"
+          [messages]="messages.sensitivityLevel"
+        />
       </div>
 
       <!-- Descripción -->
@@ -246,9 +242,9 @@
           </label>
           <span
             class="field__counter"
-            [class.field__counter--over]="descLen() > 500"
+            [class.field__counter--over]="descLen() > maxDescriptionLength"
             aria-hidden="true"
-            >{{ descLen() }}/500</span
+            >{{ descLen() }}/{{ maxDescriptionLength }}</span
           >
         </div>
         <div
@@ -262,7 +258,7 @@
             id="edit-description"
             formControlName="description"
             rows="2"
-            maxlength="500"
+            [maxlength]="maxDescriptionLength"
             autocomplete="off"
             placeholder="Información adicional sobre el contenido del documento (opcional)."
             [attr.aria-invalid]="
@@ -271,12 +267,11 @@
             aria-describedby="edit-desc-error"
           ></textarea>
         </div>
-        @if (descriptionError(); as msg) {
-          <p class="field__error" id="edit-desc-error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        }
+        <app-field-error
+          [control]="form.controls.description"
+          [messages]="messages.description"
+          errorId="edit-desc-error"
+        />
       </div>
     </div>
     <!-- /dialog-fields -->

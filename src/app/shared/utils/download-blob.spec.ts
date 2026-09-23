@@ -1,7 +1,5 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   buildFallbackFilename,
-  parseBlobError,
   parseFilenameFromContentDisposition,
   triggerBlobDownload,
 } from './download-blob';
@@ -66,27 +64,5 @@ describe('triggerBlobDownload', () => {
     expect(anchor.href).toBe('blob:mock');
     expect(anchor.isConnected).toBe(false);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock');
-  });
-});
-
-describe('parseBlobError', () => {
-  it('convierte un cuerpo Blob con JSON en ApiError', async () => {
-    const body = { timestamp: 't', status: 404, error: 'Not Found', message: 'No existe' };
-    const err = new HttpErrorResponse({
-      status: 404,
-      error: new Blob([JSON.stringify(body)], { type: 'application/json' }),
-    });
-
-    await expect(parseBlobError(err)).resolves.toEqual(body);
-  });
-
-  it('retorna null si el Blob no es JSON', async () => {
-    const err = new HttpErrorResponse({ status: 500, error: new Blob(['<html>']) });
-    await expect(parseBlobError(err)).resolves.toBeNull();
-  });
-
-  it('retorna null si el cuerpo no es un Blob', async () => {
-    const err = new HttpErrorResponse({ status: 500, error: { message: 'x' } });
-    await expect(parseBlobError(err)).resolves.toBeNull();
   });
 });

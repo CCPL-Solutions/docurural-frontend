@@ -26,3 +26,10 @@ export interface UpdateUserResponse extends AuthenticatedUser {
   status: UserStatus;
   message: string;
 }
+
+// Límites de validación compartidos con el backend (FRM-02).
+export const MIN_FULL_NAME_LENGTH = 3;
+export const MAX_FULL_NAME_LENGTH = 100;
+export const MAX_EMAIL_LENGTH = 150;
+export const MIN_PASSWORD_LENGTH = 12;
+export const MAX_PASSWORD_LENGTH = 128;

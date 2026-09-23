@@ -18,6 +18,11 @@ const ENFORCED_RESTRICTED_IMPORTS = {
       importNames: ['NgClass'],
       message: 'CMP-06: usa [class] o [class.x] en lugar de NgClass.',
     },
+    {
+      name: '@angular/forms',
+      importNames: ['FormsModule'],
+      message: 'FRM-05: enlaza campos sueltos con (input) + signal; no uses ngModel.',
+    },
   ],
   patterns: [
     {
@@ -27,16 +32,6 @@ const ENFORCED_RESTRICTED_IMPORTS = {
     },
   ],
 };
-
-// Restricciones pendientes de remediación ('warn').
-const RESTRICTED_IMPORT_PATHS = [
-  {
-    // TODO(Fase 5): 'error' — FRM-05 (D25).
-    name: '@angular/forms',
-    importNames: ['FormsModule'],
-    message: 'FRM-05: enlaza campos sueltos con (input) + signal; no uses ngModel.',
-  },
-];
 
 /**
  * ARQ-02: una feature no importa internals de otra. Solo se permite la superficie pública
@@ -99,7 +94,7 @@ module.exports = defineConfig([
       // CMP-02 (D1).
       '@angular-eslint/prefer-signals': 'error',
       '@angular-eslint/prefer-output-emitter-ref': 'error',
-      // CMP-06 (D6) y ARQ-05 (Q3). En features/, además ARQ-02 (ver crossFeatureImportsRule).
+      // CMP-06 (D6), FRM-05 (D25) y ARQ-05 (Q3). En features/, además ARQ-02 (ver crossFeatureImportsRule).
       '@typescript-eslint/no-restricted-imports': ['error', ENFORCED_RESTRICTED_IMPORTS],
       'no-restricted-syntax': [
         'error',
@@ -119,7 +114,6 @@ module.exports = defineConfig([
       // ── Pendientes de remediación: 'warn' ─────────────────────────────────
       // TODO(Fase 7): 'error' — CMP-01 (D3).
       '@angular-eslint/prefer-on-push-component-change-detection': 'warn',
-      'no-restricted-imports': ['warn', { paths: RESTRICTED_IMPORT_PATHS }],
     },
   },
   ...FEATURES.map(crossFeatureImportsRule),

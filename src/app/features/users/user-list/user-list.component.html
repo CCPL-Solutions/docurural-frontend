@@ -19,8 +19,8 @@
         type="text"
         class="field__input field__input--with-icon"
         placeholder="Buscar por nombre o correo..."
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
         [disabled]="!loading() && totalUsers() === 0"
         aria-label="Buscar usuarios"
       />

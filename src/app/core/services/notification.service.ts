@@ -1,10 +1,12 @@
 import { Injectable, Injector, inject } from '@angular/core';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import type { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import type {
   ToastComponent,
   ToastData,
   ToastType,
 } from '@shared/components/toast/toast.component';
+import { readApiError } from '@shared/http/api-error';
 
 interface ToastRenderer {
   snackBar: MatSnackBar;
@@ -34,6 +36,16 @@ export class NotificationService {
 
   error(title: string, description?: string): void {
     this.show('error', title, description);
+  }
+
+  /**
+   * Toast de error para un error HTTP: el mensaje del backend si lo hay y, si no, `fallback`.
+   * No hace nada con un 401: de ese se encarga el interceptor ("Sesión expirada"), y avisar
+   * aquí duplicaría el toast (API-02, corrige R1).
+   */
+  httpError(err: unknown, title: string, fallback: string): void {
+    if (err instanceof HttpErrorResponse && err.status === HttpStatusCode.Unauthorized) return;
+    void readApiError(err).then((apiError) => this.error(title, apiError?.message ?? fallback));
   }
 
   private show(type: ToastType, title: string, description?: string): void {

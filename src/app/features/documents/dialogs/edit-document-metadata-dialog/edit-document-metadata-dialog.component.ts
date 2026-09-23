@@ -3,13 +3,16 @@ import {
   Component,
   OnInit,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import { applyFieldErrors } from '@shared/forms/apply-field-errors';
+import { toApiError } from '@shared/http/api-error';
+import { injectActiveCategories } from '../active-categories';
+import { syncSensitivityWithCategory } from '../sensitivity-sync';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -19,18 +22,21 @@ import { MatSelectModule } from '@angular/material/select';
 import { AlertComponent } from '@shared/components/alert/alert.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
-import { CategoriesService } from '@core/services/categories.service';
 import { DocumentsService } from '@core/services/documents.service';
 import { NotificationService } from '@core/services/notification.service';
 import { AuthService } from '@core/services/auth.service';
-import { Category } from '@core/models/category.model';
 import { DocumentDetailResponse } from '@core/models/document-detail.model';
-import { RESPONSIBLE_AREAS } from '@core/models/upload-document.model';
+import {
+  MAX_AREA_LENGTH,
+  MAX_DESCRIPTION_LENGTH,
+  MAX_TITLE_LENGTH,
+  RESPONSIBLE_AREAS,
+} from '@core/models/upload-document.model';
 import {
   UpdateDocumentMetadataRequest,
   UpdateDocumentMetadataResponse,
 } from '@core/models/update-document.model';
-import { SensitivityLevel, clampToMin, isAtLeast } from '@core/models/sensitivity-level.model';
+import { SensitivityLevel, isAtLeast } from '@core/models/sensitivity-level.model';
 import { SensitivityLockBannerComponent } from '@shared/sensitivity/sensitivity-lock-banner.component';
 import { SensitivityInheritedBannerComponent } from '@shared/sensitivity/sensitivity-inherited-banner.component';
 import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
@@ -41,6 +47,8 @@ import { DatePipe } from '@angular/common';
 import { isEditor } from '@core/auth/permissions';
 import { DATE_TIME_FORMAT } from '@shared/utils/date-formats';
 import { parseYmd } from '@shared/utils/parse-date';
+import { FieldErrorComponent } from '@shared/forms/field-error.component';
+import { DOCUMENT_FORM_MESSAGES } from '../document-form.messages';
 
 export interface EditDocumentMetadataDialogData {
   document: DocumentDetailResponse;
@@ -54,6 +62,7 @@ export type EditDocumentMetadataDialogResult =
   selector: 'app-edit-document-metadata-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FieldErrorComponent,
     DatePipe,
     ReactiveFormsModule,
     MatIconModule,
@@ -80,25 +89,29 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
     );
 
   private readonly fb = inject(FormBuilder);
-  private readonly categoriesService = inject(CategoriesService);
   private readonly documentsService = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
   private readonly auth = inject(AuthService);
 
   protected readonly loading = signal(false);
   protected readonly submitError = signal<string | null>(null);
-  protected readonly categories = signal<Category[]>([]);
-  protected readonly loadingCategories = signal(false);
-  protected readonly loadCategoriesError = signal(false);
+  private readonly activeCategories = injectActiveCategories();
+  protected readonly categories = this.activeCategories.categories;
+  protected readonly loadingCategories = this.activeCategories.loading;
+  protected readonly loadCategoriesError = this.activeCategories.loadError;
 
   protected readonly areas = RESPONSIBLE_AREAS;
 
-  protected readonly form = this.fb.group({
-    title: ['' as string, [Validators.required, Validators.maxLength(255)]],
+  protected readonly messages = DOCUMENT_FORM_MESSAGES;
+  protected readonly maxTitleLength = MAX_TITLE_LENGTH;
+  protected readonly maxDescriptionLength = MAX_DESCRIPTION_LENGTH;
+
+  protected readonly form = this.fb.nonNullable.group({
+    title: ['', [Validators.required, Validators.maxLength(MAX_TITLE_LENGTH)]],
     categoryId: [null as number | null, [Validators.required]],
-    responsibleArea: ['' as string, [Validators.required, Validators.maxLength(100)]],
+    responsibleArea: ['', [Validators.required, Validators.maxLength(MAX_AREA_LENGTH)]],
     documentDate: [null as Date | null, [Validators.required]],
-    description: ['' as string, [Validators.maxLength(500)]],
+    description: ['', [Validators.maxLength(MAX_DESCRIPTION_LENGTH)]],
     sensitivityLevel: ['INTERNAL' as SensitivityLevel, [Validators.required]],
   });
 
@@ -135,28 +148,11 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   });
 
   constructor() {
-    effect(() => {
-      const locked = this.sensitivityLocked();
-      const catDefault = this.categoryDefault();
-      const min = this.minSensitivity();
-      const ctrl = this.form.controls.sensitivityLevel;
-      if (locked) {
-        ctrl.setValue(catDefault, { emitEvent: false });
-        ctrl.disable({ emitEvent: false });
-      } else {
-        const wasLocked = ctrl.disabled;
-        ctrl.enable({ emitEvent: false });
-        if (wasLocked) {
-          ctrl.setValue(catDefault, { emitEvent: false });
-        } else {
-          const current = (ctrl.value as SensitivityLevel | null) ?? 'INTERNAL';
-          if (!isAtLeast(current, min)) {
-            ctrl.setValue(clampToMin(current, min), { emitEvent: false });
-          }
-        }
-      }
-      ctrl.markAsPristine();
-    });
+    syncSensitivityWithCategory(
+      this.form.controls.sensitivityLevel,
+      this.categoryDefault,
+      this.minSensitivity,
+    );
   }
 
   protected readonly formatFileSize = formatFileSize;
@@ -178,69 +174,7 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   }
 
   protected loadCategories(): void {
-    this.loadingCategories.set(true);
-    this.loadCategoriesError.set(false);
-    this.categoriesService
-      .list('name', 'asc')
-      .pipe(finalize(() => this.loadingCategories.set(false)))
-      .subscribe({
-        next: (res) => {
-          this.categories.set(res.categories.filter((c) => c.status === 'ACTIVE'));
-        },
-        error: () => {
-          this.loadCategoriesError.set(true);
-        },
-      });
-  }
-
-  protected titleError(): string | null {
-    const ctrl = this.form.controls.title;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'El título es obligatorio.';
-    if (ctrl.hasError('maxlength')) return 'El título no puede superar los 255 caracteres.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected categoryError(): string | null {
-    const ctrl = this.form.controls.categoryId;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Seleccione una categoría.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected areaError(): string | null {
-    const ctrl = this.form.controls.responsibleArea;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'El área responsable es obligatoria.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected dateError(): string | null {
-    const ctrl = this.form.controls.documentDate;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'La fecha del documento es obligatoria.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected descriptionError(): string | null {
-    const ctrl = this.form.controls.description;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('maxlength')) return 'La descripción no puede superar los 500 caracteres.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected sensitivityError(): string | null {
-    const ctrl = this.form.controls.sensitivityLevel;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required'))
-      return 'Debe seleccionar el nivel de sensibilidad del documento.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
+    this.activeCategories.load();
   }
 
   protected onSubmit(): void {
@@ -255,28 +189,19 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
     this.dialogRef.disableClose = true;
 
     const raw = this.form.getRawValue();
-    const desc = (raw.description ?? '').trim();
+    const desc = raw.description.trim();
     const payload: UpdateDocumentMetadataRequest = {
-      title: (raw.title ?? '').trim(),
+      title: raw.title.trim(),
       categoryId: raw.categoryId!,
-      responsibleArea: raw.responsibleArea ?? '',
+      responsibleArea: raw.responsibleArea,
       documentDate: formatYmd(raw.documentDate!),
-      sensitivityLevel: raw.sensitivityLevel!,
+      sensitivityLevel: raw.sensitivityLevel,
       ...(desc ? { description: desc } : {}),
     };
 
     this.documentsService
       .update(this.data.document.id, payload)
-      .pipe(
-        finalize(() => {
-          this.loading.set(false);
-          this.form.enable();
-          if (this.sensitivityLocked()) {
-            this.form.controls.sensitivityLevel.disable({ emitEvent: false });
-          }
-          this.dialogRef.disableClose = false;
-        }),
-      )
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (res) => this.handleSuccess(res),
         error: (err: HttpErrorResponse) => this.handleError(err),
@@ -295,28 +220,30 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
     this.dialogRef.close({ kind: 'updated', document: res });
   }
 
+  /** Deja el formulario editable tras un error (la sensibilidad sigue bloqueada si procede). */
+  private unlockForm(): void {
+    this.form.enable();
+    if (this.sensitivityLocked()) {
+      this.form.controls.sensitivityLevel.disable({ emitEvent: false });
+    }
+    this.dialogRef.disableClose = false;
+  }
+
   private handleError(err: HttpErrorResponse): void {
+    // Antes de aplicar errores: enable() vuelve a validar y borraría los del backend (R12).
+    this.unlockForm();
     switch (err.status) {
-      case 400:
-        if (err.error?.fieldErrors) {
-          const fieldErrors = err.error.fieldErrors as Record<string, string>;
-          Object.entries(fieldErrors).forEach(([field, msg]) => {
-            const ctrl = this.form.get(field);
-            if (ctrl) {
-              ctrl.setErrors({ backend: msg });
-              ctrl.markAsTouched();
-            }
-          });
-        } else {
+      case HttpStatusCode.BadRequest:
+        if (!applyFieldErrors(this.form, err)) {
           this.submitError.set(
-            err.error?.message ?? 'Los datos enviados no son válidos. Revise el formulario.',
+            toApiError(err)?.message ?? 'Los datos enviados no son válidos. Revise el formulario.',
           );
         }
         break;
-      case 403:
+      case HttpStatusCode.Forbidden:
         this.submitError.set('No tiene permisos para editar este documento.');
         break;
-      case 404:
+      case HttpStatusCode.NotFound:
         this.submitError.set(
           'El documento ya no existe o fue eliminado. Cierre el formulario y recargue el listado.',
         );

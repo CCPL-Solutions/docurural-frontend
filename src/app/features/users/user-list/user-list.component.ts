@@ -1,6 +1,4 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -8,7 +6,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { UsersService } from '@core/services/users.service';
 import { NotificationService } from '@core/services/notification.service';
 import { User } from '@core/models/user.model';
-import { ApiError } from '@core/models/api-error.model';
 import { SortBy, SortDir } from '@core/models/user-list.model';
 import {
   UserFormDialogComponent,
@@ -52,7 +49,6 @@ const SORT_OPTIONS: SortOptionConfig[] = [
   selector: 'app-user-list',
   imports: [
     DatePipe,
-    FormsModule,
     MatIconModule,
     MatMenuModule,
     MatDialogModule,
@@ -109,15 +105,19 @@ export class UserListComponent {
         this.totalUsers.set(res.totalUsers);
         this.loading.set(false);
       },
-      error: (err: HttpErrorResponse) => {
+      error: (err: unknown) => {
         this.loading.set(false);
-        const apiError = err.error as ApiError | undefined;
-        this.notifications.error(
+        this.notifications.httpError(
+          err,
           'No se pudo cargar el listado',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
+          'Verifique su conexión e intente nuevamente.',
         );
       },
     });
+  }
+
+  protected onSearchInput(event: Event): void {
+    this.searchTerm.set((event.target as HTMLInputElement).value);
   }
 
   protected onSortChange(value: SortOption): void {

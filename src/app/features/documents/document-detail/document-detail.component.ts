@@ -8,24 +8,19 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '@core/services/auth.service';
+import { DocumentDownloadService } from '@core/services/document-download.service';
 import { DocumentsService } from '@core/services/documents.service';
 import { NotificationService } from '@core/services/notification.service';
 import { DocumentDetailResponse, isPreviewableFormat } from '@core/models/document-detail.model';
 import { DOCUMENT_FORMAT_LABELS } from '@core/models/document-format.model';
-import { ApiError } from '@core/models/api-error.model';
 import { formatFileSize } from '@shared/utils/file-size';
-import {
-  parseBlobError,
-  parseFilenameFromContentDisposition,
-  triggerBlobDownload,
-} from '@shared/utils/download-blob';
 import { canEditDocument } from '@core/auth/permissions';
 import { DATE_FORMAT, DATE_TIME_FORMAT } from '@shared/utils/date-formats';
 import { userInitials } from '@shared/utils/user-initials';
@@ -73,6 +68,7 @@ export class DocumentDetailComponent implements OnDestroy {
   private readonly notifications = inject(NotificationService);
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
+  private readonly downloads = inject(DocumentDownloadService);
 
   private docId = NaN;
 
@@ -80,7 +76,6 @@ export class DocumentDetailComponent implements OnDestroy {
 
   protected readonly loadingMetadata = signal(true);
   protected readonly loadingBlob = signal(false);
-  protected readonly downloading = signal(false);
   protected readonly metadata = signal<DocumentDetailResponse | null>(null);
   protected readonly objectUrl = signal<string | null>(null);
   protected readonly errorKind = signal<ErrorKind | null>(null);
@@ -94,6 +89,11 @@ export class DocumentDetailComponent implements OnDestroy {
   protected readonly formatLabel = computed(() => {
     const meta = this.metadata();
     return meta ? DOCUMENT_FORMAT_LABELS[meta.fileFormat] : '';
+  });
+
+  protected readonly downloading = computed(() => {
+    const meta = this.metadata();
+    return meta !== null && this.downloads.isDownloading(meta.id);
   });
 
   protected readonly zoomPercent = computed(() => Math.round(this.zoomLevel() * 100));
@@ -155,36 +155,7 @@ export class DocumentDetailComponent implements OnDestroy {
 
   protected onDownload(): void {
     const meta = this.metadata();
-    if (!meta || this.downloading()) return;
-
-    this.downloading.set(true);
-    this.docService.download(meta.id).subscribe({
-      next: (response) => {
-        const filename =
-          parseFilenameFromContentDisposition(response.headers.get('Content-Disposition')) ??
-          meta.originalFileName;
-        triggerBlobDownload(response.body!, filename);
-        this.notifications.success('Descarga iniciada', filename);
-        this.downloading.set(false);
-      },
-      error: async (err: HttpErrorResponse) => {
-        this.downloading.set(false);
-        if (err.status === 401) return;
-        if (err.status === 404) {
-          const apiError = await parseBlobError(err);
-          this.notifications.error(
-            'No se pudo descargar el documento',
-            apiError?.message ?? 'El archivo no está disponible. Contacte al administrador.',
-          );
-          return;
-        }
-        const apiError = await parseBlobError(err);
-        this.notifications.error(
-          'No se pudo descargar el documento',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
-        );
-      },
-    });
+    if (meta) this.downloads.download(meta);
   }
 
   protected zoomIn(): void {
@@ -216,16 +187,15 @@ export class DocumentDetailComponent implements OnDestroy {
       },
       error: (err: HttpErrorResponse) => {
         this.loadingMetadata.set(false);
-        if (err.status === 401) return;
-        if (err.status === 404) {
+        if (err.status === HttpStatusCode.NotFound) {
           this.errorKind.set('not-found');
           return;
         }
         this.errorKind.set('network');
-        const apiError = err.error as ApiError | undefined;
-        this.notifications.error(
+        this.notifications.httpError(
+          err,
           'No se pudo cargar el documento',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
+          'Verifique su conexión e intente nuevamente.',
         );
       },
     });
@@ -243,16 +213,15 @@ export class DocumentDetailComponent implements OnDestroy {
       },
       error: (err: HttpErrorResponse) => {
         this.loadingBlob.set(false);
-        if (err.status === 401) return;
-        if (err.status === 404) {
+        if (err.status === HttpStatusCode.NotFound) {
           this.errorKind.set('file-missing');
           return;
         }
         this.errorKind.set('network');
-        const apiError = err.error as ApiError | undefined;
-        this.notifications.error(
+        this.notifications.httpError(
+          err,
           'No se pudo cargar el archivo',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
+          'Verifique su conexión e intente nuevamente.',
         );
       },
     });

@@ -64,6 +64,10 @@ src/styles/   tokens de diseño (_tokens.scss) y parciales globales (ver src/sty
   fechas, formato de archivo, descarga). Los permisos por rol, solo con `core/auth/permissions.ts`.
 - Fechas con el pipe `date` (o `formatDate`) y los formatos de `shared/utils/date-formats.ts`;
   tamaños de diálogo con `shared/ui/dialog-sizes.ts`.
+- Errores HTTP: `notifications.httpError(err, título, alternativo)` (ignora el 401, que avisa el
+  interceptor) y `toApiError`/`readApiError` de `shared/http/`; nunca `err.error`. En formularios,
+  `applyFieldErrors` y `<app-field-error>` con un `*.messages.ts` por feature. Descargas, siempre
+  con `DocumentDownloadService`.
 - El estado es de signals. La sesión es el único estado global (`AuthService`).
 
 ## Convenciones clave

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RecentDocumentItem } from '@core/models/dashboard-stats.model';
 import { ButtonComponent } from '@shared/components/button/button.component';
@@ -18,6 +19,7 @@ function truncateTitle(title: string, max = 50): string {
 @Component({
   selector: 'app-recent-docs-table',
   imports: [
+    MatProgressSpinnerModule,
     ButtonComponent,
     DatePipe,
     RouterModule,
@@ -36,6 +38,7 @@ export class RecentDocsTableComponent {
   readonly documents = input.required<RecentDocumentItem[]>();
   readonly repoIsEmpty = input(false);
   readonly canUpload = input(false);
+  readonly downloadingIds = input<ReadonlySet<number>>(new Set());
 
   readonly view = output<number>();
   readonly download = output<RecentDocumentItem>();

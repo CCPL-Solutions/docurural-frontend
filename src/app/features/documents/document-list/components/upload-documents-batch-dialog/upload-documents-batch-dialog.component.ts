@@ -3,13 +3,15 @@ import {
   Component,
   OnInit,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { toApiError } from '@shared/http/api-error';
+import { injectActiveCategories } from '@features/documents/dialogs/active-categories';
+import { syncSensitivityWithCategory } from '@features/documents/dialogs/sensitivity-sync';
+import { HttpErrorResponse, HttpEventType, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,11 +21,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { AlertComponent } from '@shared/components/alert/alert.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
-import { CategoriesService } from '@core/services/categories.service';
 import { DocumentsService } from '@core/services/documents.service';
 import { NotificationService } from '@core/services/notification.service';
 import { AuthService } from '@core/services/auth.service';
-import { Category } from '@core/models/category.model';
 import {
   ALLOWED_EXTENSIONS,
   BatchUploadDocumentResponse,
@@ -33,7 +33,7 @@ import {
   MAX_TITLE_LENGTH,
   RESPONSIBLE_AREAS,
 } from '@core/models/upload-document.model';
-import { SensitivityLevel, clampToMin, isAtLeast } from '@core/models/sensitivity-level.model';
+import { SensitivityLevel } from '@core/models/sensitivity-level.model';
 import { SensitivityLockBannerComponent } from '@shared/sensitivity/sensitivity-lock-banner.component';
 import { SensitivityInheritedBannerComponent } from '@shared/sensitivity/sensitivity-inherited-banner.component';
 import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
@@ -43,6 +43,8 @@ import { BatchFileItem, BatchFileStatus } from './batch-file-item.model';
 import { v4 as uuidv4 } from 'uuid';
 import { isEditor } from '@core/auth/permissions';
 import { inferFormat } from '@shared/utils/document-format';
+import { FieldErrorComponent } from '@shared/forms/field-error.component';
+import { DOCUMENT_FORM_MESSAGES } from '@features/documents/dialogs/document-form.messages';
 
 export type UploadDocumentsBatchDialogData = Record<string, never>;
 
@@ -56,6 +58,7 @@ type Phase = 'compose' | 'uploading' | 'done';
   selector: 'app-upload-documents-batch-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FieldErrorComponent,
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -80,7 +83,6 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     );
 
   private readonly fb = inject(FormBuilder);
-  private readonly categoriesService = inject(CategoriesService);
   private readonly documentsService = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
   private readonly auth = inject(AuthService);
@@ -91,20 +93,20 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   protected readonly dragOver = signal(false);
   protected readonly fileError = signal<string | null>(null);
   protected readonly submitError = signal<string | null>(null);
-  protected readonly categories = signal<Category[]>([]);
-  protected readonly loadingCategories = signal(false);
-  protected readonly loadCategoriesError = signal(false);
+  private readonly activeCategories = injectActiveCategories();
+  protected readonly categories = this.activeCategories.categories;
+  protected readonly loadingCategories = this.activeCategories.loading;
+  protected readonly loadCategoriesError = this.activeCategories.loadError;
 
   protected readonly areas = RESPONSIBLE_AREAS;
   protected readonly maxBatchFiles = MAX_BATCH_FILES;
   protected readonly maxTitleLength = MAX_TITLE_LENGTH;
 
-  protected readonly form = this.fb.group({
+  protected readonly messages = DOCUMENT_FORM_MESSAGES;
+
+  protected readonly form = this.fb.nonNullable.group({
     categoryId: [null as number | null, [Validators.required]],
-    responsibleArea: [
-      '' as string | null,
-      [Validators.required, Validators.maxLength(MAX_AREA_LENGTH)],
-    ],
+    responsibleArea: ['', [Validators.required, Validators.maxLength(MAX_AREA_LENGTH)]],
     sensitivityLevel: ['INTERNAL' as SensitivityLevel, [Validators.required]],
   });
 
@@ -125,27 +127,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   protected readonly editorRole = computed(() => isEditor(this.auth.currentUser()?.role));
 
   constructor() {
-    effect(() => {
-      const locked = this.sensitivityLocked();
-      const catDefault = this.categoryDefault();
-      const ctrl = this.form.controls.sensitivityLevel;
-      if (locked) {
-        ctrl.setValue(catDefault, { emitEvent: false });
-        ctrl.disable({ emitEvent: false });
-      } else {
-        const wasLocked = ctrl.disabled;
-        ctrl.enable({ emitEvent: false });
-        if (wasLocked) {
-          ctrl.setValue(catDefault, { emitEvent: false });
-        } else {
-          const current = (ctrl.value as SensitivityLevel | null) ?? 'INTERNAL';
-          if (!isAtLeast(current, catDefault)) {
-            ctrl.setValue(clampToMin(current, catDefault), { emitEvent: false });
-          }
-        }
-      }
-      ctrl.markAsPristine();
-    });
+    syncSensitivityWithCategory(this.form.controls.sensitivityLevel, this.categoryDefault);
   }
 
   protected readonly summary = computed(() => {
@@ -166,19 +148,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   }
 
   protected loadCategories(): void {
-    this.loadingCategories.set(true);
-    this.loadCategoriesError.set(false);
-    this.categoriesService
-      .list('name', 'asc')
-      .pipe(finalize(() => this.loadingCategories.set(false)))
-      .subscribe({
-        next: (res) => {
-          this.categories.set(res.categories.filter((c) => c.status === 'ACTIVE'));
-        },
-        error: () => {
-          this.loadCategoriesError.set(true);
-        },
-      });
+    this.activeCategories.load();
   }
 
   protected onFilesSelected(filesList: FileList | File[]): void {
@@ -283,21 +253,13 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     const fd = new FormData();
     this.files().forEach((item) => fd.append('files', item.file, item.file.name));
     fd.append('categoryId', String(raw.categoryId));
-    fd.append('responsibleArea', raw.responsibleArea ?? '');
-    fd.append('sensitivityLevel', raw.sensitivityLevel!);
+    fd.append('responsibleArea', raw.responsibleArea);
+    fd.append('sensitivityLevel', raw.sensitivityLevel);
     this.files().forEach((item) => fd.append('titles', item.title.trim() || item.file.name));
 
     this.documentsService
       .createBatch(fd)
-      .pipe(
-        finalize(() => {
-          this.form.enable();
-          if (this.sensitivityLocked()) {
-            this.form.controls.sensitivityLevel.disable({ emitEvent: false });
-          }
-          this.dialogRef.disableClose = false;
-        }),
-      )
+      .pipe(finalize(() => (this.dialogRef.disableClose = false)))
       .subscribe({
         next: (event) => {
           if (event.type === HttpEventType.UploadProgress) {
@@ -330,22 +292,6 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     return formatFileSize(bytes);
   }
 
-  protected categoryError(): string | null {
-    const ctrl = this.form.controls.categoryId;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Seleccione una categoría.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected areaError(): string | null {
-    const ctrl = this.form.controls.responsibleArea;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'El área responsable es obligatoria.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
   private applyResults(body: BatchUploadDocumentResponse): void {
     this.files.update((items) =>
       items.map((item, i) => {
@@ -376,26 +322,37 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     this.phase.set('done');
   }
 
+  /** Deja el formulario editable tras un error (la sensibilidad sigue bloqueada si procede). */
+  private unlockForm(): void {
+    this.form.enable();
+    if (this.sensitivityLocked()) {
+      this.form.controls.sensitivityLevel.disable({ emitEvent: false });
+    }
+    this.dialogRef.disableClose = false;
+  }
+
   private handleError(err: HttpErrorResponse): void {
+    // Antes de aplicar errores: enable() vuelve a validar y borraría los del backend (R12).
+    this.unlockForm();
     this.phase.set('compose');
     this.files.update((items) =>
       items.map((f) => ({ ...f, status: 'pending' as BatchFileStatus })),
     );
 
     switch (err.status) {
-      case 400:
+      case HttpStatusCode.BadRequest:
         this.submitError.set(
-          err.error?.message ?? 'Los datos del lote no son válidos. Revise el formulario.',
+          toApiError(err)?.message ?? 'Los datos del lote no son válidos. Revise el formulario.',
         );
         break;
-      case 403:
+      case HttpStatusCode.Forbidden:
         this.submitError.set('No tiene permisos para cargar documentos.');
         break;
-      case 404:
+      case HttpStatusCode.NotFound:
         this.submitError.set('La categoría seleccionada no existe o está inactiva.');
         this.loadCategories();
         break;
-      case 413:
+      case HttpStatusCode.PayloadTooLarge:
         this.submitError.set('El tamaño total del lote excede el límite del servidor.');
         break;
       default:
