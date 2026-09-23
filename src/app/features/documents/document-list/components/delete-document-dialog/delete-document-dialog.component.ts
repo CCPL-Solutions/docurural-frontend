@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,6 +43,7 @@ export class DeleteDocumentDialogComponent {
       MatDialogRef,
     );
   private readonly documentsService = inject(DocumentsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -64,20 +73,23 @@ export class DeleteDocumentDialogComponent {
     this.errorMessage.set(null);
     this.dialogRef.disableClose = true;
 
-    this.documentsService.deleteLogical(this.data.document.id).subscribe({
-      next: (res: DeleteDocumentResponse) => {
-        this.dialogRef.close({
-          success: true,
-          documentId: res.id,
-          message: res.message,
-        });
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading.set(false);
-        this.dialogRef.disableClose = false;
-        this.handleError(err);
-      },
-    });
+    this.documentsService
+      .deleteLogical(this.data.document.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: DeleteDocumentResponse) => {
+          this.dialogRef.close({
+            success: true,
+            documentId: res.id,
+            message: res.message,
+          });
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.dialogRef.disableClose = false;
+          this.handleError(err);
+        },
+      });
   }
 
   protected cancel(): void {

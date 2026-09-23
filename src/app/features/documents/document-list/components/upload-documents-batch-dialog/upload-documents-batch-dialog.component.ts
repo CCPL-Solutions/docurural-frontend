@@ -3,10 +3,11 @@ import {
   Component,
   OnInit,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toApiError } from '@shared/http/api-error';
 import { injectActiveCategories } from '@features/documents/dialogs/active-categories';
@@ -83,6 +84,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     );
 
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly documentsService = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
   private readonly auth = inject(AuthService);
@@ -259,7 +261,10 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
 
     this.documentsService
       .createBatch(fd)
-      .pipe(finalize(() => (this.dialogRef.disableClose = false)))
+      .pipe(
+        finalize(() => (this.dialogRef.disableClose = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (event) => {
           if (event.type === HttpEventType.UploadProgress) {

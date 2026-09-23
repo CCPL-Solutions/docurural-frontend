@@ -3,10 +3,11 @@ import {
   Component,
   OnInit,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { applyFieldErrors } from '@shared/forms/apply-field-errors';
 import { toApiError } from '@shared/http/api-error';
@@ -79,6 +80,7 @@ export class UploadDocumentDialogComponent implements OnInit {
     inject<MatDialogRef<UploadDocumentDialogComponent, UploadDocumentDialogResult>>(MatDialogRef);
 
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly documentsService = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
   private readonly auth = inject(AuthService);
@@ -231,7 +233,10 @@ export class UploadDocumentDialogComponent implements OnInit {
 
     this.documentsService
       .create(fd)
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (res) => this.handleSuccess(res),
         error: (err: HttpErrorResponse) => this.handleError(err),

@@ -3,10 +3,11 @@ import {
   Component,
   OnInit,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
@@ -72,6 +73,7 @@ export class CategoryFormDialogComponent implements OnInit {
     inject<MatDialogRef<CategoryFormDialogComponent, CategoryFormDialogResult>>(MatDialogRef);
 
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly categoriesService = inject(CategoriesService);
   private readonly notifications = inject(NotificationService);
 
@@ -204,10 +206,15 @@ export class CategoryFormDialogComponent implements OnInit {
         ? this.categoriesService.update(this.data.category.id, payload)
         : this.categoriesService.create(payload);
 
-    request$.pipe(finalize(() => this.loading.set(false))).subscribe({
-      next: (res) => this.handleSuccess(res),
-      error: (err: HttpErrorResponse) => this.handleError(err),
-    });
+    request$
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (res) => this.handleSuccess(res),
+        error: (err: HttpErrorResponse) => this.handleError(err),
+      });
   }
 
   private handleSuccess(res: CreateCategoryResponse | UpdateCategoryResponse): void {
