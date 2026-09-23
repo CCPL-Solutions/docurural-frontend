@@ -131,7 +131,20 @@ Las fases van ordenadas por dependencia y riesgo. Primero lo que no rompe nada (
 
 ---
 
-## Fase 2 — Convenciones y limpieza · Esfuerzo **M** · Riesgo **bajo**
+## Fase 2 — Convenciones y limpieza · Esfuerzo **M** · Riesgo **bajo** · ✅ Completada (2026-09-23)
+
+> **Resultado:** todos los criterios de grep dan 0. `npm run lint` → 0 errores y 10 avisos (de 59): 5 `prefer-on-push-component-change-detection` (Fase 7), 4 imports cruzados entre features (Fase 3) y 1 `FormsModule` (Fase 5). Tests: 103 en verde y 4 fallos esperados, sin cambios. Cobertura global 25,34 % de líneas (el umbral de funciones sube de 26 % a 27 %). E2E: 21 en verde y las **12 capturas coinciden con las de referencia**, así que no hay cambios visuales. El build de producción sigue con los mismos 5 avisos de presupuesto.
+>
+> **Desviaciones respecto al plan:**
+>
+> - **Alias `@env/*`** (`src/environments`), además de `@core/*`, `@shared/*` y `@features/*`: los servicios de `core/` importaban `../../../environments/environment` (9 imports de 3 niveles). Se comprobó que `fileReplacements` sigue funcionando: el bundle de producción lleva `apiBaseUrl: "/api"`. ARQ-05 lo recoge.
+> - La reescritura de imports (2.12) no se limitó a los profundos: se aplicó a **todo import entre áreas raíz** (`core`, `shared`, `features/<feature>`, `environments`), como pide ARQ-05. Fueron 214 imports en 55 archivos (el plan estimaba unos 24).
+> - **ESLint:** la severidad es por regla, no por ruta, así que `no-restricted-imports` no podía tener `NgClass` en `error` y `FormsModule` en `warn`. Lo que ya se cumple (`NgClass` y el patrón `(\.\./){3,}` de ARQ-05) pasa a `@typescript-eslint/no-restricted-imports` en `error`. La regla base se queda en `warn` con lo pendiente. **Al cerrar las fases 3 y 5**, sus restricciones se mueven a `ENFORCED_RESTRICTED_IMPORTS` (`eslint.config.js`).
+> - Además de las cuatro reglas previstas, pasan a `error`: `prefer-output-emitter-ref`, `template/prefer-class-binding`, `no-restricted-syntax` para `styles` (CMP-07) y un selector nuevo contra `standalone` (CMP-09).
+> - 2.3 se hizo a mano en lugar de con los schematics `signal-input-migration`/`output-migration`: eran 4 componentes pequeños y así se hicieron en el mismo paso los renombres de 2.4.
+> - 2.1: se eliminó `src/styles/_utils.scss` entero porque ninguno de sus mixins tenía uso.
+> - 2.7: los estilos se movieron tal cual. Al pasar de TS a SCSS, `check:styles` los cuenta ahora, así que los contadores cambian: hex en SCSS 48 → 49, `font-size` en px 91 → 90, espaciados 134 → 132 y radios 23 → 26. Se tokenizan en la tarea 4.8.
+> - 2.15: 6 de los 14 `<label>` no tenían `id` (archivo y nivel de sensibilidad). Pasan a `<span>` sin más, porque la zona de carga y el `radiogroup` de sensibilidad ya tienen `aria-label` propio.
 
 **Objetivo.** Converger en todo lo mecánico que no cambia el comportamiento.
 
