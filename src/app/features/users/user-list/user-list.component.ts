@@ -10,13 +10,16 @@ import { NotificationService } from '@core/services/notification.service';
 import { User } from '@core/models/user.model';
 import { ApiError } from '@core/models/api-error.model';
 import { SortBy, SortDir } from '@core/models/user-list.model';
-import { UserFormDialogComponent } from '../user-form-dialog/user-form-dialog.component';
-import { UserFormDialogData, UserFormDialogResult } from '@core/models/user-form.model';
-import { ToggleStatusDialogComponent } from '../toggle-status-dialog/toggle-status-dialog.component';
 import {
+  UserFormDialogComponent,
+  UserFormDialogData,
+  UserFormDialogResult,
+} from '../user-form-dialog/user-form-dialog.component';
+import {
+  ToggleStatusDialogComponent,
   ToggleStatusDialogData,
   ToggleStatusDialogResult,
-} from '@core/models/toggle-status-dialog.model';
+} from '../toggle-status-dialog/toggle-status-dialog.component';
 import { RoleBadgeComponent } from './components/role-badge.component';
 import { StatusBadgeComponent } from './components/status-badge.component';
 import { UserIdentityComponent } from './components/user-identity.component';

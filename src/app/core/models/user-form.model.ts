@@ -26,15 +26,3 @@ export interface UpdateUserResponse extends AuthenticatedUser {
   status: UserStatus;
   message: string;
 }
-
-export type UserFormMode = 'create' | 'edit';
-
-export interface UserFormDialogData {
-  mode: UserFormMode;
-  user?: User;
-}
-
-export type UserFormDialogResult =
-  | { kind: 'created'; user: User }
-  | { kind: 'updated'; user: AuthenticatedUser & { status: UserStatus } }
-  | { kind: 'cancelled' };

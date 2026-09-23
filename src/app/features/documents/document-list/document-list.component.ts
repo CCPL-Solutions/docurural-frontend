@@ -30,7 +30,7 @@ import {
   FilterChipDescriptor,
   countActiveFilters,
   hasAnyFilter,
-} from '@core/models/document-filters.model';
+} from './document-filters.model';
 import { FilterOptionsResponse } from '@core/models/filter-options.model';
 import { canUploadDocument } from './utils/document-permissions';
 import { formatFileSize } from './utils/file-size';
