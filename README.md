@@ -20,6 +20,7 @@ npm run test:ci          # Pruebas en modo CI (sin watch, con cobertura)
 npm run format:check     # Verificar formato con Prettier
 npm run lint             # Analizar el código con ESLint (angular-eslint)
 npm run check:styles     # Verificar el uso de tokens de diseño y breakpoints
+npm run e2e              # E2E con Playwright (requiere `npx playwright install chromium`)
 ```
 
 Las convenciones del proyecto están en `CLAUDE.md` y en `docs/`.

@@ -30,10 +30,17 @@ npm run test:ci          # Tests sin watch y con cobertura (lo que corre la CI)
 npm run lint             # ESLint
 npm run check:styles     # Tokens de diseño y breakpoints (scripts/check-styles.mjs)
 npm run format:check     # Prettier
+npm run e2e              # E2E con Playwright (API simulada; levanta ng serve)
 ```
 
 Antes de dar un cambio por terminado: `npm run lint`, `npm run test:ci`, `npm run build` y
 `npm run format:check` en verde.
+
+**Tests:** los unitarios van junto al archivo (`*.spec.ts`, Vitest, patrón zoneless _act →
+`await fixture.whenStable()` → assert_). Un bug conocido se documenta con `it.fails` /
+`test.fail()` y un comentario con su riesgo (`Rxx`) y la fase que lo corrige. `npm run test:ci`
+aplica umbrales de cobertura (`vitest-base.config.ts`) que solo pueden subir. Si un cambio visual
+es intencionado, se actualizan las capturas con `npm run e2e -- --update-snapshots`.
 
 ## Arquitectura
 
