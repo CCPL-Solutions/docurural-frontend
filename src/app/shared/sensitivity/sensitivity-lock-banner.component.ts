@@ -8,7 +8,6 @@ import {
 
 @Component({
   selector: 'app-sensitivity-lock-banner',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   template: `

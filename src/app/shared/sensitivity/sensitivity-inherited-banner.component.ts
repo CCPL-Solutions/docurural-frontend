@@ -4,7 +4,6 @@ import { SensitivityLevel, SENSITIVITY_LABELS } from '../../core/models/sensitiv
 
 @Component({
   selector: 'app-sensitivity-inherited-banner',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   template: `

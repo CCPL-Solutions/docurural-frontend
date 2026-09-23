@@ -13,7 +13,6 @@ import {
 
 @Component({
   selector: 'app-sensitivity-radio',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   providers: [

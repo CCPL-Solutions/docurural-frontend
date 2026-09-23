@@ -7,13 +7,12 @@ import { UserStatus } from '../../../core/models/user-status.model';
 import {
   ToggleStatusDialogData,
   ToggleStatusDialogResult,
-} from '../../../core/models/toggle-status-dialog.models';
+} from '../../../core/models/toggle-status-dialog.model';
 import { AlertComponent } from '../../../shared/components/alert/alert.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 
 @Component({
   selector: 'app-toggle-status-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, AlertComponent, ButtonComponent],
   templateUrl: './toggle-status-dialog.component.html',
@@ -71,10 +70,10 @@ export class ToggleStatusDialogComponent {
   private handleError(err: HttpErrorResponse): void {
     const apiError = err.error as ApiError | undefined;
     if (err.status === 403) {
-      this.errorMessage.set(apiError?.message ?? 'No puedes desactivar tu propia cuenta');
+      this.errorMessage.set(apiError?.message ?? 'No puede desactivar su propia cuenta');
       this.errorBlocksAction.set(true);
     } else {
-      this.errorMessage.set('Ocurrió un error inesperado. Por favor, inténtalo de nuevo');
+      this.errorMessage.set('Ocurrió un error inesperado. Por favor, inténtelo de nuevo');
       this.errorBlocksAction.set(false);
     }
   }

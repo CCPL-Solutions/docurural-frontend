@@ -8,7 +8,6 @@ import { canEditDocument, canDeleteDocument } from '../utils/document-permission
 
 @Component({
   selector: 'app-document-row-actions',
-  standalone: true,
   imports: [MatIconModule, MatProgressSpinnerModule, IconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

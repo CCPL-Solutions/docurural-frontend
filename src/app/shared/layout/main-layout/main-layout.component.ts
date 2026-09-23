@@ -6,7 +6,6 @@ import { RoleLabelPipe } from '../../pipes/role-label.pipe';
 
 @Component({
   selector: 'app-main-layout',
-  standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, RoleLabelPipe],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',

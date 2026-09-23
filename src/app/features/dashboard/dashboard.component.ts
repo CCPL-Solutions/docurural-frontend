@@ -41,7 +41,6 @@ import { QuickActionsComponent } from './components/quick-actions/quick-actions.
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatIconModule,

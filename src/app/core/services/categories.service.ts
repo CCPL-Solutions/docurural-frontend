@@ -13,7 +13,7 @@ import {
   UpdateCategoryResponse,
   UpdateCategoryStatusRequest,
   UpdateCategoryStatusResponse,
-} from '../models/category-list.models';
+} from '../models/category-list.model';
 
 @Injectable({ providedIn: 'root' })
 export class CategoriesService {

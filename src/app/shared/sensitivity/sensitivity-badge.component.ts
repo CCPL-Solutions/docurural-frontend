@@ -9,7 +9,6 @@ import {
 
 @Component({
   selector: 'app-sensitivity-badge',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   template: `

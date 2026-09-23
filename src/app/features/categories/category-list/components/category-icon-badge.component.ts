@@ -4,7 +4,6 @@ import { categoryColor } from '../utils/category-color';
 
 @Component({
   selector: 'app-category-icon-badge',
-  standalone: true,
   imports: [MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

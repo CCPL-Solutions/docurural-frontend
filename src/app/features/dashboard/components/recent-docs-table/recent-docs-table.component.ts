@@ -22,7 +22,6 @@ function formatCreatedAt(iso: string): string {
 
 @Component({
   selector: 'app-recent-docs-table',
-  standalone: true,
   imports: [
     RouterModule,
     MatIconModule,

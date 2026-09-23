@@ -10,7 +10,6 @@ const ROLE_VARIANT: Record<Role, BadgeVariant> = {
 
 @Component({
   selector: 'app-role-badge',
-  standalone: true,
   imports: [BadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <app-badge [variant]="variant()" [dot]="true">{{ label() }}</app-badge> `,

@@ -26,11 +26,11 @@ import { NotificationService } from '../../../../../core/services/notification.s
 import { AuthService } from '../../../../../core/services/auth.service';
 import { Category } from '../../../../../core/models/category.model';
 import { DocumentDetailResponse } from '../../../../../core/models/document-detail.model';
-import { RESPONSIBLE_AREAS } from '../../../../../core/models/upload-document.models';
+import { RESPONSIBLE_AREAS } from '../../../../../core/models/upload-document.model';
 import {
   UpdateDocumentMetadataRequest,
   UpdateDocumentMetadataResponse,
-} from '../../../../../core/models/update-document.models';
+} from '../../../../../core/models/update-document.model';
 import {
   SensitivityLevel,
   clampToMin,
@@ -65,7 +65,6 @@ export type EditDocumentMetadataDialogResult =
 
 @Component({
   selector: 'app-edit-document-metadata-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
@@ -102,8 +101,8 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   protected readonly loading = signal(false);
   protected readonly submitError = signal<string | null>(null);
   protected readonly categories = signal<Category[]>([]);
-  protected readonly categoriesLoading = signal(false);
-  protected readonly categoriesLoadError = signal(false);
+  protected readonly loadingCategories = signal(false);
+  protected readonly loadCategoriesError = signal(false);
 
   protected readonly areas = RESPONSIBLE_AREAS;
 
@@ -198,17 +197,17 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   }
 
   protected loadCategories(): void {
-    this.categoriesLoading.set(true);
-    this.categoriesLoadError.set(false);
+    this.loadingCategories.set(true);
+    this.loadCategoriesError.set(false);
     this.categoriesService
       .list('name', 'asc')
-      .pipe(finalize(() => this.categoriesLoading.set(false)))
+      .pipe(finalize(() => this.loadingCategories.set(false)))
       .subscribe({
         next: (res) => {
           this.categories.set(res.categories.filter((c) => c.status === 'ACTIVE'));
         },
         error: () => {
-          this.categoriesLoadError.set(true);
+          this.loadCategoriesError.set(true);
         },
       });
   }

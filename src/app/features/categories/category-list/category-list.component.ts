@@ -17,7 +17,7 @@ import { CategoriesService } from '../../../core/services/categories.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Category } from '../../../core/models/category.model';
 import { ApiError } from '../../../core/models/api-error.model';
-import { CategorySortBy, CategorySortDir } from '../../../core/models/category-list.models';
+import { CategorySortBy, CategorySortDir } from '../../../core/models/category-list.model';
 import { CategoryStatusBadgeComponent } from './components/category-status-badge.component';
 import { CategoryIconBadgeComponent } from './components/category-icon-badge.component';
 import { CategoryRowActionsComponent } from './components/category-row-actions.component';
@@ -45,7 +45,6 @@ const SORT_OPTIONS: SortOptionConfig[] = [
 
 @Component({
   selector: 'app-category-list',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatIconModule,
@@ -175,10 +174,6 @@ export class CategoryListComponent {
 
   protected isMuted(category: Category): boolean {
     return category.status === 'INACTIVE';
-  }
-
-  protected trackById(_index: number, category: Category): number {
-    return category.id;
   }
 
   private currentSortConfig(): SortOptionConfig {

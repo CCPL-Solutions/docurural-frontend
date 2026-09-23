@@ -13,7 +13,6 @@ import {
 
 @Component({
   selector: 'app-sensitivity-mobile-field',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatFormFieldModule, MatSelectModule, MatIconModule],
   providers: [

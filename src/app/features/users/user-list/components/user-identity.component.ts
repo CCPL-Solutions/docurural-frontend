@@ -4,7 +4,6 @@ import { avatarColor, avatarInitials } from '../utils/avatar-color';
 
 @Component({
   selector: 'app-user-identity',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="identity">

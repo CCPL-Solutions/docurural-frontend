@@ -9,7 +9,6 @@ export interface SortOptionItem {
 
 @Component({
   selector: 'app-sort-trigger',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, MatMenuModule],
   // Los estilos de .sort-trigger son globales (_list-view.scss) — no styleUrl necesario.

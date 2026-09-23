@@ -6,16 +6,16 @@ import {
   DeleteDocumentResponse,
   DocumentListParams,
   DocumentListResponse,
-} from '../models/document-list.models';
+} from '../models/document-list.model';
 import {
   BatchUploadDocumentResponse,
   UploadDocumentResponse,
-} from '../models/upload-document.models';
+} from '../models/upload-document.model';
 import { DocumentDetailResponse } from '../models/document-detail.model';
 import {
   UpdateDocumentMetadataRequest,
   UpdateDocumentMetadataResponse,
-} from '../models/update-document.models';
+} from '../models/update-document.model';
 import { FilterOptionsResponse } from '../models/filter-options.model';
 
 @Injectable({ providedIn: 'root' })

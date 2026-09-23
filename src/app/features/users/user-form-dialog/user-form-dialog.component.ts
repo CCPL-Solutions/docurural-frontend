@@ -23,13 +23,12 @@ import {
   UpdateUserRequest,
   UserFormDialogData,
   UserFormDialogResult,
-} from '../../../core/models/user-form.models';
+} from '../../../core/models/user-form.model';
 import { passwordMatchValidator } from './validators/password-match.validator';
 import { passwordComplexityValidator } from './validators/password-complexity.validator';
 
 @Component({
   selector: 'app-user-form-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, MatIconModule, MatTooltipModule, AlertComponent, ButtonComponent],
   templateUrl: './user-form-dialog.component.html',
@@ -252,10 +251,10 @@ export class UserFormDialogComponent implements OnInit {
         this.form.controls.email.markAsTouched();
         break;
       case 403:
-        this.submitError.set('No tienes permisos para realizar esta acción');
+        this.submitError.set('No tiene permisos para realizar esta acción');
         break;
       default:
-        this.submitError.set('Ocurrió un error inesperado. Por favor, inténtalo de nuevo');
+        this.submitError.set('Ocurrió un error inesperado. Por favor, inténtelo de nuevo');
     }
   }
 }

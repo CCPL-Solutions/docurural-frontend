@@ -7,7 +7,7 @@ import { ButtonComponent } from '../../../../../shared/components/button/button.
 import { CategoriesService } from '../../../../../core/services/categories.service';
 import { Category } from '../../../../../core/models/category.model';
 import { CategoryStatus } from '../../../../../core/models/category-status.model';
-import { UpdateCategoryStatusResponse } from '../../../../../core/models/category-list.models';
+import { UpdateCategoryStatusResponse } from '../../../../../core/models/category-list.model';
 
 export type CategoryToggleAction = 'deactivate' | 'activate';
 
@@ -25,7 +25,6 @@ export interface CategoryToggleStatusDialogResult {
 
 @Component({
   selector: 'app-category-toggle-status-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, MatIconModule, AlertComponent, ButtonComponent],
   templateUrl: './category-toggle-status-dialog.component.html',

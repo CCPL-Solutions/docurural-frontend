@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatDatepickerModule, MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { DocumentFilters } from '../../../../../core/models/document-filters.model';
+import { DocumentFilters, EMPTY_FILTERS } from '../../../../../core/models/document-filters.model';
 import { FilterOptionsResponse } from '../../../../../core/models/filter-options.model';
 import { formatYmd } from '../../utils/format-ymd';
 
@@ -22,7 +22,6 @@ const FILTER_DATE_FORMATS = {
 
 @Component({
   selector: 'app-document-filters-panel',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, MatFormFieldModule, MatSelectModule, MatDatepickerModule],
   providers: [{ provide: MAT_DATE_FORMATS, useValue: FILTER_DATE_FORMATS }],
@@ -30,54 +29,51 @@ const FILTER_DATE_FORMATS = {
   styleUrl: './document-filters-panel.component.scss',
 })
 export class DocumentFiltersPanelComponent {
-  @Input() draft: DocumentFilters = {
-    categoryId: null,
-    responsibleArea: null,
-    dateFrom: null,
-    dateTo: null,
-    uploadedBy: null,
-  };
-  @Input() options: FilterOptionsResponse | null = null;
-  @Input() canSeeUploadedBy = false;
-  @Input() dateError: string | null = null;
-  @Input() loadingOptions = false;
+  readonly draft = input<DocumentFilters>(EMPTY_FILTERS);
+  readonly options = input<FilterOptionsResponse | null>(null);
+  readonly canSeeUploadedBy = input(false);
+  readonly dateError = input<string | null>(null);
+  readonly loadingOptions = input(false);
 
-  @Output() readonly draftChange = new EventEmitter<DocumentFilters>();
-  @Output() readonly apply = new EventEmitter<DocumentFilters>();
-  @Output() readonly reset = new EventEmitter<void>();
-  @Output() readonly close = new EventEmitter<void>();
+  readonly draftChange = output<DocumentFilters>();
+  readonly apply = output<DocumentFilters>();
+  readonly resetFilters = output<void>();
+  readonly closePanel = output<void>();
 
   onCategoryChange(value: number | null): void {
-    this.draftChange.emit({ ...this.draft, categoryId: value });
+    this.draftChange.emit({ ...this.draft(), categoryId: value });
   }
 
   onResponsibleAreaInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.draftChange.emit({ ...this.draft, responsibleArea: input.value.trim() || null });
+    this.draftChange.emit({ ...this.draft(), responsibleArea: input.value.trim() || null });
   }
 
   onDateFromChange(event: MatDatepickerInputEvent<Date>): void {
-    this.draftChange.emit({ ...this.draft, dateFrom: event.value ? formatYmd(event.value) : null });
+    this.draftChange.emit({
+      ...this.draft(),
+      dateFrom: event.value ? formatYmd(event.value) : null,
+    });
   }
 
   onDateToChange(event: MatDatepickerInputEvent<Date>): void {
-    this.draftChange.emit({ ...this.draft, dateTo: event.value ? formatYmd(event.value) : null });
+    this.draftChange.emit({ ...this.draft(), dateTo: event.value ? formatYmd(event.value) : null });
   }
 
   onUploadedByChange(value: number | null): void {
-    this.draftChange.emit({ ...this.draft, uploadedBy: value });
+    this.draftChange.emit({ ...this.draft(), uploadedBy: value });
   }
 
   onApply(): void {
-    this.apply.emit(this.draft);
+    this.apply.emit(this.draft());
   }
 
   onReset(): void {
-    this.reset.emit();
+    this.resetFilters.emit();
   }
 
   onClose(): void {
-    this.close.emit();
+    this.closePanel.emit();
   }
 
   parseDateStr(ymd: string | null): Date | null {

@@ -31,7 +31,7 @@ import {
   CreateCategoryResponse,
   UpdateCategoryRequest,
   UpdateCategoryResponse,
-} from '../../../../../core/models/category-list.models';
+} from '../../../../../core/models/category-list.model';
 
 export type CategoryFormDialogMode = 'create' | 'edit';
 
@@ -56,7 +56,6 @@ function trimmedMinLength(min: number): ValidatorFn {
 
 @Component({
   selector: 'app-category-form-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,

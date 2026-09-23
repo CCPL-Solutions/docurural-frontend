@@ -11,7 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -33,7 +33,7 @@ import {
   MAX_FILE_SIZE_BYTES,
   MAX_TITLE_LENGTH,
   RESPONSIBLE_AREAS,
-} from '../../../../../core/models/upload-document.models';
+} from '../../../../../core/models/upload-document.model';
 import {
   SensitivityLevel,
   clampToMin,
@@ -57,7 +57,6 @@ type Phase = 'compose' | 'uploading' | 'done';
 
 @Component({
   selector: 'app-upload-documents-batch-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
@@ -82,7 +81,6 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     inject<MatDialogRef<UploadDocumentsBatchDialogComponent, UploadDocumentsBatchDialogResult>>(
       MatDialogRef,
     );
-  protected readonly _data = inject<UploadDocumentsBatchDialogData>(MAT_DIALOG_DATA);
 
   private readonly fb = inject(FormBuilder);
   private readonly categoriesService = inject(CategoriesService);
@@ -97,8 +95,8 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   protected readonly fileError = signal<string | null>(null);
   protected readonly submitError = signal<string | null>(null);
   protected readonly categories = signal<Category[]>([]);
-  protected readonly categoriesLoading = signal(false);
-  protected readonly categoriesLoadError = signal(false);
+  protected readonly loadingCategories = signal(false);
+  protected readonly loadCategoriesError = signal(false);
 
   protected readonly areas = RESPONSIBLE_AREAS;
   protected readonly maxBatchFiles = MAX_BATCH_FILES;
@@ -171,17 +169,17 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   }
 
   protected loadCategories(): void {
-    this.categoriesLoading.set(true);
-    this.categoriesLoadError.set(false);
+    this.loadingCategories.set(true);
+    this.loadCategoriesError.set(false);
     this.categoriesService
       .list('name', 'asc')
-      .pipe(finalize(() => this.categoriesLoading.set(false)))
+      .pipe(finalize(() => this.loadingCategories.set(false)))
       .subscribe({
         next: (res) => {
           this.categories.set(res.categories.filter((c) => c.status === 'ACTIVE'));
         },
         error: () => {
-          this.categoriesLoadError.set(true);
+          this.loadCategoriesError.set(true);
         },
       });
   }

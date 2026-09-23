@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { AuthState, LoginResponse } from '../models/auth.models';
+import { AuthState, LoginResponse } from '../models/auth.model';
 import { AuthService } from './auth.service';
 import { AuthStorageService } from './auth-storage.service';
 import { NotificationService } from './notification.service';

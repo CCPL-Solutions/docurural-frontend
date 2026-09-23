@@ -16,7 +16,6 @@ export type FiltersBottomSheetResult = { action: 'apply'; draft: DocumentFilters
 
 @Component({
   selector: 'app-document-filters-bottom-sheet',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, DocumentFiltersPanelComponent],
   templateUrl: './document-filters-bottom-sheet.component.html',

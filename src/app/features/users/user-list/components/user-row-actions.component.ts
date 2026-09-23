@@ -5,7 +5,6 @@ import { IconButtonComponent } from '../../../../shared/components/icon-button/i
 
 @Component({
   selector: 'app-user-row-actions',
-  standalone: true,
   imports: [MatIconModule, IconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

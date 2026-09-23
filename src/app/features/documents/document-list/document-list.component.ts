@@ -22,7 +22,7 @@ import {
   ActiveFiltersDto,
   DocumentSortBy,
   DocumentSortDir,
-} from '../../../core/models/document-list.models';
+} from '../../../core/models/document-list.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
   DocumentFilters,
@@ -116,7 +116,6 @@ const PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-document-list',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
@@ -634,10 +633,6 @@ export class DocumentListComponent implements OnInit {
       .slice(0, 2)
       .map((p) => p[0].toUpperCase())
       .join('');
-  }
-
-  protected trackById(_index: number, doc: Document): number {
-    return doc.id;
   }
 
   private currentSortConfig(): SortOptionConfig {

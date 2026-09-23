@@ -20,7 +20,6 @@ const ICON_BY_TYPE: Record<ToastType, string> = {
 
 @Component({
   selector: 'app-toast',
-  standalone: true,
   imports: [MatIconModule, MatButtonModule],
   templateUrl: './toast.component.html',
   styleUrl: './toast.component.scss',

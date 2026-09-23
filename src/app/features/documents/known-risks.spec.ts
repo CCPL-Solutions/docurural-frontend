@@ -6,7 +6,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { DocumentDetailResponse } from '../../core/models/document-detail.model';
-import { DocumentListResponse } from '../../core/models/document-list.models';
+import { DocumentListResponse } from '../../core/models/document-list.model';
 import { Document } from '../../core/models/document.model';
 import { AuthService } from '../../core/services/auth.service';
 import { DocumentsService } from '../../core/services/documents.service';

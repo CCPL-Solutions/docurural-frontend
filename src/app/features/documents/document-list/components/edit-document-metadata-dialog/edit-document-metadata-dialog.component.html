@@ -72,10 +72,10 @@
       <div class="field-row">
         <!-- Categoría -->
         <div class="field">
-          <label class="field__label" id="edit-category-label">
+          <span class="field__label" id="edit-category-label">
             Categoría
             <strong class="field__required" aria-hidden="true">*</strong>
-          </label>
+          </span>
           <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
             <mat-icon matPrefix class="select-icon">sell</mat-icon>
             <mat-select
@@ -83,7 +83,7 @@
               aria-labelledby="edit-category-label"
               aria-describedby="edit-category-error edit-category-hint"
               [placeholder]="
-                categoriesLoading() ? 'Cargando categorías...' : 'Seleccione una categoría'
+                loadingCategories() ? 'Cargando categorías...' : 'Seleccione una categoría'
               "
             >
               @for (cat of categories(); track cat.id) {
@@ -92,7 +92,7 @@
             </mat-select>
           </mat-form-field>
 
-          @if (categoriesLoadError()) {
+          @if (loadCategoriesError()) {
             <div class="categories-error">
               <mat-icon aria-hidden="true">warning</mat-icon>
               <span>No se pudieron cargar las categorías.</span>
@@ -107,7 +107,7 @@
               <mat-icon aria-hidden="true">error</mat-icon>
               {{ msg }}
             </p>
-          } @else if (!categoriesLoadError()) {
+          } @else if (!loadCategoriesError()) {
             <small class="field__hint" id="edit-category-hint"
               >Solo aparecen las categorías activas.</small
             >
@@ -116,10 +116,10 @@
 
         <!-- Área responsable -->
         <div class="field">
-          <label class="field__label" id="edit-area-label">
+          <span class="field__label" id="edit-area-label">
             Área responsable
             <strong class="field__required" aria-hidden="true">*</strong>
-          </label>
+          </span>
           <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
             <mat-icon matPrefix class="select-icon">apartment</mat-icon>
             <mat-select
@@ -194,10 +194,10 @@
 
       <!-- Nivel de sensibilidad -->
       <div class="field">
-        <label class="field__label">
+        <span class="field__label">
           Nivel de sensibilidad
           <strong class="field__required" aria-hidden="true">*</strong>
-        </label>
+        </span>
 
         @if (sensitivityLocked()) {
           <app-sensitivity-lock-banner

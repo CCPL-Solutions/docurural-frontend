@@ -26,7 +26,6 @@ function pillColor(name: string): PillColor {
 
 @Component({
   selector: 'app-document-category-pill',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span class="category-pill" [style.background]="color().bg" [style.color]="color().fg">
@@ -34,38 +33,7 @@ function pillColor(name: string): PillColor {
       <span class="category-pill__label">{{ name() }}</span>
     </span>
   `,
-  styles: [
-    `
-      :host {
-        display: inline-block;
-      }
-
-      .category-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        font-weight: 500;
-        padding: 3px 10px;
-        border-radius: 9999px;
-        line-height: 1.4;
-        white-space: nowrap;
-        max-width: 100%;
-      }
-
-      .category-pill__dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        flex-shrink: 0;
-      }
-
-      .category-pill__label {
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-    `,
-  ],
+  styleUrl: './document-category-pill.component.scss',
 })
 export class DocumentCategoryPillComponent {
   readonly name = input.required<string>();

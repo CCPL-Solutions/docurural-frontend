@@ -9,7 +9,6 @@ const STATUS_VARIANT: Record<UserStatus, BadgeVariant> = {
 
 @Component({
   selector: 'app-status-badge',
-  standalone: true,
   imports: [BadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <app-badge [variant]="variant()" [dot]="true">{{ label() }}</app-badge> `,

@@ -4,7 +4,6 @@ import { TopCategory } from '../../../../core/models/dashboard-stats.model';
 
 @Component({
   selector: 'app-top-category-card',
-  standalone: true,
   imports: [MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './top-category-card.component.html',

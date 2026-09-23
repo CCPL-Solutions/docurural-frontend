@@ -13,7 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
@@ -31,7 +31,7 @@ import {
   MAX_FILE_SIZE_BYTES,
   RESPONSIBLE_AREAS,
   UploadDocumentResponse,
-} from '../../../../../core/models/upload-document.models';
+} from '../../../../../core/models/upload-document.model';
 import {
   SensitivityLevel,
   clampToMin,
@@ -64,7 +64,6 @@ export type UploadDocumentDialogResult =
 
 @Component({
   selector: 'app-upload-document-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
@@ -88,7 +87,6 @@ export type UploadDocumentDialogResult =
 export class UploadDocumentDialogComponent implements OnInit {
   private readonly dialogRef =
     inject<MatDialogRef<UploadDocumentDialogComponent, UploadDocumentDialogResult>>(MatDialogRef);
-  private readonly _data = inject<UploadDocumentDialogData>(MAT_DIALOG_DATA);
 
   private readonly fb = inject(FormBuilder);
   private readonly categoriesService = inject(CategoriesService);
@@ -102,8 +100,8 @@ export class UploadDocumentDialogComponent implements OnInit {
   protected readonly fileError = signal<string | null>(null);
   protected readonly dragOver = signal(false);
   protected readonly categories = signal<Category[]>([]);
-  protected readonly categoriesLoading = signal(false);
-  protected readonly categoriesLoadError = signal(false);
+  protected readonly loadingCategories = signal(false);
+  protected readonly loadCategoriesError = signal(false);
   protected readonly titleAutoFilled = signal(false);
 
   protected readonly areas = RESPONSIBLE_AREAS;
@@ -169,17 +167,17 @@ export class UploadDocumentDialogComponent implements OnInit {
   }
 
   protected loadCategories(): void {
-    this.categoriesLoading.set(true);
-    this.categoriesLoadError.set(false);
+    this.loadingCategories.set(true);
+    this.loadCategoriesError.set(false);
     this.categoriesService
       .list('name', 'asc')
-      .pipe(finalize(() => this.categoriesLoading.set(false)))
+      .pipe(finalize(() => this.loadingCategories.set(false)))
       .subscribe({
         next: (res) => {
           this.categories.set(res.categories.filter((c) => c.status === 'ACTIVE'));
         },
         error: () => {
-          this.categoriesLoadError.set(true);
+          this.loadCategoriesError.set(true);
         },
       });
   }

@@ -6,7 +6,6 @@ export type EmptyStateVariant = 'loading' | 'empty' | 'no-results';
 
 @Component({
   selector: 'app-empty-state',
-  standalone: true,
   imports: [MatIconModule, MatProgressSpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

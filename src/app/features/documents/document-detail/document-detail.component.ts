@@ -47,7 +47,6 @@ type ErrorKind = 'not-found' | 'file-missing' | 'network';
 
 @Component({
   selector: 'app-document-detail',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,

@@ -24,7 +24,6 @@ const CHART_COLORS = [
 
 @Component({
   selector: 'app-category-chart',
-  standalone: true,
   imports: [BaseChartDirective, EmptyStateComponent],
   providers: [provideCharts({ registerables: [DoughnutController, ArcElement, Tooltip, Legend] })],
   changeDetection: ChangeDetectionStrategy.OnPush,
