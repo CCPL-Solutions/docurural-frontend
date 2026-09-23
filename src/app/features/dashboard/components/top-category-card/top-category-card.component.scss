@@ -1,3 +1,5 @@
+@use 'icons' as icon;
+
 :host {
   display: block;
 }
@@ -35,9 +37,7 @@
   flex-shrink: 0;
 
   mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+    @include icon.size(22px);
   }
 }
 
@@ -58,7 +58,7 @@
 
 .top-card__category-name {
   margin: 0;
-  font-size: 26px;
+  font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.1;
@@ -70,7 +70,7 @@
 
 .top-card__empty-value {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--text-2xl);
   font-weight: 700;
   color: var(--color-text-muted);
   line-height: 1.1;

@@ -10,6 +10,7 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -85,6 +86,7 @@ import { IconButtonComponent } from '@shared/components/icon-button/icon-button.
 import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
 import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
 import { DatePipe } from '@angular/common';
+import { BREAKPOINT_MD } from '@shared/ui/breakpoints';
 import { DIALOG_LG, DIALOG_MD, DIALOG_XL } from '@shared/ui/dialog-sizes';
 
 type SortOption =
@@ -156,6 +158,7 @@ export class DocumentListComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly router = inject(Router);
 
   // ── Signals existentes ──────────────────────────────────────────────
@@ -353,7 +356,7 @@ export class DocumentListComponent implements OnInit {
   // ── Filtros (HU-21, HU-22) ──────────────────────────────────────────
 
   protected onToggleFiltersPanel(): void {
-    if (window.innerWidth <= 768) {
+    if (this.breakpointObserver.isMatched(BREAKPOINT_MD)) {
       const ref = this.bottomSheet.open(DocumentFiltersBottomSheetComponent, {
         data: {
           draft: { ...this.appliedFilters() },

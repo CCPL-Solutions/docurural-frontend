@@ -1,8 +1,10 @@
+@use 'icons' as icon;
+
 .lock-banner {
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  padding: 12px 14px;
+  padding: var(--space-3) var(--space-3-5);
   border-radius: var(--radius-md);
   border: 1px solid;
 
@@ -11,15 +13,13 @@
     height: 32px;
     border-radius: var(--radius-md);
     flex-shrink: 0;
-    background: #fff;
+    background: var(--color-bg-card);
     display: flex;
     align-items: center;
     justify-content: center;
 
     mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
+      @include icon.size(16px);
     }
   }
 
@@ -31,7 +31,7 @@
 
   &__title {
     font-weight: 600;
-    margin: 0 0 2px;
+    margin: 0 0 var(--space-0-5);
   }
 
   &__text {

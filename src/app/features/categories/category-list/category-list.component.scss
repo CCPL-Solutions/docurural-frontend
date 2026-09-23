@@ -1,3 +1,5 @@
+@use 'icons' as icon;
+
 // Estilos específicos de la vista de lista de categorías.
 // action-bar, sort-trigger, counter base, cell-date, cell-actions: globales (_list-view.scss).
 @use 'data-table' as dt;
@@ -18,19 +20,19 @@
 .counter__total {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .counter__pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1-5);
 }
 
 .counter__dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   flex-shrink: 0;
 
   &--active {
@@ -46,37 +48,39 @@
   @include dt.styles();
 }
 
+// Las columnas de contenido corto (documentos, estado, fecha y acciones) tienen ancho fijo: en
+// porcentaje, a 1280 px con el menú lateral se cortaban los botones y se solapaban las cabeceras.
+// Los porcentajes suman un 50 % para que, con los 460 px fijos, la tabla quepa sin ensancharse
+// (table-layout: fixed).
 .col-category {
-  width: 22%;
+  width: 19%;
 }
 .col-description {
-  width: 27%;
+  width: 16%;
 }
 .col-sensitivity {
   width: 15%;
 }
 .col-documents {
-  width: 10%;
+  width: 110px;
 }
 .col-status {
-  width: 9%;
+  width: 110px;
 }
 .col-created {
-  width: 8%;
+  width: 120px;
 }
 .col-actions {
-  width: 9%;
+  width: 120px;
 }
 
 .th-sensitivity {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-1-5);
 
   mat-icon {
-    font-size: 13px;
-    width: 13px;
-    height: 13px;
+    @include icon.size(13px);
     opacity: 0.6;
   }
 }
@@ -85,7 +89,7 @@
 .cell-category {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   min-width: 0;
 }
 
@@ -107,7 +111,7 @@
 .cell-category__meta {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  margin-top: 2px;
+  margin-top: var(--space-0-5);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -126,19 +130,17 @@
 .doc-count-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-1-5);
   font-size: var(--text-sm);
   font-weight: 600;
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-2-5);
   border-radius: var(--radius-pill);
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
   white-space: nowrap;
 
   mat-icon {
-    font-size: 13px;
-    width: 13px;
-    height: 13px;
+    @include icon.size(13px);
   }
 
   &--muted {
@@ -168,7 +170,7 @@
 // ── Tarjetas (móvil) ─────────────────────────────────────────────────────────
 .category-cards {
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-2-5);
 }
 
 .category-card {
@@ -178,7 +180,7 @@
 .category-card__top {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .category-card__info {
@@ -200,7 +202,7 @@
 .category-card__desc {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  margin-top: 2px;
+  margin-top: var(--space-0-5);
   line-height: 1.45;
   display: -webkit-box;
   -webkit-line-clamp: 2;

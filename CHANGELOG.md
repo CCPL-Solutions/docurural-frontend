@@ -67,6 +67,17 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
     en `core/auth/permissions.ts`.
   - ESLint pasa a `error` los imports entre features y la cobertura exige ≥ 80 % de líneas en
     `shared/utils/`.
+- Estilos y sistema de diseño (fase 4 de la remediación):
+  - Los SCSS de componente y el TypeScript usan solo tokens de color, tipografía, espaciado y
+    radio. Hay tokens nuevos (familias de color `purple` y `teal`, medios pasos de espaciado y
+    radios `xs` y `circle`) y un mixin `icon.size()` para los iconos. `npm run check:styles` es
+    estricto y hace fallar la CI.
+  - Media queries con los mixins de breakpoints y `BreakpointObserver` en lugar de
+    `window.innerWidth`.
+  - Los botones propios del dashboard, del panel de filtros y de los estados vacíos usan
+    `<app-button>`.
+  - El snackbar y el toast se cargan con el primer aviso: el bundle inicial baja de 527 kB a
+    406 kB.
 
 ### Removed
 
@@ -77,5 +88,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- A 1280 px con el menú lateral, el dashboard ya no corta la quinta tarjeta de accesos rápidos
+  ni solapa columnas en la tabla de recientes, y Categorías ya no corta la columna de acciones.
+- El botón «Limpiar búsqueda y filtros» del estado vacío de resultados tiene estilo (R8).
+- En el detalle de un documento en móvil, los botones de la cabecera ocupan todo el ancho.
 - La fecha de los documentos ya no se muestra un día antes en Colombia (R11): las fechas
   `YYYY-MM-DD` se interpretan como fecha local en el listado, el detalle y el diálogo de edición.

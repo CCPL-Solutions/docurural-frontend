@@ -1,3 +1,5 @@
+@use 'icons' as icon;
+
 :host {
   display: inline-flex;
 }
@@ -17,20 +19,18 @@
 
   &__dot {
     flex-shrink: 0;
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
     display: inline-block;
   }
 
   // Tamaños
   &--md {
-    gap: 6px;
+    gap: var(--space-1-5);
     font-size: var(--text-xs);
-    padding: 3px 10px;
+    padding: var(--space-1) var(--space-2-5);
 
     .sensitivity-badge__icon {
-      font-size: 12px;
-      width: 12px;
-      height: 12px;
+      @include icon.size(12px);
     }
     .sensitivity-badge__dot {
       width: 7px;
@@ -39,14 +39,12 @@
   }
 
   &--sm {
-    gap: 4px;
-    font-size: 12px;
-    padding: 2px 8px;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    padding: var(--space-0-5) var(--space-2);
 
     .sensitivity-badge__icon {
-      font-size: 11px;
-      width: 11px;
-      height: 11px;
+      @include icon.size(11px);
     }
     .sensitivity-badge__dot {
       width: 6px;
@@ -56,26 +54,26 @@
 
   // Niveles — colores tomados directamente de _tokens.scss, coinciden con el handoff
   &--INTERNAL {
-    background: var(--color-bg-app); // #F4F6F8
-    color: var(--color-neutral); // #4A5A6E
+    background: var(--color-bg-app);
+    color: var(--color-neutral);
     .sensitivity-badge__dot {
       background: var(--color-neutral-accent);
-    } // #6B7A8D
+    }
   }
 
   &--RESTRICTED {
-    background: var(--color-warning-light); // #FDF3DF
-    color: var(--color-warning-text); // #8A5E10
+    background: var(--color-warning-light);
+    color: var(--color-warning-text);
     .sensitivity-badge__dot {
       background: var(--color-warning);
-    } // #E8A020
+    }
   }
 
   &--CONFIDENTIAL {
-    background: var(--color-error-light); // #FBEAE7
-    color: var(--color-error-text); // #8F2A20
+    background: var(--color-error-light);
+    color: var(--color-error-text);
     .sensitivity-badge__dot {
       background: var(--color-error);
-    } // #C0392B
+    }
   }
 }

@@ -1,3 +1,6 @@
+@use 'breakpoints' as bp;
+@use 'icons' as icon;
+
 // ─── Layout base ────────────────────────────────────────────────────────────
 :host {
   display: block;
@@ -20,7 +23,7 @@
   z-index: 40;
   display: none;
 
-  @media (max-width: 768px) {
+  @include bp.md {
     display: block;
   }
 }
@@ -37,7 +40,7 @@
   overflow-y: auto;
   z-index: 50;
 
-  @media (max-width: 768px) {
+  @include bp.md {
     position: fixed;
     top: 0;
     left: 0;
@@ -82,7 +85,7 @@
 .sb-logo__sub {
   font-size: var(--text-xs);
   color: var(--sidebar-fg-soft);
-  margin-top: 2px;
+  margin-top: var(--space-0-5);
 }
 
 // Navegación
@@ -91,11 +94,11 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-0-5);
 }
 
 .sb-nav__section {
-  padding: 0 var(--space-5) 10px;
+  padding: 0 var(--space-5) var(--space-2-5);
   font-size: var(--text-2xs);
   font-weight: 600;
   color: var(--sidebar-fg-muted);
@@ -103,7 +106,7 @@
   text-transform: uppercase;
 
   &--admin {
-    padding-top: 22px;
+    padding-top: var(--space-6);
   }
 }
 
@@ -113,7 +116,7 @@
   align-items: center;
   gap: var(--space-3);
   width: 100%;
-  padding: 11px 16px 11px var(--space-5);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
   border: none;
   background: transparent;
   color: var(--color-text-inverse);
@@ -127,9 +130,7 @@
   border-radius: 0;
 
   mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    @include icon.size(18px);
     flex-shrink: 0;
   }
 
@@ -158,7 +159,7 @@
       bottom: 0;
       width: 3px;
       background: var(--color-bg-card);
-      border-radius: 0 2px 2px 0;
+      border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
     }
   }
 
@@ -168,21 +169,11 @@
   }
 }
 
-.sb-badge {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  background: var(--sidebar-overlay-3);
-  color: var(--sidebar-fg-strong);
-}
-
 .sb-admin-badge {
-  font-size: 10px;
+  font-size: var(--text-3xs);
   font-weight: 600;
   letter-spacing: 0.06em;
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
   background: var(--sidebar-overlay-3);
   color: var(--sidebar-fg-strong);
@@ -198,7 +189,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: 10px;
+  padding: var(--space-2-5);
   border-radius: var(--radius-md);
   background: var(--sidebar-overlay-1);
 }
@@ -206,14 +197,14 @@
 .sb-user__avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--color-bg-card);
   color: var(--color-sidebar-deep);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--text-md);
   flex-shrink: 0;
 }
 
@@ -242,7 +233,7 @@
   justify-content: center;
   gap: var(--space-2);
   width: 100%;
-  padding: 10px var(--space-3);
+  padding: var(--space-2-5) var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--sidebar-overlay-3);
   background: transparent;
@@ -254,9 +245,7 @@
   transition: background var(--duration-fast) var(--easing-standard);
 
   mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    @include icon.size(16px);
   }
 
   &:hover {
@@ -293,7 +282,7 @@
   z-index: 10;
   flex-shrink: 0;
 
-  @media (max-width: 768px) {
+  @include bp.md {
     display: flex;
   }
 }
@@ -328,9 +317,7 @@
   justify-content: center;
 
   mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    @include icon.size(16px);
   }
 }
 
@@ -344,13 +331,13 @@
 .topbar__avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
 }
@@ -360,7 +347,7 @@
   padding: var(--space-7) var(--space-8) var(--space-8);
   flex: 1;
 
-  @media (max-width: 768px) {
+  @include bp.md {
     padding: var(--space-5) var(--space-4) var(--space-7);
   }
 }

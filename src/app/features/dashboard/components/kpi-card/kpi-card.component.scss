@@ -1,3 +1,5 @@
+@use 'icons' as icon;
+
 :host {
   display: block;
 }
@@ -32,9 +34,7 @@
   flex-shrink: 0;
 
   mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+    @include icon.size(22px);
   }
 }
 
@@ -55,7 +55,7 @@
 
 .kpi-card__value {
   margin: 0;
-  font-size: 32px;
+  font-size: var(--text-4xl);
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.05;

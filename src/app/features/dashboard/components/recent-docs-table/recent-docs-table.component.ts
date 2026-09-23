@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RecentDocumentItem } from '@core/models/dashboard-stats.model';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
 import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
@@ -17,6 +18,7 @@ function truncateTitle(title: string, max = 50): string {
 @Component({
   selector: 'app-recent-docs-table',
   imports: [
+    ButtonComponent,
     DatePipe,
     RouterModule,
     MatIconModule,

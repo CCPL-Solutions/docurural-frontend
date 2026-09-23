@@ -26,6 +26,10 @@
   --color-warning-border: #f3dda5;
   --color-warning-text: #8a5e10;
 
+  // Fondo de la tarjeta seleccionada en el selector de sensibilidad (más intenso que -light).
+  --color-warning-selected: #fbeacc;
+  --color-error-selected: #f5d2cc;
+
   // ── Color · Sidebar (superficie oscura) ───────────────────────────────────
   --color-sidebar: #133a5e;
   --color-sidebar-deep: #0e2d4a;
@@ -43,6 +47,7 @@
   --color-bg-card: #ffffff;
   --color-bg-hover: rgba(0, 0, 0, 0.04);
   --color-bg-subtle: #fafbfc; // table thead, zebra strips
+  --color-bg-media: #000000; // visor de documentos a pantalla completa
 
   // ── Color · Bordes y divisores ────────────────────────────────────────────
   --color-border: #d1d9e0;
@@ -72,6 +77,16 @@
   // ── Color · Success dark (hover de botón success) ─────────────────────────
   --color-success-dark: #2d6e31;
 
+  // ── Color · Acentos (paletas de categorías, formatos, avatares y gráfico) ──
+  // Misma estructura que las familias semánticas: base, fondo claro y texto sobre el fondo.
+  --color-purple: #8e4fb8;
+  --color-purple-light: #f3eaf8;
+  --color-purple-text: #5b2779;
+
+  --color-teal: #3a8aae;
+  --color-teal-light: #e5f1f7;
+  --color-teal-text: #1a5570;
+
   // ── Tipografía · Familia ──────────────────────────────────────────────────
   --font-sans:
     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
@@ -81,6 +96,8 @@
   // 16 px (--text-base) es el mínimo de cuerpo establecido en CLAUDE.md §UI.
   // No reducir el cuerpo por debajo de --text-base. Tokens más pequeños son
   // para captions, badges y etiquetas en mayúsculas.
+  --text-4xs: 8px; // etiqueta del formato dentro del icono de archivo
+  --text-3xs: 10px; // badges compactos (ADMIN en el menú y en accesos rápidos)
   --text-2xs: 11px; // labels en mayúsculas (sb-nav__section, table thead)
   --text-xs: 12px; // captions, badges, meta
   --text-sm: 13px; // texto pequeño, kickers, footers
@@ -91,6 +108,7 @@
   --text-xl: 20px; // h2, título de diálogo grande
   --text-2xl: 24px; // h1 móvil
   --text-3xl: 28px; // h1 desktop (page hero)
+  --text-4xl: 32px; // cifras destacadas (tarjetas KPI)
 
   // ── Tipografía · Line-heights ─────────────────────────────────────────────
   --lh-tight: 1.3;
@@ -102,10 +120,14 @@
   --ls-tight: -0.02em;
   --ls-caps: 0.06em;
 
-  // ── Espaciado · Escala (múltiplos de 4) ──────────────────────────────────
+  // ── Espaciado · Escala (múltiplos de 4, con medios pasos hasta 14px) ──────
+  --space-0-5: 2px;
   --space-1: 4px;
+  --space-1-5: 6px;
   --space-2: 8px;
+  --space-2-5: 10px;
   --space-3: 12px;
+  --space-3-5: 14px;
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
@@ -114,11 +136,13 @@
   --space-9: 48px;
 
   // ── Border radius ─────────────────────────────────────────────────────────
+  --radius-xs: 4px; // etiquetas diminutas, barras e indicadores
   --radius-sm: 6px; // toggles, icon buttons, badges pequeños
   --radius-md: 8px; // botones, inputs, banners
   --radius-lg: 12px; // cards, dialogs, contenedores
   --radius-pill: 9999px; // badges con dot, chips redondeados
   --radius-full: 9999px; // alias explícito de pill (chips de estado)
+  --radius-circle: 50%; // avatares, puntos e indicadores redondos
 
   // ── Sombras ──────────────────────────────────────────────────────────────
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);

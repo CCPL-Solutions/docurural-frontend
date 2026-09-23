@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Angular Material — Overrides globales
 //
@@ -124,7 +126,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@include bp.sm {
   .mat-mdc-snack-bar-container.docu-toast-panel {
     margin: var(--space-3);
   }

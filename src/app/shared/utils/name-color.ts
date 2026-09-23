@@ -1,5 +1,5 @@
 // Color determinista a partir de un nombre (categorías, pills y avatares). Es el único módulo que
-// calcula el hash de un nombre. Los hex se sustituyen por tokens en la Fase 4 (tarea 4.4).
+// calcula el hash de un nombre. Los colores son tokens de src/styles/_tokens.scss (D29).
 
 export interface NameColor {
   bg: string;
@@ -13,29 +13,41 @@ export interface AvatarColor {
   fg: string;
 }
 
+const token = (name: string): string => `var(--color-${name})`;
+
+/** Familia de acento: fondo claro, texto sobre el fondo y color base. */
+const family = (bg: string, fg: string, dot: string): NameColor => ({
+  bg: token(bg),
+  fg: token(fg),
+  dot: token(dot),
+});
+
 const NAME_PALETTE: readonly NameColor[] = [
-  { bg: '#EBF3FB', fg: '#1E4F7A', dot: '#2E6DA4' },
-  { bg: '#F3EAF8', fg: '#5B2779', dot: '#8E4FB8' },
-  { bg: '#E6F4E7', fg: '#276B2B', dot: '#3A8A3F' },
-  { bg: '#FDF3DF', fg: '#8A5E10', dot: '#E8A020' },
-  { bg: '#E5F1F7', fg: '#1A5570', dot: '#3A8AAE' },
-  { bg: '#FBEAE7', fg: '#8F2A20', dot: '#C0392B' },
-  { bg: '#F4F6F8', fg: '#4A5A6E', dot: '#6B7A8D' },
+  family('primary-light', 'primary-dark', 'primary'),
+  family('purple-light', 'purple-text', 'purple'),
+  family('success-light', 'success-text', 'success'),
+  family('warning-light', 'warning-text', 'warning'),
+  family('teal-light', 'teal-text', 'teal'),
+  family('error-light', 'error-text', 'error'),
+  family('bg-app', 'neutral', 'text-secondary'),
 ];
 
-const NAME_MUTED: NameColor = { bg: '#EEF1F4', fg: '#9AA8B8', dot: '#9AA8B8' };
+const NAME_MUTED = family('neutral-light', 'text-muted', 'text-muted');
 
 const AVATAR_PALETTE: readonly string[] = [
-  '#2E6DA4',
-  '#3A8A3F',
-  '#8E4FB8',
-  '#3A8AAE',
-  '#E8A020',
-  '#1E4F7A',
-  '#5B6E84',
-];
+  'primary',
+  'success',
+  'purple',
+  'teal',
+  'warning',
+  'primary-dark',
+  'text-secondary',
+].map(token);
 
-const AVATAR_MUTED: AvatarColor = { bg: '#E5EAF0', fg: '#9AA8B8' };
+const AVATAR_MUTED: AvatarColor = { bg: token('divider'), fg: token('text-muted') };
+
+/** Opacidad del fondo del avatar sobre su color base (antes, el sufijo hex `22`). */
+const AVATAR_BG_OPACITY = '13%';
 
 /** Índice estable en `[0, size)` para un nombre. */
 function nameIndex(name: string | null | undefined, size: number): number {
@@ -53,9 +65,9 @@ export function nameColor(name: string | null | undefined, muted = false): NameC
   return NAME_PALETTE[nameIndex(name, NAME_PALETTE.length)];
 }
 
-/** Colores de avatar: el color base como texto y el mismo con transparencia como fondo. */
+/** Colores de avatar: el color base como texto y el mismo, translúcido, como fondo. */
 export function avatarColor(name: string | null | undefined, muted = false): AvatarColor {
   if (muted) return AVATAR_MUTED;
   const base = AVATAR_PALETTE[nameIndex(name, AVATAR_PALETTE.length)];
-  return { bg: `${base}22`, fg: base };
+  return { bg: `color-mix(in srgb, ${base} ${AVATAR_BG_OPACITY}, transparent)`, fg: base };
 }

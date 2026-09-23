@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { ButtonComponent } from '@shared/components/button/button.component';
 
 @Component({
   selector: 'app-document-empty-results',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule],
+  imports: [ButtonComponent, MatIconModule],
   templateUrl: './document-empty-results.component.html',
   styleUrl: './document-empty-results.component.scss',
 })

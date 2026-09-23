@@ -154,18 +154,13 @@
 
   <!-- Footer con acciones -->
   <div class="filters-panel__footer">
-    <button type="button" class="filters-panel__reset" (click)="onReset()">
+    <app-button variant="secondary" (click)="onReset()">
       <mat-icon aria-hidden="true">restart_alt</mat-icon>
       <span>Restablecer</span>
-    </button>
-    <button
-      type="button"
-      class="filters-panel__apply"
-      [disabled]="!!dateError()"
-      (click)="onApply()"
-    >
+    </app-button>
+    <app-button variant="primary" [disabled]="!!dateError()" (click)="onApply()">
       <mat-icon aria-hidden="true">check</mat-icon>
       <span>Aplicar filtros</span>
-    </button>
+    </app-button>
   </div>
 </div>

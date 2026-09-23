@@ -5,7 +5,7 @@
     <span class="qa-section__role-badge">{{ roleLabels[role()] }}</span>
   </div>
 
-  <div class="qa-section__grid" [style.--qa-cols]="actions().length">
+  <div class="qa-section__grid">
     @for (action of actions(); track action.id) {
       <a
         class="qa-btn"

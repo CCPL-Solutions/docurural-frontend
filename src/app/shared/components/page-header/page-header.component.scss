@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
 }
@@ -8,7 +10,7 @@
   justify-content: space-between;
   gap: var(--space-4);
   flex-wrap: wrap;
-  margin-bottom: 28px;
+  margin-bottom: var(--space-7);
 }
 
 .page-header__info {
@@ -32,14 +34,14 @@
 
 .page-header__subtitle {
   margin: var(--space-1) 0 0;
-  font-size: 15px;
+  font-size: var(--text-md-15);
   color: var(--color-text-secondary);
 }
 
-@media (max-width: 768px) {
+@include bp.md {
   .page-header {
     align-items: flex-start;
-    margin-bottom: 18px;
+    margin-bottom: var(--space-5);
   }
 
   .page-header__title {
