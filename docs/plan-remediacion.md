@@ -46,7 +46,8 @@ Las fases van ordenadas por dependencia y riesgo. Primero lo que no rompe nada (
 
 **Convención de trabajo para todas las fases:**
 
-- Una rama por fase (`feature/remediacion-fase-N`) y commits pequeños en español (`refactor: …`, `fix: …`, `test: …`).
+- **Una rama y un PR por fase.** Al empezar la fase N: actualizar `develop` (`git switch develop && git pull origin develop`) y crear `feature/remediacion-fase-N` desde ahí. Al terminarla: push y PR hacia `develop`, que se revisa y se fusiona **antes** de empezar la fase N+1. Nunca se encadenan fases sin fusionar.
+- Commits pequeños en español (`refactor: …`, `fix: …`, `test: …`).
 - Cada fase termina con `npm run lint`, `npm run test:ci`, `ng build` y `npm run format:check` en verde.
 - 🔍 marca los **puntos donde hay que parar y verificar a mano en el navegador** antes de seguir (`npm run start:develop` contra el backend de desarrollo).
 

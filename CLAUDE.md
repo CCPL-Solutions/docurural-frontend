@@ -61,6 +61,8 @@ src/styles/   tokens de diseño (_tokens.scss) y parciales globales (ver src/sty
 - **Ramas:** `feature/**`, `bugfix/**` y `hotfix/**`. La CI (`.github/workflows/ci.yml`) corre en
   cada push a esas ramas, no en PR. La estrategia de ramas y versionado está en
   `docurural-backend/docs/ci-cd.md`.
+- **Remediación:** una rama `feature/remediacion-fase-N` por fase, creada desde `develop`
+  actualizado, y un PR hacia `develop` que se fusiona antes de empezar la fase siguiente.
 
 ## §UI
 
