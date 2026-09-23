@@ -12,20 +12,6 @@
 
 @if (loading()) {
   <app-empty-state variant="loading">Cargando panel de control…</app-empty-state>
-} @else if (error()) {
-  <div class="dashboard__error">
-    <app-empty-state
-      variant="empty"
-      icon="cloud_off"
-      title="No se pudo cargar el panel de control"
-      [description]="error()!"
-    >
-      <button actions class="retry-btn" (click)="loadStats()">
-        <mat-icon>refresh</mat-icon>
-        Reintentar
-      </button>
-    </app-empty-state>
-  </div>
 } @else if (stats(); as s) {
   <div class="dashboard__body">
     <!-- Desktop: arriba. Mobile: al final (order: 10) -->
@@ -58,6 +44,7 @@
         [documents]="s.recentDocuments"
         [repoIsEmpty]="isEmptyRepo()"
         [canUpload]="canUpload()"
+        [downloadingIds]="downloadingIds()"
         (view)="onView($event)"
         (download)="onDownload($event)"
         (uploadFirst)="onUploadDoc()"
@@ -65,4 +52,17 @@
       <app-category-chart [data]="s.categoryDistribution" />
     </section>
   </div>
+} @else {
+  <!-- Error de carga: el detalle va en un toast (D16, P3) -->
+  <app-empty-state
+    variant="empty"
+    icon="cloud_off"
+    title="No hay datos del panel de control"
+    description="No fue posible obtener la información del repositorio."
+  >
+    <app-button actions variant="secondary" (click)="loadStats()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>
+      <span>Reintentar</span>
+    </app-button>
+  </app-empty-state>
 }

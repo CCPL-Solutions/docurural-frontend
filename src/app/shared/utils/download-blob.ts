@@ -1,5 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { ApiError } from '@core/models/api-error.model';
 import { DocumentFormat } from '@core/models/document-format.model';
 
 /**
@@ -48,19 +46,4 @@ export function triggerBlobDownload(blob: Blob, filename: string): void {
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
-}
-
-/**
- * Convierte el cuerpo Blob de un HttpErrorResponse de 4xx/5xx a ApiError.
- * Angular entrega el body como Blob cuando la petición fue tipada con responseType:'blob'.
- * Retorna null si el cuerpo no es JSON parseable.
- */
-export async function parseBlobError(err: HttpErrorResponse): Promise<ApiError | null> {
-  if (!(err.error instanceof Blob)) return null;
-  try {
-    const text = await err.error.text();
-    return JSON.parse(text) as ApiError;
-  } catch {
-    return null;
-  }
 }

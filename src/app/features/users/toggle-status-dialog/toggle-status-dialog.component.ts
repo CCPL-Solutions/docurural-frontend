@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { UsersService } from '@core/services/users.service';
-import { ApiError } from '@core/models/api-error.model';
 import { User } from '@core/models/user.model';
 import { UserStatus } from '@core/models/user-status.model';
 import { AlertComponent } from '@shared/components/alert/alert.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
+import { toApiError } from '@shared/http/api-error';
 
 export interface ToggleStatusDialogData {
   user: User;
@@ -75,9 +75,8 @@ export class ToggleStatusDialogComponent {
   }
 
   private handleError(err: HttpErrorResponse): void {
-    const apiError = err.error as ApiError | undefined;
-    if (err.status === 403) {
-      this.errorMessage.set(apiError?.message ?? 'No puede desactivar su propia cuenta');
+    if (err.status === HttpStatusCode.Forbidden) {
+      this.errorMessage.set(toApiError(err)?.message ?? 'No puede desactivar su propia cuenta');
       this.errorBlocksAction.set(true);
     } else {
       this.errorMessage.set('Ocurrió un error inesperado. Por favor, inténtelo de nuevo');

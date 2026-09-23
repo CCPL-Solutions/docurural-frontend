@@ -7,7 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -18,13 +18,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DocumentsService } from '@core/services/documents.service';
 import { NotificationService } from '@core/services/notification.service';
 import { AuthService } from '@core/services/auth.service';
+import { DocumentDownloadService } from '@core/services/document-download.service';
 import { Document } from '@core/models/document.model';
 import {
   ActiveFiltersDto,
   DocumentSortBy,
   DocumentSortDir,
 } from '@core/models/document-list.model';
-import { ApiError } from '@core/models/api-error.model';
 import {
   DocumentFilters,
   EMPTY_FILTERS,
@@ -42,12 +42,6 @@ import {
 import { DATE_FORMAT, DATE_TIME_FORMAT } from '@shared/utils/date-formats';
 import { userInitials } from '@shared/utils/user-initials';
 import { formatFileSize } from '@shared/utils/file-size';
-import {
-  buildFallbackFilename,
-  parseBlobError,
-  parseFilenameFromContentDisposition,
-  triggerBlobDownload,
-} from '@shared/utils/download-blob';
 import {
   UploadDocumentDialogComponent,
   UploadDocumentDialogData,
@@ -159,6 +153,7 @@ export class DocumentListComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly downloads = inject(DocumentDownloadService);
   private readonly router = inject(Router);
 
   // ── Signals existentes ──────────────────────────────────────────────
@@ -168,7 +163,7 @@ export class DocumentListComponent implements OnInit {
   protected readonly totalPages = signal(0);
   protected readonly currentPage = signal(1);
   protected readonly selectedSort = signal<SortOption>('createdAtDesc');
-  protected readonly downloadingIds = signal(new Set<number>());
+  protected readonly downloadingIds = this.downloads.downloadingIds;
 
   // ── Signals de búsqueda y filtros (RF-03) ───────────────────────────
   protected readonly searchInput = signal('');
@@ -299,12 +294,12 @@ export class DocumentListComponent implements OnInit {
           this.activeFiltersMeta.set(res.activeFilters ?? null);
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
+        error: (err: unknown) => {
           this.loading.set(false);
-          const apiError = err.error as ApiError | undefined;
-          this.notifications.error(
+          this.notifications.httpError(
+            err,
             'No se pudo cargar el listado',
-            apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
+            'Verifique su conexión e intente nuevamente.',
           );
         },
       });
@@ -480,43 +475,7 @@ export class DocumentListComponent implements OnInit {
   }
 
   protected onDownload(doc: Document): void {
-    this.downloadingIds.update((ids) => new Set(ids).add(doc.id));
-
-    this.documentsService.download(doc.id).subscribe({
-      next: (response) => {
-        const filename =
-          parseFilenameFromContentDisposition(response.headers.get('Content-Disposition')) ??
-          buildFallbackFilename(doc.title, doc.fileFormat);
-        triggerBlobDownload(response.body!, filename);
-        this.notifications.success('Descarga iniciada', filename);
-        this.downloadingIds.update((ids) => {
-          const next = new Set(ids);
-          next.delete(doc.id);
-          return next;
-        });
-      },
-      error: async (err: HttpErrorResponse) => {
-        this.downloadingIds.update((ids) => {
-          const next = new Set(ids);
-          next.delete(doc.id);
-          return next;
-        });
-        if (err.status === 401) return;
-        if (err.status === 404) {
-          const apiError = await parseBlobError(err);
-          this.notifications.error(
-            'No se pudo descargar el documento',
-            apiError?.message ?? 'El archivo no está disponible. Contacte al administrador.',
-          );
-          return;
-        }
-        const apiError = await parseBlobError(err);
-        this.notifications.error(
-          'No se pudo descargar el documento',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
-        );
-      },
-    });
+    this.downloads.download(doc);
   }
 
   protected onEdit(doc: Document): void {
@@ -537,15 +496,15 @@ export class DocumentListComponent implements OnInit {
         });
       },
       error: (err: HttpErrorResponse) => {
-        if (err.status === 401) return;
-        if (err.status === 404) {
+        if (err.status === HttpStatusCode.NotFound) {
           this.notifications.error(
             'Documento no encontrado',
             'El documento ya no existe o fue eliminado.',
           );
           return;
         }
-        this.notifications.error(
+        this.notifications.httpError(
+          err,
           'Error al abrir el editor',
           'No fue posible cargar los datos del documento. Intente nuevamente.',
         );

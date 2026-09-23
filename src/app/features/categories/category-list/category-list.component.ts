@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -16,7 +15,6 @@ import {
 import { CategoriesService } from '@core/services/categories.service';
 import { NotificationService } from '@core/services/notification.service';
 import { Category } from '@core/models/category.model';
-import { ApiError } from '@core/models/api-error.model';
 import { CategorySortBy, CategorySortDir } from '@core/models/category-list.model';
 import { CategoryStatusBadgeComponent } from './components/category-status-badge.component';
 import { CategoryIconBadgeComponent } from './components/category-icon-badge.component';
@@ -98,12 +96,12 @@ export class CategoryListComponent {
         this.inactiveCategories.set(res.inactiveCategories);
         this.loading.set(false);
       },
-      error: (err: HttpErrorResponse) => {
+      error: (err: unknown) => {
         this.loading.set(false);
-        const apiError = err.error as ApiError | undefined;
-        this.notifications.error(
+        this.notifications.httpError(
+          err,
           'No se pudo cargar el listado',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
+          'Verifique su conexión e intente nuevamente.',
         );
       },
     });
