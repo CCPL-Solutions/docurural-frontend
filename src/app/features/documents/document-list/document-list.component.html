@@ -146,16 +146,16 @@
                     <app-sensitivity-badge size="sm" [level]="doc.sensitivityLevel" />
                   </div>
                   <span class="cell-title__meta"
-                    >Cargado el {{ formatCreatedAt(doc.createdAt) }}</span
+                    >Cargado el {{ doc.createdAt | date: dateTimeFormat }}</span
                   >
                 </div>
               </div>
             </td>
             <td>
-              <app-document-category-pill [name]="doc.category" />
+              <app-category-pill [name]="doc.category" />
             </td>
             <td class="cell-area">{{ doc.responsibleArea }}</td>
-            <td class="cell-date">{{ formatDocumentDate(doc.documentDate) }}</td>
+            <td class="cell-date">{{ doc.documentDate | date: dateFormat }}</td>
             <td class="cell-size td-right">{{ formatSize(doc.fileSizeBytes) }}</td>
             <td>
               <div class="cell-uploader">
@@ -191,7 +191,7 @@
           <app-document-format-icon [format]="doc.fileFormat" />
           <div class="doc-card__info">
             <span class="doc-card__title">{{ doc.title }}</span>
-            <app-document-category-pill [name]="doc.category" />
+            <app-category-pill [name]="doc.category" />
           </div>
         </div>
         <div class="doc-card__meta">
@@ -202,7 +202,7 @@
           </span>
           <span class="doc-card__meta-item">
             <mat-icon aria-hidden="true">calendar_today</mat-icon>
-            {{ formatDocumentDate(doc.documentDate) }}
+            {{ doc.documentDate | date: dateFormat }}
           </span>
           <span class="doc-card__meta-item">
             <mat-icon aria-hidden="true">data_usage</mat-icon>
@@ -230,10 +230,7 @@
               <mat-icon>download</mat-icon>
             }
           </app-icon-button>
-          @if (
-            role() === 'ADMIN' ||
-            (role() === 'EDITOR' && doc.uploadedBy === (currentUser()?.fullName ?? ''))
-          ) {
+          @if (canEdit(doc)) {
             <button
               type="button"
               class="more-btn"
@@ -247,7 +244,7 @@
                 <mat-icon>edit</mat-icon>
                 <span>Editar</span>
               </button>
-              @if (role() === 'ADMIN') {
+              @if (canDelete()) {
                 <button mat-menu-item class="menu-item--danger" (click)="onDelete(doc)">
                   <mat-icon>delete_outline</mat-icon>
                   <span>Eliminar</span>

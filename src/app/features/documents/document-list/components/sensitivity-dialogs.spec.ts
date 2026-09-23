@@ -16,8 +16,8 @@ import { AuthService } from '@core/services/auth.service';
 import { CategoriesService } from '@core/services/categories.service';
 import { DocumentsService } from '@core/services/documents.service';
 import { NotificationService } from '@core/services/notification.service';
-import { EditDocumentMetadataDialogComponent } from './edit-document-metadata-dialog/edit-document-metadata-dialog.component';
-import { UploadDocumentDialogComponent } from './upload-document-dialog/upload-document-dialog.component';
+import { EditDocumentMetadataDialogComponent } from '../../dialogs/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
+import { UploadDocumentDialogComponent } from '../../dialogs/upload-document-dialog/upload-document-dialog.component';
 import { UploadDocumentsBatchDialogComponent } from './upload-documents-batch-dialog/upload-documents-batch-dialog.component';
 
 const category = (

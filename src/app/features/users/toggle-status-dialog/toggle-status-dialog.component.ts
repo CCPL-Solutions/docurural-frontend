@@ -3,13 +3,20 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { UsersService } from '@core/services/users.service';
 import { ApiError } from '@core/models/api-error.model';
+import { User } from '@core/models/user.model';
 import { UserStatus } from '@core/models/user-status.model';
-import {
-  ToggleStatusDialogData,
-  ToggleStatusDialogResult,
-} from '@core/models/toggle-status-dialog.model';
 import { AlertComponent } from '@shared/components/alert/alert.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
+
+export interface ToggleStatusDialogData {
+  user: User;
+  action: 'activate' | 'deactivate';
+}
+
+export interface ToggleStatusDialogResult {
+  success: true;
+  message: string;
+}
 
 @Component({
   selector: 'app-toggle-status-dialog',

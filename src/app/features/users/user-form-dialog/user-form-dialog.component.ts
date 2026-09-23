@@ -18,14 +18,23 @@ import { AuthService } from '@core/services/auth.service';
 import { UsersService } from '@core/services/users.service';
 import { NotificationService } from '@core/services/notification.service';
 import { Role, ROLE_LABELS } from '@core/models/role.model';
-import {
-  CreateUserRequest,
-  UpdateUserRequest,
-  UserFormDialogData,
-  UserFormDialogResult,
-} from '@core/models/user-form.model';
+import { AuthenticatedUser, User } from '@core/models/user.model';
+import { UserStatus } from '@core/models/user-status.model';
+import { CreateUserRequest, UpdateUserRequest } from '@core/models/user-form.model';
 import { passwordMatchValidator } from './validators/password-match.validator';
 import { passwordComplexityValidator } from './validators/password-complexity.validator';
+
+export type UserFormMode = 'create' | 'edit';
+
+export interface UserFormDialogData {
+  mode: UserFormMode;
+  user?: User;
+}
+
+export type UserFormDialogResult =
+  | { kind: 'created'; user: User }
+  | { kind: 'updated'; user: AuthenticatedUser & { status: UserStatus } }
+  | { kind: 'cancelled' };
 
 @Component({
   selector: 'app-user-form-dialog',

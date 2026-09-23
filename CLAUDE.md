@@ -48,9 +48,9 @@ son de Windows y no se ejecutan en la CI; los flujos E2E sí. Detalle en la secc
 
 ```
 src/app/
-  core/       guards, interceptors, models, services  → transversal y singleton
+  core/       auth (permisos), guards, interceptors, models, services  → transversal y singleton
   features/   auth, categories, dashboard, documents, users  → una carpeta por feature
-  shared/     components, layout, pipes, sensitivity  → UI reutilizable sin lógica de negocio
+  shared/     components, layout, pipes, sensitivity, ui, utils  → reutilizable, sin lógica de negocio
 src/styles/   tokens de diseño (_tokens.scss) y parciales globales (ver src/styles/README.md)
 ```
 
@@ -58,7 +58,12 @@ src/styles/   tokens de diseño (_tokens.scss) y parciales globales (ver src/sty
   `environment.apiBaseUrl`.
 - Entre carpetas raíz se importa con los alias `@core/*`, `@shared/*`, `@features/*` y `@env/*`.
   Los imports relativos no pasan de `../../` (lo verifica ESLint).
-- Una feature no importa internals de otra (lo verifica ESLint).
+- Una feature no importa internals de otra (lo verifica ESLint). Lo que otra feature necesita se
+  expone en `features/<feature>/dialogs/`.
+- Utilidades con una sola implementación en `shared/utils/` (iniciales, colores por nombre,
+  fechas, formato de archivo, descarga). Los permisos por rol, solo con `core/auth/permissions.ts`.
+- Fechas con el pipe `date` (o `formatDate`) y los formatos de `shared/utils/date-formats.ts`;
+  tamaños de diálogo con `shared/ui/dialog-sizes.ts`.
 - El estado es de signals. La sesión es el único estado global (`AuthService`).
 
 ## Convenciones clave

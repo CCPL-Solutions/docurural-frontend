@@ -19,7 +19,7 @@
         <span class="readonly-block__filemeta">
           {{ data.document.fileFormat }} · {{ formatFileSize(data.document.fileSizeBytes) }} ·
           Cargado por {{ data.document.uploadedBy.fullName }} ·
-          {{ formatCreatedAt(data.document.createdAt) }}
+          {{ data.document.createdAt | date: dateTimeFormat }}
         </span>
       </div>
     </div>

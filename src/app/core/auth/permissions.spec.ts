@@ -1,6 +1,28 @@
-import { canDeleteDocument, canEditDocument, canUploadDocument } from './document-permissions';
+import {
+  canDeleteDocument,
+  canEditDocument,
+  canSeeUploadedByFilter,
+  canUploadDocument,
+  isAdmin,
+  isEditor,
+} from './permissions';
 
-describe('document-permissions', () => {
+describe('permissions', () => {
+  it('isAdmin e isEditor reconocen su rol y toleran la ausencia de sesión', () => {
+    expect(isAdmin('ADMIN')).toBe(true);
+    expect(isAdmin('EDITOR')).toBe(false);
+    expect(isAdmin(undefined)).toBe(false);
+    expect(isEditor('EDITOR')).toBe(true);
+    expect(isEditor('READER')).toBe(false);
+    expect(isEditor(null)).toBe(false);
+  });
+
+  it('canSeeUploadedByFilter: solo ADMIN', () => {
+    expect(canSeeUploadedByFilter('ADMIN')).toBe(true);
+    expect(canSeeUploadedByFilter('EDITOR')).toBe(false);
+    expect(canSeeUploadedByFilter('READER')).toBe(false);
+  });
+
   describe('canEditDocument', () => {
     it('permite a ADMIN editar cualquier documento', () => {
       expect(canEditDocument('ADMIN', 'Ana Pérez', 'Otro Usuario')).toBe(true);

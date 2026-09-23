@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  LOCALE_ID,
   OnInit,
   computed,
   inject,
@@ -22,12 +23,12 @@ import {
   buildFallbackFilename,
   triggerBlobDownload,
   parseBlobError,
-} from '@features/documents/document-list/utils/download-blob';
+} from '@shared/utils/download-blob';
 import {
   UploadDocumentDialogComponent,
   UploadDocumentDialogData,
   UploadDocumentDialogResult,
-} from '@features/documents/document-list/components/upload-document-dialog/upload-document-dialog.component';
+} from '@features/documents/dialogs/upload-document-dialog/upload-document-dialog.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
@@ -35,6 +36,10 @@ import { TopCategoryCardComponent } from './components/top-category-card/top-cat
 import { CategoryChartComponent } from './components/category-chart/category-chart.component';
 import { RecentDocsTableComponent } from './components/recent-docs-table/recent-docs-table.component';
 import { QuickActionsComponent } from './components/quick-actions/quick-actions.component';
+import { formatDate } from '@angular/common';
+import { canUploadDocument } from '@core/auth/permissions';
+import { MONTH_YEAR_FORMAT } from '@shared/utils/date-formats';
+import { DIALOG_LG } from '@shared/ui/dialog-sizes';
 
 @Component({
   selector: 'app-dashboard',
@@ -69,17 +74,16 @@ export class DashboardComponent implements OnInit {
   protected readonly firstName = computed(
     () => this.auth.currentUser()?.fullName?.split(' ')[0] ?? '',
   );
-  protected readonly canUpload = computed(
-    () => this.role() === 'ADMIN' || this.role() === 'EDITOR',
-  );
+  protected readonly canUpload = computed(() => canUploadDocument(this.role()));
   protected readonly quickActions = computed(() => getQuickActionsForRole(this.role()));
   protected readonly isEmptyRepo = computed(
     () => (this.stats()?.summary.totalActiveDocuments ?? 0) === 0,
   );
-  protected readonly currentMonthLabel = new Intl.DateTimeFormat('es-CO', {
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date());
+  protected readonly currentMonthLabel = formatDate(
+    new Date(),
+    MONTH_YEAR_FORMAT,
+    inject(LOCALE_ID),
+  );
 
   ngOnInit(): void {
     this.loadStats();
@@ -133,9 +137,7 @@ export class DashboardComponent implements OnInit {
       UploadDocumentDialogResult
     >(UploadDocumentDialogComponent, {
       data: {},
-      width: '620px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_LG,
     });
     ref.afterClosed().subscribe((result) => {
       if (result?.kind === 'uploaded') {

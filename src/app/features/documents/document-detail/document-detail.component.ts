@@ -20,25 +20,29 @@ import { NotificationService } from '@core/services/notification.service';
 import { DocumentDetailResponse, isPreviewableFormat } from '@core/models/document-detail.model';
 import { DOCUMENT_FORMAT_LABELS } from '@core/models/document-format.model';
 import { ApiError } from '@core/models/api-error.model';
-import { formatFileSize } from '../document-list/utils/file-size';
+import { formatFileSize } from '@shared/utils/file-size';
 import {
   parseBlobError,
   parseFilenameFromContentDisposition,
   triggerBlobDownload,
-} from '../document-list/utils/download-blob';
-import { canEditDocument } from '../document-list/utils/document-permissions';
+} from '@shared/utils/download-blob';
+import { canEditDocument } from '@core/auth/permissions';
+import { DATE_FORMAT, DATE_TIME_FORMAT } from '@shared/utils/date-formats';
+import { userInitials } from '@shared/utils/user-initials';
 import {
   EditDocumentMetadataDialogComponent,
   EditDocumentMetadataDialogData,
   EditDocumentMetadataDialogResult,
-} from '../document-list/components/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
+} from '../dialogs/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
-import { DocumentFormatIconComponent } from '../document-list/components/document-format-icon.component';
-import { DocumentCategoryPillComponent } from '../document-list/components/document-category-pill.component';
+import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
+import { CategoryPillComponent } from '@shared/components/category-pill/category-pill.component';
 import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
+import { DatePipe } from '@angular/common';
+import { DIALOG_LG } from '@shared/ui/dialog-sizes';
 
 type ErrorKind = 'not-found' | 'file-missing' | 'network';
 
@@ -46,6 +50,7 @@ type ErrorKind = 'not-found' | 'file-missing' | 'network';
   selector: 'app-document-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     MatDialogModule,
     MatIconModule,
     MatProgressSpinnerModule,
@@ -54,7 +59,7 @@ type ErrorKind = 'not-found' | 'file-missing' | 'network';
     ButtonComponent,
     IconButtonComponent,
     DocumentFormatIconComponent,
-    DocumentCategoryPillComponent,
+    CategoryPillComponent,
     SensitivityBadgeComponent,
   ],
   templateUrl: './document-detail.component.html',
@@ -101,28 +106,9 @@ export class DocumentDetailComponent implements OnDestroy {
   });
 
   protected readonly formatFileSize = formatFileSize;
-
-  protected userInitials(fullName: string): string {
-    return fullName
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p[0].toUpperCase())
-      .join('');
-  }
-
-  private readonly docDateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-  private readonly loadedAtFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  protected readonly userInitials = userInitials;
+  protected readonly dateFormat = DATE_FORMAT;
+  protected readonly dateTimeFormat = DATE_TIME_FORMAT;
 
   constructor() {
     const raw = this.route.snapshot.paramMap.get('id');
@@ -158,9 +144,7 @@ export class DocumentDetailComponent implements OnDestroy {
       EditDocumentMetadataDialogResult
     >(EditDocumentMetadataDialogComponent, {
       data: { document: meta },
-      width: '620px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_LG,
     });
     ref.afterClosed().subscribe((result) => {
       if (result?.kind === 'updated') {
@@ -215,16 +199,6 @@ export class DocumentDetailComponent implements OnDestroy {
     const el = this.imageContainer()?.nativeElement;
     if (!el) return;
     el.requestFullscreen?.().catch(() => {});
-  }
-
-  protected formatDocumentDate(iso: string): string {
-    const d = this.parseDate(iso);
-    return d ? this.docDateFormatter.format(d) : '—';
-  }
-
-  protected formatCreatedAt(iso: string): string {
-    const d = this.parseDate(iso);
-    return d ? this.loadedAtFormatter.format(d) : '—';
   }
 
   private loadDocument(id: number): void {
@@ -290,11 +264,5 @@ export class DocumentDetailComponent implements OnDestroy {
       URL.revokeObjectURL(url);
       this.objectUrl.set(null);
     }
-  }
-
-  private parseDate(value: string): Date | null {
-    if (!value) return null;
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? null : d;
   }
 }

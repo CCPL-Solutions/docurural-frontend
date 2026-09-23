@@ -7,7 +7,7 @@ import { Document } from '@core/models/document.model';
 import { DeleteDocumentResponse } from '@core/models/document-list.model';
 import { AlertComponent } from '@shared/components/alert/alert.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
-import { formatFileSize } from '../../utils/file-size';
+import { formatFileSize } from '@shared/utils/file-size';
 
 export interface DeleteDocumentDialogData {
   document: Document;

@@ -60,16 +60,16 @@
                       {{ truncateTitle(doc.title) }}
                     </span>
                     <span class="doc-title-cell__meta">
-                      Cargado el {{ formatCreatedAt(doc.createdAt) }}
+                      Cargado el {{ doc.createdAt | date: dateFormat }}
                     </span>
                   </div>
                 </div>
               </td>
               <td class="col--category">
-                <app-document-category-pill [name]="doc.category" />
+                <app-category-pill [name]="doc.category" />
               </td>
               <td class="col--area">{{ doc.responsibleArea }}</td>
-              <td class="col--date">{{ formatCreatedAt(doc.createdAt) }}</td>
+              <td class="col--date">{{ doc.createdAt | date: dateFormat }}</td>
               <td class="col--actions">
                 <div class="actions-cell">
                   <app-icon-button
@@ -101,7 +101,7 @@
           <app-document-format-icon [format]="doc.fileFormat" />
           <div class="rdt-card__text">
             <span class="rdt-card__title" [title]="doc.title">{{ doc.title }}</span>
-            <span class="rdt-card__meta">{{ formatCreatedAt(doc.createdAt) }}</span>
+            <span class="rdt-card__meta">{{ doc.createdAt | date: dateFormat }}</span>
           </div>
           <div class="rdt-card__actions">
             <app-icon-button

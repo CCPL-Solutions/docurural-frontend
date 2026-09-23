@@ -98,10 +98,10 @@
             <td>
               <app-status-badge [status]="user.status" />
             </td>
-            <td class="cell-date">{{ formatCreated(user.createdAt) }}</td>
+            <td class="cell-date">{{ user.createdAt | date: dateFormat }}</td>
             <td class="cell-date">
               @if (user.lastLogin) {
-                {{ formatLastLogin(user.lastLogin) }}
+                {{ (user.lastLogin | date: dateTimeFormat) ?? 'Nunca' }}
               } @else {
                 <span class="cell-never">Nunca</span>
               }
