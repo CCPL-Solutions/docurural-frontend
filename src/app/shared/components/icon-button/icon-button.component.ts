@@ -5,7 +5,6 @@ export type IconButtonVariant = 'default' | 'danger';
 
 @Component({
   selector: 'app-icon-button',
-  standalone: true,
   imports: [MatTooltipModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

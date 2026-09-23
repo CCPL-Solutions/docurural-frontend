@@ -17,29 +17,25 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { AlertComponent } from '../../../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../../../shared/components/button/button.component';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { DocumentFormatIconComponent } from '../document-format-icon.component';
-import { CategoriesService } from '../../../../../core/services/categories.service';
-import { DocumentsService } from '../../../../../core/services/documents.service';
-import { NotificationService } from '../../../../../core/services/notification.service';
-import { AuthService } from '../../../../../core/services/auth.service';
-import { Category } from '../../../../../core/models/category.model';
-import { DocumentDetailResponse } from '../../../../../core/models/document-detail.model';
-import { RESPONSIBLE_AREAS } from '../../../../../core/models/upload-document.models';
+import { CategoriesService } from '@core/services/categories.service';
+import { DocumentsService } from '@core/services/documents.service';
+import { NotificationService } from '@core/services/notification.service';
+import { AuthService } from '@core/services/auth.service';
+import { Category } from '@core/models/category.model';
+import { DocumentDetailResponse } from '@core/models/document-detail.model';
+import { RESPONSIBLE_AREAS } from '@core/models/upload-document.model';
 import {
   UpdateDocumentMetadataRequest,
   UpdateDocumentMetadataResponse,
-} from '../../../../../core/models/update-document.models';
-import {
-  SensitivityLevel,
-  clampToMin,
-  isAtLeast,
-} from '../../../../../core/models/sensitivity-level.model';
-import { SensitivityLockBannerComponent } from '../../../../../shared/sensitivity/sensitivity-lock-banner.component';
-import { SensitivityInheritedBannerComponent } from '../../../../../shared/sensitivity/sensitivity-inherited-banner.component';
-import { SensitivityRadioComponent } from '../../../../../shared/sensitivity/sensitivity-radio.component';
-import { SensitivityMobileFieldComponent } from '../../../../../shared/sensitivity/sensitivity-mobile-field.component';
+} from '@core/models/update-document.model';
+import { SensitivityLevel, clampToMin, isAtLeast } from '@core/models/sensitivity-level.model';
+import { SensitivityLockBannerComponent } from '@shared/sensitivity/sensitivity-lock-banner.component';
+import { SensitivityInheritedBannerComponent } from '@shared/sensitivity/sensitivity-inherited-banner.component';
+import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
+import { SensitivityMobileFieldComponent } from '@shared/sensitivity/sensitivity-mobile-field.component';
 import { formatFileSize } from '../../utils/file-size';
 import { formatYmd } from '../../utils/format-ymd';
 
@@ -65,7 +61,6 @@ export type EditDocumentMetadataDialogResult =
 
 @Component({
   selector: 'app-edit-document-metadata-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
@@ -102,8 +97,8 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   protected readonly loading = signal(false);
   protected readonly submitError = signal<string | null>(null);
   protected readonly categories = signal<Category[]>([]);
-  protected readonly categoriesLoading = signal(false);
-  protected readonly categoriesLoadError = signal(false);
+  protected readonly loadingCategories = signal(false);
+  protected readonly loadCategoriesError = signal(false);
 
   protected readonly areas = RESPONSIBLE_AREAS;
 
@@ -198,17 +193,17 @@ export class EditDocumentMetadataDialogComponent implements OnInit {
   }
 
   protected loadCategories(): void {
-    this.categoriesLoading.set(true);
-    this.categoriesLoadError.set(false);
+    this.loadingCategories.set(true);
+    this.loadCategoriesError.set(false);
     this.categoriesService
       .list('name', 'asc')
-      .pipe(finalize(() => this.categoriesLoading.set(false)))
+      .pipe(finalize(() => this.loadingCategories.set(false)))
       .subscribe({
         next: (res) => {
           this.categories.set(res.categories.filter((c) => c.status === 'ACTIVE'));
         },
         error: () => {
-          this.categoriesLoadError.set(true);
+          this.loadCategoriesError.set(true);
         },
       });
   }

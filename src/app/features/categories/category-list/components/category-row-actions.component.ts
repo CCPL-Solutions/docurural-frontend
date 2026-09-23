@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { Category } from '../../../../core/models/category.model';
-import { IconButtonComponent } from '../../../../shared/components/icon-button/icon-button.component';
+import { Category } from '@core/models/category.model';
+import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
 
 @Component({
   selector: 'app-category-row-actions',
-  standalone: true,
   imports: [MatIconModule, IconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

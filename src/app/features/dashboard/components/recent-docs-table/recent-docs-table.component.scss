@@ -1,5 +1,5 @@
-@use '../../../../../styles/data-table' as dt;
-@use '../../../../../styles/breakpoints' as bp;
+@use 'data-table' as dt;
+@use 'breakpoints' as bp;
 
 :host {
   display: block;

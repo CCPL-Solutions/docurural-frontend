@@ -4,13 +4,12 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../../core/services/auth.service';
-import { AlertComponent } from '../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { AuthService } from '@core/services/auth.service';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
   imports: [ReactiveFormsModule, MatIconModule, AlertComponent, ButtonComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -79,8 +78,8 @@ export class LoginComponent {
             this.accountInactive.set(true);
           } else if (err.status === 400 && err.error?.fieldErrors) {
             const fieldErrors = err.error.fieldErrors as Record<string, string>;
-            Object.entries(fieldErrors).forEach(([campo, msg]) => {
-              this.form.get(campo)?.setErrors({ backend: msg });
+            Object.entries(fieldErrors).forEach(([field, msg]) => {
+              this.form.get(field)?.setErrors({ backend: msg });
             });
           } else {
             this.submitError.set(

@@ -14,15 +14,12 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from '../../../core/services/auth.service';
-import { DocumentsService } from '../../../core/services/documents.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import {
-  DocumentDetailResponse,
-  isPreviewableFormat,
-} from '../../../core/models/document-detail.model';
-import { DOCUMENT_FORMAT_LABELS } from '../../../core/models/document-format.model';
-import { ApiError } from '../../../core/models/api-error.model';
+import { AuthService } from '@core/services/auth.service';
+import { DocumentsService } from '@core/services/documents.service';
+import { NotificationService } from '@core/services/notification.service';
+import { DocumentDetailResponse, isPreviewableFormat } from '@core/models/document-detail.model';
+import { DOCUMENT_FORMAT_LABELS } from '@core/models/document-format.model';
+import { ApiError } from '@core/models/api-error.model';
 import { formatFileSize } from '../document-list/utils/file-size';
 import {
   parseBlobError,
@@ -35,19 +32,18 @@ import {
   EditDocumentMetadataDialogData,
   EditDocumentMetadataDialogResult,
 } from '../document-list/components/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { IconButtonComponent } from '../../../shared/components/icon-button/icon-button.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
 import { DocumentFormatIconComponent } from '../document-list/components/document-format-icon.component';
 import { DocumentCategoryPillComponent } from '../document-list/components/document-category-pill.component';
-import { SensitivityBadgeComponent } from '../../../shared/sensitivity/sensitivity-badge.component';
+import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
 
 type ErrorKind = 'not-found' | 'file-missing' | 'network';
 
 @Component({
   selector: 'app-document-detail',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,

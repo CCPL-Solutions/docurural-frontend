@@ -12,26 +12,23 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { AlertComponent } from '../../../../../shared/components/alert/alert.component';
-import {
-  ButtonComponent,
-  ButtonVariant,
-} from '../../../../../shared/components/button/button.component';
-import { SensitivityRadioComponent } from '../../../../../shared/sensitivity/sensitivity-radio.component';
-import { CategoriesService } from '../../../../../core/services/categories.service';
-import { NotificationService } from '../../../../../core/services/notification.service';
-import { Category } from '../../../../../core/models/category.model';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent, ButtonVariant } from '@shared/components/button/button.component';
+import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
+import { CategoriesService } from '@core/services/categories.service';
+import { NotificationService } from '@core/services/notification.service';
+import { Category } from '@core/models/category.model';
 import {
   SensitivityLevel,
   SENSITIVITY_LABELS,
   compareSensitivity,
-} from '../../../../../core/models/sensitivity-level.model';
+} from '@core/models/sensitivity-level.model';
 import {
   CreateCategoryRequest,
   CreateCategoryResponse,
   UpdateCategoryRequest,
   UpdateCategoryResponse,
-} from '../../../../../core/models/category-list.models';
+} from '@core/models/category-list.model';
 
 export type CategoryFormDialogMode = 'create' | 'edit';
 
@@ -56,7 +53,6 @@ function trimmedMinLength(min: number): ValidatorFn {
 
 @Component({
   selector: 'app-category-form-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,

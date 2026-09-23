@@ -4,7 +4,6 @@ export type BadgeVariant = 'primary' | 'success' | 'neutral' | 'warning' | 'dang
 
 @Component({
   selector: 'app-badge',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span class="badge" [class]="'badge--' + variant()">

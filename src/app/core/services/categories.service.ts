@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 import { CategoryStatus } from '../models/category-status.model';
 import {
   CategorySortBy,
@@ -13,7 +13,7 @@ import {
   UpdateCategoryResponse,
   UpdateCategoryStatusRequest,
   UpdateCategoryStatusResponse,
-} from '../models/category-list.models';
+} from '../models/category-list.model';
 
 @Injectable({ providedIn: 'root' })
 export class CategoriesService {

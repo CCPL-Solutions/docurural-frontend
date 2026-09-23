@@ -5,7 +5,6 @@ export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success' | 'wa
 
 @Component({
   selector: 'app-button',
-  standalone: true,
   imports: [MatProgressSpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

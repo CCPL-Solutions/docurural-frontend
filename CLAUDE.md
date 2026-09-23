@@ -56,6 +56,8 @@ src/styles/   tokens de diseño (_tokens.scss) y parciales globales (ver src/sty
 
 - El HTTP vive solo en `core/services/`, con un servicio por recurso y URLs construidas con
   `environment.apiBaseUrl`.
+- Entre carpetas raíz se importa con los alias `@core/*`, `@shared/*`, `@features/*` y `@env/*`.
+  Los imports relativos no pasan de `../../` (lo verifica ESLint).
 - Una feature no importa internals de otra (lo verifica ESLint).
 - El estado es de signals. La sesión es el único estado global (`AuthService`).
 

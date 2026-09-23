@@ -79,7 +79,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (category of categories(); track trackById($index, category)) {
+        @for (category of categories(); track category.id) {
           <tr [class.row--muted]="isMuted(category)">
             <td>
               <div class="cell-category">
@@ -121,7 +121,7 @@
 
   <!-- Tarjetas (< 768px) -->
   <div class="category-cards mobile-only">
-    @for (category of categories(); track trackById($index, category)) {
+    @for (category of categories(); track category.id) {
       <div class="category-card" [class.category-card--muted]="isMuted(category)">
         <div class="category-card__top">
           <app-category-icon-badge [name]="category.name" [muted]="isMuted(category)" />

@@ -1,14 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Document } from '../../../../core/models/document.model';
-import { Role } from '../../../../core/models/role.model';
-import { IconButtonComponent } from '../../../../shared/components/icon-button/icon-button.component';
+import { Document } from '@core/models/document.model';
+import { Role } from '@core/models/role.model';
+import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
 import { canEditDocument, canDeleteDocument } from '../utils/document-permissions';
 
 @Component({
   selector: 'app-document-row-actions',
-  standalone: true,
   imports: [MatIconModule, MatProgressSpinnerModule, IconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

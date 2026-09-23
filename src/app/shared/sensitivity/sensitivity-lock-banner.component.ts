@@ -4,11 +4,10 @@ import {
   SensitivityLevel,
   SENSITIVITY_ICONS,
   SENSITIVITY_LABELS,
-} from '../../core/models/sensitivity-level.model';
+} from '@core/models/sensitivity-level.model';
 
 @Component({
   selector: 'app-sensitivity-lock-banner',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   template: `

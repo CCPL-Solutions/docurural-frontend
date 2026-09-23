@@ -10,29 +10,26 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../core/services/auth.service';
-import { DocumentsService } from '../../core/services/documents.service';
-import { DashboardService } from '../../core/services/dashboard.service';
-import { NotificationService } from '../../core/services/notification.service';
-import {
-  DashboardStatsResponse,
-  RecentDocumentItem,
-} from '../../core/models/dashboard-stats.model';
-import { ApiError } from '../../core/models/api-error.model';
+import { AuthService } from '@core/services/auth.service';
+import { DocumentsService } from '@core/services/documents.service';
+import { DashboardService } from '@core/services/dashboard.service';
+import { NotificationService } from '@core/services/notification.service';
+import { DashboardStatsResponse, RecentDocumentItem } from '@core/models/dashboard-stats.model';
+import { ApiError } from '@core/models/api-error.model';
 import { getQuickActionsForRole } from './utils/quick-action.model';
 import {
   parseFilenameFromContentDisposition,
   buildFallbackFilename,
   triggerBlobDownload,
   parseBlobError,
-} from '../documents/document-list/utils/download-blob';
+} from '@features/documents/document-list/utils/download-blob';
 import {
   UploadDocumentDialogComponent,
   UploadDocumentDialogData,
   UploadDocumentDialogResult,
-} from '../documents/document-list/components/upload-document-dialog/upload-document-dialog.component';
-import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+} from '@features/documents/document-list/components/upload-document-dialog/upload-document-dialog.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
 import { TopCategoryCardComponent } from './components/top-category-card/top-category-card.component';
 import { CategoryChartComponent } from './components/category-chart/category-chart.component';
@@ -41,7 +38,6 @@ import { QuickActionsComponent } from './components/quick-actions/quick-actions.
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatIconModule,

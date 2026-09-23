@@ -5,7 +5,6 @@ export type AlertVariant = 'error' | 'warning' | 'success' | 'info';
 
 @Component({
   selector: 'app-alert',
-  standalone: true,
   imports: [MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

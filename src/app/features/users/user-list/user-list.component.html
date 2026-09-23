@@ -85,7 +85,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (user of filteredUsers(); track trackById($index, user)) {
+        @for (user of filteredUsers(); track user.id) {
           <tr [class.row--muted]="isMuted(user)">
             <td>
               <app-user-identity [user]="user" [muted]="isMuted(user)" />
@@ -121,7 +121,7 @@
 
   <!-- Tarjetas (< 768px) -->
   <div class="user-cards mobile-only">
-    @for (user of filteredUsers(); track trackById($index, user)) {
+    @for (user of filteredUsers(); track user.id) {
       <div class="user-card" [class.user-card--muted]="isMuted(user)">
         <div class="user-card__top">
           <app-user-identity [user]="user" [muted]="isMuted(user)" size="lg" />

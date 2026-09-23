@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RecentDocumentItem } from '../../../../core/models/dashboard-stats.model';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { IconButtonComponent } from '../../../../shared/components/icon-button/icon-button.component';
-import { DocumentFormatIconComponent } from '../../../documents/document-list/components/document-format-icon.component';
-import { DocumentCategoryPillComponent } from '../../../documents/document-list/components/document-category-pill.component';
+import { RecentDocumentItem } from '@core/models/dashboard-stats.model';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
+import { DocumentFormatIconComponent } from '@features/documents/document-list/components/document-format-icon.component';
+import { DocumentCategoryPillComponent } from '@features/documents/document-list/components/document-category-pill.component';
 
 function truncateTitle(title: string, max = 50): string {
   return title.length > max ? title.slice(0, max - 1) + '…' : title;
@@ -22,7 +22,6 @@ function formatCreatedAt(iso: string): string {
 
 @Component({
   selector: 'app-recent-docs-table',
-  standalone: true,
   imports: [
     RouterModule,
     MatIconModule,

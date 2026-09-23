@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MatIconModule } from '@angular/material/icon';
-import { DocumentFilters, EMPTY_FILTERS } from '../../../../../core/models/document-filters.model';
-import { FilterOptionsResponse } from '../../../../../core/models/filter-options.model';
+import { DocumentFilters, EMPTY_FILTERS } from '@core/models/document-filters.model';
+import { FilterOptionsResponse } from '@core/models/filter-options.model';
 import { DocumentFiltersPanelComponent } from '../document-filters-panel/document-filters-panel.component';
 
 export interface FiltersBottomSheetData {
@@ -16,7 +16,6 @@ export type FiltersBottomSheetResult = { action: 'apply'; draft: DocumentFilters
 
 @Component({
   selector: 'app-document-filters-bottom-sheet',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, DocumentFiltersPanelComponent],
   templateUrl: './document-filters-bottom-sheet.component.html',

@@ -21,21 +21,24 @@
 
   <!-- Campos de filtro -->
   <div class="filters-panel__body">
-    <div class="filters-panel__grid" [class.filters-panel__grid--with-uploader]="canSeeUploadedBy">
+    <div
+      class="filters-panel__grid"
+      [class.filters-panel__grid--with-uploader]="canSeeUploadedBy()"
+    >
       <!-- Categoría -->
       <div class="field">
-        <label class="field__label" id="filter-category-label">Categoría</label>
+        <span class="field__label" id="filter-category-label">Categoría</span>
         <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
           <mat-icon matPrefix class="select-icon">local_offer</mat-icon>
           <mat-select
             aria-labelledby="filter-category-label"
-            [value]="draft.categoryId"
-            [disabled]="loadingOptions"
+            [value]="draft().categoryId"
+            [disabled]="loadingOptions()"
             placeholder="Todas las categorías"
             (selectionChange)="onCategoryChange($event.value)"
           >
             <mat-option [value]="null">Todas las categorías</mat-option>
-            @for (cat of options?.categories ?? []; track cat.id) {
+            @for (cat of options()?.categories ?? []; track cat.id) {
               <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
             }
           </mat-select>
@@ -54,7 +57,7 @@
             type="text"
             class="field__input field__input--with-icon"
             placeholder="Ej. Rectoría"
-            [value]="draft.responsibleArea ?? ''"
+            [value]="draft().responsibleArea ?? ''"
             (input)="onResponsibleAreaInput($event)"
           />
         </div>
@@ -63,13 +66,13 @@
       <!-- Fecha desde -->
       <div class="field">
         <label class="field__label" for="filter-date-from">Fecha desde</label>
-        <div class="field__control" [class.field__control--error]="!!dateError">
+        <div class="field__control" [class.field__control--error]="!!dateError()">
           <input
             id="filter-date-from"
             class="field__input field__input--with-toggle field__input--datepicker"
             type="text"
             [matDatepicker]="pickerFrom"
-            [value]="parseDateStr(draft.dateFrom)"
+            [value]="parseDateStr(draft().dateFrom)"
             placeholder="DD/MM/AAAA"
             readonly
             (click)="pickerFrom.open()"
@@ -90,13 +93,13 @@
       <!-- Fecha hasta -->
       <div class="field">
         <label class="field__label" for="filter-date-to">Fecha hasta</label>
-        <div class="field__control" [class.field__control--error]="!!dateError">
+        <div class="field__control" [class.field__control--error]="!!dateError()">
           <input
             id="filter-date-to"
             class="field__input field__input--with-toggle field__input--datepicker"
             type="text"
             [matDatepicker]="pickerTo"
-            [value]="parseDateStr(draft.dateTo)"
+            [value]="parseDateStr(draft().dateTo)"
             placeholder="DD/MM/AAAA"
             readonly
             (click)="pickerTo.open()"
@@ -115,23 +118,23 @@
       </div>
 
       <!-- Subido por (solo ADMIN) -->
-      @if (canSeeUploadedBy) {
+      @if (canSeeUploadedBy()) {
         <div class="field">
           <div class="field__label-row">
-            <label class="field__label" id="filter-uploader-label">Subido por</label>
+            <span class="field__label" id="filter-uploader-label">Subido por</span>
             <span class="field__hint-inline">Solo ADMIN</span>
           </div>
           <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
             <mat-icon matPrefix class="select-icon">person</mat-icon>
             <mat-select
               aria-labelledby="filter-uploader-label"
-              [value]="draft.uploadedBy"
-              [disabled]="loadingOptions"
+              [value]="draft().uploadedBy"
+              [disabled]="loadingOptions()"
               placeholder="Cualquier usuario"
               (selectionChange)="onUploadedByChange($event.value)"
             >
               <mat-option [value]="null">Cualquier usuario</mat-option>
-              @for (user of options?.users ?? []; track user.id) {
+              @for (user of options()?.users ?? []; track user.id) {
                 <mat-option [value]="user.id">{{ user.fullName }}</mat-option>
               }
             </mat-select>
@@ -141,10 +144,10 @@
     </div>
 
     <!-- Error de rango de fechas -->
-    @if (dateError) {
+    @if (dateError()) {
       <p class="filters-panel__date-error field__error" role="alert">
         <mat-icon aria-hidden="true">error_outline</mat-icon>
-        {{ dateError }}
+        {{ dateError() }}
       </p>
     }
   </div>
@@ -155,7 +158,12 @@
       <mat-icon aria-hidden="true">restart_alt</mat-icon>
       <span>Restablecer</span>
     </button>
-    <button type="button" class="filters-panel__apply" [disabled]="!!dateError" (click)="onApply()">
+    <button
+      type="button"
+      class="filters-panel__apply"
+      [disabled]="!!dateError()"
+      (click)="onApply()"
+    >
       <mat-icon aria-hidden="true">check</mat-icon>
       <span>Aplicar filtros</span>
     </button>

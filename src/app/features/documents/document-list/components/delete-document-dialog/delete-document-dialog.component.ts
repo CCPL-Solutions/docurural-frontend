@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { HttpErrorResponse } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { DocumentsService } from '../../../../../core/services/documents.service';
-import { Document } from '../../../../../core/models/document.model';
-import { DeleteDocumentResponse } from '../../../../../core/models/document-list.models';
-import { AlertComponent } from '../../../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../../../shared/components/button/button.component';
+import { DocumentsService } from '@core/services/documents.service';
+import { Document } from '@core/models/document.model';
+import { DeleteDocumentResponse } from '@core/models/document-list.model';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { formatFileSize } from '../../utils/file-size';
 
 export interface DeleteDocumentDialogData {
@@ -21,7 +21,6 @@ export interface DeleteDocumentDialogResult {
 
 @Component({
   selector: 'app-delete-document-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, MatIconModule, AlertComponent, ButtonComponent],
   templateUrl: './delete-document-dialog.component.html',

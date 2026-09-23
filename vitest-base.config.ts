@@ -9,10 +9,10 @@ export default defineConfig({
   test: {
     coverage: {
       thresholds: {
-        // Línea base global medida al cerrar la Fase 1 (25,26 % de líneas). Cada fase la sube.
+        // Línea base global medida al cerrar la Fase 2 (25,34 % de líneas). Cada fase la sube.
         statements: 26,
         branches: 28,
-        functions: 26,
+        functions: 27,
         lines: 25,
         '**/src/app/core/**/*.ts': { lines: 80 },
       },

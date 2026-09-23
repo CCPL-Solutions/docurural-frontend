@@ -1,12 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '@core/services/auth.service';
 import { RoleLabelPipe } from '../../pipes/role-label.pipe';
 
 @Component({
   selector: 'app-main-layout',
-  standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, RoleLabelPipe],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',

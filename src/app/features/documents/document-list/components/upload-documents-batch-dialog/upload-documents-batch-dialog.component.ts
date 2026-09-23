@@ -11,20 +11,20 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { AlertComponent } from '../../../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../../../shared/components/button/button.component';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { DocumentFormatIconComponent } from '../document-format-icon.component';
-import { CategoriesService } from '../../../../../core/services/categories.service';
-import { DocumentsService } from '../../../../../core/services/documents.service';
-import { NotificationService } from '../../../../../core/services/notification.service';
-import { AuthService } from '../../../../../core/services/auth.service';
-import { Category } from '../../../../../core/models/category.model';
-import { DocumentFormat } from '../../../../../core/models/document-format.model';
+import { CategoriesService } from '@core/services/categories.service';
+import { DocumentsService } from '@core/services/documents.service';
+import { NotificationService } from '@core/services/notification.service';
+import { AuthService } from '@core/services/auth.service';
+import { Category } from '@core/models/category.model';
+import { DocumentFormat } from '@core/models/document-format.model';
 import {
   ALLOWED_EXTENSIONS,
   BatchUploadDocumentResponse,
@@ -33,16 +33,12 @@ import {
   MAX_FILE_SIZE_BYTES,
   MAX_TITLE_LENGTH,
   RESPONSIBLE_AREAS,
-} from '../../../../../core/models/upload-document.models';
-import {
-  SensitivityLevel,
-  clampToMin,
-  isAtLeast,
-} from '../../../../../core/models/sensitivity-level.model';
-import { SensitivityLockBannerComponent } from '../../../../../shared/sensitivity/sensitivity-lock-banner.component';
-import { SensitivityInheritedBannerComponent } from '../../../../../shared/sensitivity/sensitivity-inherited-banner.component';
-import { SensitivityRadioComponent } from '../../../../../shared/sensitivity/sensitivity-radio.component';
-import { SensitivityMobileFieldComponent } from '../../../../../shared/sensitivity/sensitivity-mobile-field.component';
+} from '@core/models/upload-document.model';
+import { SensitivityLevel, clampToMin, isAtLeast } from '@core/models/sensitivity-level.model';
+import { SensitivityLockBannerComponent } from '@shared/sensitivity/sensitivity-lock-banner.component';
+import { SensitivityInheritedBannerComponent } from '@shared/sensitivity/sensitivity-inherited-banner.component';
+import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
+import { SensitivityMobileFieldComponent } from '@shared/sensitivity/sensitivity-mobile-field.component';
 import { formatFileSize } from '../../utils/file-size';
 import { BatchFileItem, BatchFileStatus } from './batch-file-item.model';
 import { v4 as uuidv4 } from 'uuid';
@@ -57,7 +53,6 @@ type Phase = 'compose' | 'uploading' | 'done';
 
 @Component({
   selector: 'app-upload-documents-batch-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
@@ -82,7 +77,6 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     inject<MatDialogRef<UploadDocumentsBatchDialogComponent, UploadDocumentsBatchDialogResult>>(
       MatDialogRef,
     );
-  protected readonly _data = inject<UploadDocumentsBatchDialogData>(MAT_DIALOG_DATA);
 
   private readonly fb = inject(FormBuilder);
   private readonly categoriesService = inject(CategoriesService);
@@ -97,8 +91,8 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   protected readonly fileError = signal<string | null>(null);
   protected readonly submitError = signal<string | null>(null);
   protected readonly categories = signal<Category[]>([]);
-  protected readonly categoriesLoading = signal(false);
-  protected readonly categoriesLoadError = signal(false);
+  protected readonly loadingCategories = signal(false);
+  protected readonly loadCategoriesError = signal(false);
 
   protected readonly areas = RESPONSIBLE_AREAS;
   protected readonly maxBatchFiles = MAX_BATCH_FILES;
@@ -171,17 +165,17 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   }
 
   protected loadCategories(): void {
-    this.categoriesLoading.set(true);
-    this.categoriesLoadError.set(false);
+    this.loadingCategories.set(true);
+    this.loadCategoriesError.set(false);
     this.categoriesService
       .list('name', 'asc')
-      .pipe(finalize(() => this.categoriesLoading.set(false)))
+      .pipe(finalize(() => this.loadingCategories.set(false)))
       .subscribe({
         next: (res) => {
           this.categories.set(res.categories.filter((c) => c.status === 'ACTIVE'));
         },
         error: () => {
-          this.categoriesLoadError.set(true);
+          this.loadCategoriesError.set(true);
         },
       });
   }

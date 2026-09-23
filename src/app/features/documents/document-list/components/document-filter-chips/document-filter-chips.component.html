@@ -4,7 +4,7 @@
     Activos:
   </span>
 
-  @for (chip of chips; track chip.key) {
+  @for (chip of chips(); track chip.key) {
     <span class="filter-chip" [class.filter-chip--search]="chip.kind === 'search'">
       @if (chip.kind === 'search') {
         <mat-icon class="filter-chip__search-icon" aria-hidden="true">search</mat-icon>
@@ -22,7 +22,7 @@
     </span>
   }
 
-  @if (showClearAll) {
+  @if (showClearAll()) {
     <button
       type="button"
       class="filter-chips__clear-all"

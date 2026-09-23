@@ -1,20 +1,21 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 import { UserStatus } from '../models/user-status.model';
 import {
   SortBy,
   SortDir,
+  UpdateUserStatusRequest,
   UpdateUserStatusResponse,
   UserListResponse,
-} from '../models/user-list.models';
+} from '../models/user-list.model';
 import {
   CreateUserRequest,
   CreateUserResponse,
   UpdateUserRequest,
   UpdateUserResponse,
-} from '../models/user-form.models';
+} from '../models/user-form.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
@@ -28,7 +29,7 @@ export class UsersService {
   updateStatus(id: number, status: UserStatus): Observable<UpdateUserStatusResponse> {
     return this.http.patch<UpdateUserStatusResponse>(
       `${environment.apiBaseUrl}/users/${id}/status`,
-      { status },
+      { status } satisfies UpdateUserStatusRequest,
     );
   }
 

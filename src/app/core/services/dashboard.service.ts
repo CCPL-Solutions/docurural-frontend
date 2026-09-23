@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 import { DashboardStatsResponse } from '../models/dashboard-stats.model';
 
 @Injectable({ providedIn: 'root' })

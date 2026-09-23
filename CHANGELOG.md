@@ -40,3 +40,24 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - El README documenta cómo ejecutar los tests unitarios y E2E (sección "Tests").
 - El README documenta los cuatro entornos y el disparador real de la CI (push a ramas de trabajo,
   no en PR).
+- Convenciones y limpieza (fase 2 de la remediación):
+  - Imports entre `core/`, `shared/`, `features/` y `environments/` con los alias `@core/*`,
+    `@shared/*`, `@features/*` y `@env/*`.
+  - Los modelos usan el sufijo `.model.ts`.
+  - Los componentes de búsqueda y filtros de documentos usan `input()` y `output()`. Sus outputs
+    `submit`, `reset` y `close` pasan a llamarse `searchSubmit`, `resetFilters` y `closePanel`.
+  - `track x.id` en lugar de métodos `trackById`, `[class]` en lugar de `NgClass`, `styleUrl` en
+    lugar de estilos inline y sin `standalone: true` redundante.
+  - Los textos de los diálogos de usuarios tratan al usuario de usted.
+  - Las etiquetas visuales de los `mat-select` son `<span>` con `id` en lugar de `<label>` sin
+    control asociado.
+  - ESLint pasa a `error` las reglas que el código ya cumple: signals en inputs y outputs, outputs
+    sin nombre de evento DOM, `NgClass`, estilos inline, `standalone`, imports relativos de más de
+    dos niveles y `<label>` sin control.
+
+### Removed
+
+- Eliminado código sin uso: `ConfirmDialogComponent`, `SensitivityReadonlyFieldComponent`, el
+  barril `shared/sensitivity/index.ts`, `DocumentStatus`, los mixins de `src/styles/_utils.scss`,
+  las inyecciones de `MAT_DIALOG_DATA` sin uso de los diálogos de subida y el `BreakpointObserver`
+  de `NotificationService`.

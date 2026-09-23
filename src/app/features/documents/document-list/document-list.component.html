@@ -27,7 +27,7 @@
     [filtersOpen]="filtersPanelOpen()"
     [filtersCount]="appliedFilterCount()"
     (valueChange)="onSearchInputChange($event)"
-    (submit)="onSearchSubmit()"
+    (searchSubmit)="onSearchSubmit()"
     (clear)="onSearchClear()"
     (toggleFilters)="onToggleFiltersPanel()"
   />
@@ -42,8 +42,8 @@
       [loadingOptions]="loadingFilterOptions()"
       (draftChange)="onDraftChange($event)"
       (apply)="onFiltersApply($event)"
-      (reset)="onFiltersReset()"
-      (close)="onFiltersClose()"
+      (resetFilters)="onFiltersReset()"
+      (closePanel)="onFiltersClose()"
     />
   }
 
@@ -135,7 +135,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (doc of documents(); track trackById($index, doc)) {
+        @for (doc of documents(); track doc.id) {
           <tr>
             <td>
               <div class="cell-title">
@@ -185,7 +185,7 @@
 
   <!-- ── Tarjetas mobile (< 768 px) ────────────────────────────────── -->
   <div class="doc-cards mobile-only">
-    @for (doc of documents(); track trackById($index, doc)) {
+    @for (doc of documents(); track doc.id) {
       <div class="doc-card">
         <div class="doc-card__top">
           <app-document-format-icon [format]="doc.fileFormat" />

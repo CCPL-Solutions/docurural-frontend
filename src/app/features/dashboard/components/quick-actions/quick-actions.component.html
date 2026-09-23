@@ -9,7 +9,7 @@
     @for (action of actions(); track action.id) {
       <a
         class="qa-btn"
-        [ngClass]="variantClass(action.variant)"
+        [class]="variantClass(action.variant)"
         [routerLink]="action.routerLink"
         [queryParams]="action.queryParams ?? {}"
       >
