@@ -167,3 +167,9 @@
     stroke: var(--color-border);
   }
 }
+
+// Variante enlace (`link`): igual que el botón, que por defecto usa border-box.
+a.btn {
+  box-sizing: border-box;
+  text-decoration: none;
+}

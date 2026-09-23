@@ -12,7 +12,11 @@ import { canEditDocument, canDeleteDocument } from '@core/auth/permissions';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="row-actions">
-      <app-icon-button tooltip="Ver documento" ariaLabel="Ver documento" (click)="view.emit(doc())">
+      <app-icon-button
+        tooltip="Ver documento"
+        ariaLabel="Ver documento"
+        [link]="['/documents', doc().id]"
+      >
         <mat-icon>visibility</mat-icon>
       </app-icon-button>
       <app-icon-button
@@ -53,16 +57,15 @@ import { canEditDocument, canDeleteDocument } from '@core/auth/permissions';
 export class DocumentRowActionsComponent {
   readonly doc = input.required<Document>();
   readonly role = input.required<Role>();
-  readonly currentUserName = input.required<string>();
+  readonly currentUserId = input.required<number | null>();
   readonly downloading = input(false);
 
-  readonly view = output<Document>();
   readonly download = output<Document>();
   readonly edit = output<Document>();
   readonly delete = output<Document>();
 
   protected readonly canEdit = computed(() =>
-    canEditDocument(this.role(), this.currentUserName(), this.doc().uploadedBy),
+    canEditDocument(this.role(), this.currentUserId(), this.doc().uploadedById),
   );
   protected readonly canDelete = computed(() => canDeleteDocument(this.role()));
 }

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +10,7 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { applyFieldErrors } from '@shared/forms/apply-field-errors';
 import { FieldErrorComponent } from '@shared/forms/field-error.component';
 import { LOGIN_MESSAGES } from './login.messages';
+import { safeReturnUrl } from './return-url';
 
 @Component({
   selector: 'app-login',
@@ -26,6 +27,7 @@ import { LOGIN_MESSAGES } from './login.messages';
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
 
   protected readonly form = this.fb.nonNullable.group({
@@ -56,7 +58,10 @@ export class LoginComponent {
       .login(this.form.getRawValue())
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: () => this.router.navigateByUrl(this.authService.getReturnUrl()),
+        next: () =>
+          this.router.navigateByUrl(
+            safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')),
+          ),
         error: (err: HttpErrorResponse) => {
           // Antes de aplicar errores: enable() vuelve a validar y borraría los del backend (R12).
           this.form.enable();

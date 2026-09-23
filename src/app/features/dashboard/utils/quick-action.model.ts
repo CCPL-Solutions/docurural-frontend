@@ -9,7 +9,6 @@ export interface QuickAction {
   description: string;
   icon: string;
   routerLink: string;
-  queryParams?: Record<string, string>;
   variant: QuickActionVariant;
   adminBadge?: boolean;
 }
@@ -21,7 +20,6 @@ export const ALL_QUICK_ACTIONS: Record<QuickActionId, QuickAction> = {
     description: 'Cargar un nuevo archivo al repositorio',
     icon: 'upload',
     routerLink: '/documents',
-    queryParams: { action: 'upload' },
     variant: 'primary',
   },
   search: {

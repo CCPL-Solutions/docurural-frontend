@@ -319,7 +319,20 @@ Las fases van ordenadas por dependencia y riesgo. Primero lo que no rompe nada (
 
 ---
 
-## Fase 6 — Ruteo y autorización · Esfuerzo **M** · Riesgo **medio**
+## Fase 6 — Ruteo y autorización · Esfuerzo **M** · Riesgo **medio** · ✅ Completada (2026-09-23, pendiente de verificar contra el backend)
+
+> **Resultado:** R4, R5, R6 y R7 corregidos; P8 y D35 cumplidos. Los tres criterios de búsqueda dan 0 (`returnUrl=\$`, `action: 'upload'` y `fullName` en `permissions.ts`). Los tests de R4 y R7 de la Fase 1 dejan de ser fallos esperados: quedan solo R2 y R3 (Fase 7). Lint: 0 errores y 5 avisos (OnPush, Fase 7). Tests: **163** en verde y 2 fallos esperados. Cobertura global: **39 %** de líneas (trinquete: 40 / 47 / 35 / 39); `core/` 97,4 % y `shared/utils/` 100 %. E2E: **25** en verde (+ 404 y enlace profundo con varios query params); las 12 capturas no cambian. Bundle inicial: 406,21 → 410,41 kB, sin aviso; siguen los mismos 5 avisos de presupuesto de estilos.
+>
+> **Tests nuevos:** caducidad por temporizador y cancelación al cerrar sesión (`auth.service.spec.ts`), `canActivateChild` con la sesión vencida (`guards.spec.ts`), ruta `**` con y sin sesión (`not-found.component.spec.ts`), `safeReturnUrl`, vuelta al `returnUrl` tras el login (`login.component.spec.ts`), `canEditDocument` por id (incluido el homónimo de R5) y `document-row-actions` (enlace «Ver documento» y botón «Editar» por id).
+>
+> **Desviaciones respecto al plan:**
+>
+> - **6.2:** `isAuthenticated` pasa de `computed` a **método**. Sigue siendo reactivo porque lee `_state`, y las plantillas y los guards lo llaman igual. El temporizador se vuelve a programar si salta antes de tiempo (`setTimeout` admite como máximo unos 24 días) y se cancela al cerrar sesión o al destruir el servicio. **Añadido:** `forceLogout` no hace nada si la sesión ya estaba cerrada, así los 401 de las peticiones en curso no repiten el aviso «Sesión expirada» después del temporizador. De paso, mitiga R10.
+> - **6.3:** la validación del `returnUrl` está en `features/auth/login/return-url.ts` (`safeReturnUrl`): además de exigir `/` al principio, descarta `//…` y `/\…`, que el navegador interpreta como otro dominio. `forceLogout` no añade `returnUrl` si ya se está en `/login`. `AuthService.getReturnUrl()` se elimina.
+> - **6.1:** la ruta `**` está fuera del layout: la página 404 se ve igual con sesión y sin ella. Sin sesión, «Ir al inicio» lleva al login por el guard.
+> - **6.5:** para eliminar el output `view` hacía falta que los botones de ver también fueran enlaces. `<app-button>` y `<app-icon-button>` aceptan ahora un input `link` y renderizan un `<a routerLink>` con el mismo aspecto. Pasan a ser enlaces «Ver documento» (fila del listado), «Ver» (tarjeta móvil), «Visualizar» (recientes del dashboard) y los dos «Volver» del detalle. El estilo de los títulos-enlace es una clase global, `.title-link` (`_list-view.scss`): en el componente, `recent-docs-table.component.scss` superaba el presupuesto por 155 bytes.
+> - **6.6 — bloqueo:** al empezar la fase, el backend **aún no devolvía** `uploadedById` en `GET /documents`: no está en `DocumentSummaryResponseDto` de ninguna rama de `docurural-backend` (comprobado el 2026-09-23). Por decisión del responsable, se implementa contra el contrato acordado porque el cambio del backend está en curso. **Mientras no se despliegue, un EDITOR no verá «Editar» en el listado** (falla de forma segura). El detalle ya funciona, porque `uploadedBy.id` existe. 🔍 Queda pendiente comprobarlo contra el backend de Desarrollo.
+> - El test de `canActivateChild` usa un padre `/app` en lugar de `''` para no chocar con las rutas del resto del archivo de tests. Comprueba lo mismo: con la sesión vencida, navegar entre hijos redirige a `/login?returnUrl=…`.
 
 **Objetivo.** Corregir R4, R5, R6 y R7, y cumplir P8 y D35.
 

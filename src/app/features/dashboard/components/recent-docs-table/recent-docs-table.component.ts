@@ -40,7 +40,6 @@ export class RecentDocsTableComponent {
   readonly canUpload = input(false);
   readonly downloadingIds = input<ReadonlySet<number>>(new Set());
 
-  readonly view = output<number>();
   readonly download = output<RecentDocumentItem>();
   readonly uploadFirst = output<void>();
 

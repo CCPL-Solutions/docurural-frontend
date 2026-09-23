@@ -36,6 +36,15 @@ describe('guards', () => {
           { path: 'login', canActivate: [guestGuard], component: BlankComponent },
           { path: 'dashboard', component: BlankComponent },
           { path: 'documents', canActivate: [authGuard], component: BlankComponent },
+          {
+            path: 'app',
+            canActivate: [authGuard],
+            canActivateChild: [authGuard],
+            children: [
+              { path: 'documents', component: BlankComponent },
+              { path: 'dashboard', component: BlankComponent },
+            ],
+          },
           { path: 'users', canActivate: [roleGuard(['ADMIN'])], component: BlankComponent },
         ]),
         { provide: AuthService, useValue: { isAuthenticated, currentUser } },
@@ -58,12 +67,23 @@ describe('guards', () => {
       expect(router.url).toBe('/login?returnUrl=%2Fdocuments');
     });
 
-    // R7 (docs/auditoria-consistencia.md): returnUrl se concatena sin codificar y se pierden los
-    // query params de la URL original a partir del primer `&`. Se corrige en la Fase 6 (tarea 6.3).
-    it.fails('R7: conserva la URL original completa en returnUrl', async () => {
+    // R7 (docs/auditoria-consistencia.md), corregido en la Fase 6 (tarea 6.3).
+    it('R7: conserva la URL original completa en returnUrl', async () => {
       await harness.navigateByUrl('/documents?q=acta&page=2');
       const returnUrl = router.parseUrl(router.url).queryParamMap.get('returnUrl');
       expect(returnUrl).toBe('/documents?q=acta&page=2');
+    });
+
+    // R4: con canActivateChild, la sesión se comprueba también al navegar entre hijos del layout.
+    it('R4: con la sesión vencida, navegar entre páginas hijas redirige al login', async () => {
+      isAuthenticated.set(true);
+      await harness.navigateByUrl('/app/documents');
+      expect(router.url).toBe('/app/documents');
+
+      isAuthenticated.set(false);
+      await harness.navigateByUrl('/app/dashboard');
+
+      expect(router.url).toBe('/login?returnUrl=%2Fapp%2Fdashboard');
     });
   });
 

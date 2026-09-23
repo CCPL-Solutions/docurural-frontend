@@ -1,7 +1,7 @@
 <!-- Cabecera de página -->
 <app-page-header kicker="Documentos" [title]="metadata()?.title ?? 'Cargando documento…'">
   <div actions class="header-actions">
-    <app-button class="header-actions-buttons" variant="secondary" (click)="onBack()">
+    <app-button class="header-actions-buttons" variant="secondary" link="/documents">
       <span>Volver</span>
     </app-button>
     @if (metadata() && !loadingBlob()) {
@@ -37,7 +37,7 @@
     description="El documento que intenta abrir no existe o fue eliminado."
   >
     <div actions>
-      <app-button variant="secondary" (click)="onBack()">
+      <app-button variant="secondary" link="/documents">
         <span>Volver</span>
       </app-button>
     </div>

@@ -29,8 +29,11 @@ test.describe('Documentos', () => {
     await expect(page.locator('table').getByText('Documento 11', { exact: true })).toBeVisible();
   });
 
-  test('abre el detalle de un documento', async ({ page }) => {
-    await page.locator('table').getByRole('button', { name: 'Ver documento' }).first().click();
+  // D35: el título es un enlace (se puede abrir en otra pestaña), no un botón con router.navigate.
+  test('abre el detalle de un documento desde el título', async ({ page }) => {
+    const title = page.locator('table').getByRole('link', { name: 'Documento 1', exact: true });
+    await expect(title).toHaveAttribute('href', '/documents/1');
+    await title.click();
 
     await expect(page).toHaveURL(/\/documents\/1$/);
     await expect(page.getByRole('heading', { name: 'Documento 1', level: 1 })).toBeVisible();
@@ -72,7 +75,7 @@ test.describe('Documentos', () => {
   // Colombia (UTC-5), la fecha del documento se mostraba un día antes. El pipe `date` la interpreta
   // como fecha local.
   test('R11: muestra la fecha del documento sin desfase horario', async ({ page }) => {
-    await page.locator('table').getByRole('button', { name: 'Ver documento' }).first().click();
+    await page.locator('table').getByRole('link', { name: 'Ver documento' }).first().click();
     await expect(page.getByText('01/03/2026')).toBeVisible({ timeout: 2000 });
   });
 });

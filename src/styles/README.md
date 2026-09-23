@@ -20,15 +20,15 @@ que usan los componentes del proyecto. `src/styles.scss` los carga todos.
 Cada partial es CSS puro (sin mixin) cargado globalmente desde `styles.scss`.
 Los componentes no necesitan `@use` ni `@include` para usarlos.
 
-| Archivo                     | Contenido                                                            |
-| --------------------------- | -------------------------------------------------------------------- |
-| `_tokens.scss`              | CSS custom properties: color, tipografía, espaciado, radius, sombras |
-| `_material-overrides.scss`  | `.mat-select-field`, `.dialog-flush`, toast panel, sort-menu overlay |
-| `_form-field.scss`          | `.field`, `.field__*` BEM — inputs, selects, textareas, labels       |
-| `_dialog-shell.scss`        | `.dialog-container/header/title/close/alert/form/fields/footer`      |
-| `_dropzone.scss`            | `.dropzone` + modificadores `--dragover/filled/error` + subclases    |
-| `_confirmation-dialog.scss` | `.dialog` shell para dialogs de confirmación con div personalizado   |
-| `_list-view.scss`           | `.action-bar`, `.sort-trigger`, `.counter`, `.desktop/mobile-only`   |
+| Archivo                     | Contenido                                                                         |
+| --------------------------- | --------------------------------------------------------------------------------- |
+| `_tokens.scss`              | CSS custom properties: color, tipografía, espaciado, radius, sombras              |
+| `_material-overrides.scss`  | `.mat-select-field`, `.dialog-flush`, toast panel, sort-menu overlay              |
+| `_form-field.scss`          | `.field`, `.field__*` BEM — inputs, selects, textareas, labels                    |
+| `_dialog-shell.scss`        | `.dialog-container/header/title/close/alert/form/fields/footer`                   |
+| `_dropzone.scss`            | `.dropzone` + modificadores `--dragover/filled/error` + subclases                 |
+| `_confirmation-dialog.scss` | `.dialog` shell para dialogs de confirmación con div personalizado                |
+| `_list-view.scss`           | `.action-bar`, `.sort-trigger`, `.counter`, `.desktop/mobile-only`, `.title-link` |
 
 ### Mixins por archivo (requieren `@use`)
 
