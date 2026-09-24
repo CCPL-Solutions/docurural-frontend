@@ -1,10 +1,13 @@
+@use 'breakpoints' as bp;
+@use 'icons' as icon;
+
 :host {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--space-3);
   min-width: 320px;
   max-width: 560px;
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   background-color: var(--color-bg-card);
@@ -15,9 +18,7 @@
 
 .toast__icon {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  font-size: 24px;
+  @include icon.size(24px);
   line-height: 24px;
   margin-top: 1px;
   color: inherit;
@@ -40,7 +41,7 @@
 
 .toast__close {
   flex-shrink: 0;
-  margin: -6px -8px -6px 0;
+  margin: calc(var(--space-1-5) * -1) calc(var(--space-2) * -1) calc(var(--space-1-5) * -1) 0;
   color: inherit;
   opacity: 0.75;
   transition: opacity var(--duration-fast) var(--easing-standard);
@@ -77,7 +78,7 @@
 }
 
 // ─── Responsive ──────────────────────────────────────────────────────
-@media (max-width: 600px) {
+@include bp.sm {
   :host {
     min-width: 0;
     width: 100%;

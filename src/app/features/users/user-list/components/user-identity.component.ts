@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { User } from '../../../../core/models/user.model';
-import { avatarColor, avatarInitials } from '../utils/avatar-color';
+import { User } from '@core/models/user.model';
+import { avatarColor } from '@shared/utils/name-color';
+import { userInitials } from '@shared/utils/user-initials';
 
 @Component({
   selector: 'app-user-identity',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="identity">
@@ -33,7 +33,7 @@ export class UserIdentityComponent {
   readonly muted = input(false);
   readonly size = input<'sm' | 'lg'>('sm');
 
-  protected readonly initials = computed(() => avatarInitials(this.user().fullName));
+  protected readonly initials = computed(() => userInitials(this.user().fullName));
   protected readonly avatarStyle = computed(() => {
     const c = avatarColor(this.user().fullName, this.muted());
     return { 'background-color': c.bg, color: c.fg };

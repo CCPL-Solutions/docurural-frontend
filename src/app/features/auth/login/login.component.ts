@@ -1,23 +1,38 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../../core/services/auth.service';
-import { AlertComponent } from '../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { AuthService } from '@core/services/auth.service';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { applyFieldErrors } from '@shared/forms/apply-field-errors';
+import { FieldErrorComponent } from '@shared/forms/field-error.component';
+import { LanguageSwitcherComponent } from '@shared/components/language-switcher/language-switcher.component';
+import { LOGIN_MESSAGES } from './login.messages';
+import { safeReturnUrl } from './return-url';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatIconModule, AlertComponent, ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    MatIconModule,
+    AlertComponent,
+    ButtonComponent,
+    FieldErrorComponent,
+    LanguageSwitcherComponent,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
 
   protected readonly form = this.fb.nonNullable.group({
@@ -31,22 +46,9 @@ export class LoginComponent {
   protected readonly accountInactive = signal(false);
   protected readonly hidePassword = signal(true);
 
-  protected emailError(): string | null {
-    const ctrl = this.form.controls.email;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Ingrese su correo electrónico';
-    if (ctrl.hasError('email')) return 'Ingrese un correo electrónico válido';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected passwordError(): string | null {
-    const ctrl = this.form.controls.password;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Ingrese su contraseña';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
+  protected readonly messages = LOGIN_MESSAGES;
+  protected readonly showPasswordLabel = $localize`:@@login.password.show:Mostrar contraseña`;
+  protected readonly hidePasswordLabel = $localize`:@@login.password.hide:Ocultar contraseña`;
 
   protected onSubmit(): void {
     if (this.form.invalid) {
@@ -62,29 +64,33 @@ export class LoginComponent {
     this.authService
       .login(this.form.getRawValue())
       .pipe(
-        finalize(() => {
-          this.loading.set(false);
-          this.form.enable();
-        }),
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: () => this.router.navigateByUrl(this.authService.getReturnUrl()),
+        next: () =>
+          this.router.navigateByUrl(
+            safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')),
+          ),
         error: (err: HttpErrorResponse) => {
-          if (err.status === 401) {
-            this.submitError.set('Correo o contraseña incorrectos');
+          // Antes de aplicar errores: enable() vuelve a validar y borraría los del backend (R12).
+          this.form.enable();
+          // En el login, un 401 son credenciales incorrectas, no una sesión caducada: el
+          // interceptor no gestiona /auth/login.
+          if (err.status === HttpStatusCode.Unauthorized) {
+            this.submitError.set(
+              $localize`:@@login.error.credentials:Correo o contraseña incorrectos.`,
+            );
             this.submitErrorVariant.set('error');
-          } else if (err.status === 403) {
-            this.submitError.set('Su cuenta ha sido desactivada. Contacte al administrador');
+          } else if (err.status === HttpStatusCode.Forbidden) {
+            this.submitError.set(
+              $localize`:@@login.error.inactive:Su cuenta ha sido desactivada. Contacte al administrador.`,
+            );
             this.submitErrorVariant.set('warning');
             this.accountInactive.set(true);
-          } else if (err.status === 400 && err.error?.fieldErrors) {
-            const fieldErrors = err.error.fieldErrors as Record<string, string>;
-            Object.entries(fieldErrors).forEach(([campo, msg]) => {
-              this.form.get(campo)?.setErrors({ backend: msg });
-            });
-          } else {
+          } else if (!applyFieldErrors(this.form, err)) {
             this.submitError.set(
-              'No fue posible conectar con el servidor. Intente nuevamente en unos minutos',
+              $localize`:@@login.error.network:No fue posible conectar con el servidor. Intente nuevamente en unos minutos.`,
             );
             this.submitErrorVariant.set('error');
           }

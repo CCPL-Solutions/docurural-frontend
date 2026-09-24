@@ -4,15 +4,18 @@
     <mat-icon>trending_up</mat-icon>
   </div>
   <div class="top-card__body">
-    <p class="top-card__label">Categoría más activa</p>
+    <p class="top-card__label" i18n="@@dashboard.topCategory.label">Categoría más activa</p>
     @if (category(); as cat) {
       <p class="top-card__category-name">{{ cat.name }}</p>
       <p class="top-card__hint">
-        <strong>{{ cat.count }} documentos</strong> · {{ percentage() }}% del repositorio
+        <ng-container i18n="@@dashboard.topCategory.hint">{cat.count, plural,
+          =1 {<strong>1 documento</strong> · {{ percentage() }}% del repositorio}
+          other {<strong>{{ cat.count }} documentos</strong> · {{ percentage() }}% del repositorio}
+        }</ng-container>
       </p>
     } @else {
       <p class="top-card__empty-value">—</p>
-      <p class="top-card__hint">Sin documentos aún</p>
+      <p class="top-card__hint" i18n="@@dashboard.topCategory.empty">Sin documentos aún</p>
     }
   </div>
 </article>

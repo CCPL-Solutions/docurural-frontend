@@ -3,6 +3,7 @@
   [class.sensitivity-radio--compact]="compact()"
   role="radiogroup"
   aria-label="Nivel de sensibilidad"
+  i18n-aria-label="@@sensitivity.field.label"
 >
   @for (level of levels; track level) {
     <div
@@ -38,12 +39,14 @@
           @if (!locked() && isEditorLocked(level)) {
             <span class="sensitivity-radio__chip">
               <mat-icon aria-hidden="true">lock</mat-icon>
-              Solo administradores
+              <ng-container i18n="@@sensitivity.radio.adminOnly">Solo administradores</ng-container>
             </span>
           }
 
           @if (!locked() && isBelowMin(level)) {
-            <span class="sensitivity-radio__chip"> No disponible para esta categoría </span>
+            <span class="sensitivity-radio__chip" i18n="@@sensitivity.radio.unavailable"
+              >No disponible para esta categoría</span
+            >
           }
         </div>
 

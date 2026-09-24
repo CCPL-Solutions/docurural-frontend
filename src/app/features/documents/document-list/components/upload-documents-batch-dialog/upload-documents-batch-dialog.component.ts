@@ -3,28 +3,28 @@ import {
   Component,
   OnInit,
   computed,
-  effect,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { toApiError } from '@shared/http/api-error';
+import { injectActiveCategories } from '@features/documents/dialogs/active-categories';
+import { syncSensitivityWithCategory } from '@features/documents/dialogs/sensitivity-sync';
+import { HttpErrorResponse, HttpEventType, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { AlertComponent } from '../../../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../../../shared/components/button/button.component';
-import { DocumentFormatIconComponent } from '../document-format-icon.component';
-import { CategoriesService } from '../../../../../core/services/categories.service';
-import { DocumentsService } from '../../../../../core/services/documents.service';
-import { NotificationService } from '../../../../../core/services/notification.service';
-import { AuthService } from '../../../../../core/services/auth.service';
-import { Category } from '../../../../../core/models/category.model';
-import { DocumentFormat } from '../../../../../core/models/document-format.model';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
+import { DocumentsService } from '@core/services/documents.service';
+import { NotificationService } from '@core/services/notification.service';
+import { AuthService } from '@core/services/auth.service';
 import {
   ALLOWED_EXTENSIONS,
   BatchUploadDocumentResponse,
@@ -33,19 +33,22 @@ import {
   MAX_FILE_SIZE_BYTES,
   MAX_TITLE_LENGTH,
   RESPONSIBLE_AREAS,
-} from '../../../../../core/models/upload-document.models';
-import {
-  SensitivityLevel,
-  clampToMin,
-  isAtLeast,
-} from '../../../../../core/models/sensitivity-level.model';
-import { SensitivityLockBannerComponent } from '../../../../../shared/sensitivity/sensitivity-lock-banner.component';
-import { SensitivityInheritedBannerComponent } from '../../../../../shared/sensitivity/sensitivity-inherited-banner.component';
-import { SensitivityRadioComponent } from '../../../../../shared/sensitivity/sensitivity-radio.component';
-import { SensitivityMobileFieldComponent } from '../../../../../shared/sensitivity/sensitivity-mobile-field.component';
-import { formatFileSize } from '../../utils/file-size';
+} from '@core/models/upload-document.model';
+import { SensitivityLevel } from '@core/models/sensitivity-level.model';
+import { SensitivityLockBannerComponent } from '@shared/sensitivity/sensitivity-lock-banner.component';
+import { SensitivityInheritedBannerComponent } from '@shared/sensitivity/sensitivity-inherited-banner.component';
+import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
+import { SensitivityMobileFieldComponent } from '@shared/sensitivity/sensitivity-mobile-field.component';
+import { formatFileSize } from '@shared/utils/file-size';
 import { BatchFileItem, BatchFileStatus } from './batch-file-item.model';
 import { v4 as uuidv4 } from 'uuid';
+import { isEditor } from '@core/auth/permissions';
+import { inferFormat } from '@shared/utils/document-format';
+import { FieldErrorComponent } from '@shared/forms/field-error.component';
+import {
+  DOCUMENT_FORM_LABELS,
+  DOCUMENT_FORM_MESSAGES,
+} from '@features/documents/dialogs/document-form.messages';
 
 export type UploadDocumentsBatchDialogData = Record<string, never>;
 
@@ -57,9 +60,9 @@ type Phase = 'compose' | 'uploading' | 'done';
 
 @Component({
   selector: 'app-upload-documents-batch-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FieldErrorComponent,
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -82,10 +85,9 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     inject<MatDialogRef<UploadDocumentsBatchDialogComponent, UploadDocumentsBatchDialogResult>>(
       MatDialogRef,
     );
-  protected readonly _data = inject<UploadDocumentsBatchDialogData>(MAT_DIALOG_DATA);
 
   private readonly fb = inject(FormBuilder);
-  private readonly categoriesService = inject(CategoriesService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly documentsService = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
   private readonly auth = inject(AuthService);
@@ -96,20 +98,21 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   protected readonly dragOver = signal(false);
   protected readonly fileError = signal<string | null>(null);
   protected readonly submitError = signal<string | null>(null);
-  protected readonly categories = signal<Category[]>([]);
-  protected readonly categoriesLoading = signal(false);
-  protected readonly categoriesLoadError = signal(false);
+  private readonly activeCategories = injectActiveCategories();
+  protected readonly categories = this.activeCategories.categories;
+  protected readonly loadingCategories = this.activeCategories.loading;
+  protected readonly loadCategoriesError = this.activeCategories.loadError;
 
   protected readonly areas = RESPONSIBLE_AREAS;
   protected readonly maxBatchFiles = MAX_BATCH_FILES;
   protected readonly maxTitleLength = MAX_TITLE_LENGTH;
 
-  protected readonly form = this.fb.group({
+  protected readonly messages = DOCUMENT_FORM_MESSAGES;
+  protected readonly labels = DOCUMENT_FORM_LABELS;
+
+  protected readonly form = this.fb.nonNullable.group({
     categoryId: [null as number | null, [Validators.required]],
-    responsibleArea: [
-      '' as string | null,
-      [Validators.required, Validators.maxLength(MAX_AREA_LENGTH)],
-    ],
+    responsibleArea: ['', [Validators.required, Validators.maxLength(MAX_AREA_LENGTH)]],
     sensitivityLevel: ['INTERNAL' as SensitivityLevel, [Validators.required]],
   });
 
@@ -127,30 +130,10 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     () => this.selectedCategory()?.defaultSensitivityLevel ?? 'INTERNAL',
   );
   protected readonly sensitivityLocked = computed(() => this.categoryDefault() !== 'INTERNAL');
-  protected readonly editorRole = computed(() => this.auth.currentUser()?.role === 'EDITOR');
+  protected readonly editorRole = computed(() => isEditor(this.auth.currentUser()?.role));
 
   constructor() {
-    effect(() => {
-      const locked = this.sensitivityLocked();
-      const catDefault = this.categoryDefault();
-      const ctrl = this.form.controls.sensitivityLevel;
-      if (locked) {
-        ctrl.setValue(catDefault, { emitEvent: false });
-        ctrl.disable({ emitEvent: false });
-      } else {
-        const wasLocked = ctrl.disabled;
-        ctrl.enable({ emitEvent: false });
-        if (wasLocked) {
-          ctrl.setValue(catDefault, { emitEvent: false });
-        } else {
-          const current = (ctrl.value as SensitivityLevel | null) ?? 'INTERNAL';
-          if (!isAtLeast(current, catDefault)) {
-            ctrl.setValue(clampToMin(current, catDefault), { emitEvent: false });
-          }
-        }
-      }
-      ctrl.markAsPristine();
-    });
+    syncSensitivityWithCategory(this.form.controls.sensitivityLevel, this.categoryDefault);
   }
 
   protected readonly summary = computed(() => {
@@ -162,6 +145,25 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     };
   });
 
+  protected readonly dropzoneAriaLabel = computed(() => {
+    const remaining = this.maxBatchFiles - this.files().length;
+    return this.files().length === 0
+      ? $localize`:@@documents.batch.dropzone.ariaLabel:Zona de carga. Haga clic o arrastre archivos aquí.`
+      : $localize`:@@documents.batch.dropzone.addMoreAriaLabel:Agregar más archivos. Puede añadir ${remaining}:remaining: más.`;
+  });
+
+  protected titleAriaLabel(fileName: string): string {
+    return $localize`:@@documents.batch.titleAriaLabel:Título para ${fileName}:fileName:`;
+  }
+
+  protected progressAriaLabel(fileName: string): string {
+    return $localize`:@@documents.batch.progressAriaLabel:Progreso de carga de ${fileName}:fileName:`;
+  }
+
+  protected removeAriaLabel(fileName: string): string {
+    return $localize`:@@documents.batch.removeAriaLabel:Quitar ${fileName}:fileName:`;
+  }
+
   protected readonly canSubmit = computed(
     () => this.formStatus() === 'VALID' && this.files().length > 0 && this.phase() === 'compose',
   );
@@ -171,19 +173,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
   }
 
   protected loadCategories(): void {
-    this.categoriesLoading.set(true);
-    this.categoriesLoadError.set(false);
-    this.categoriesService
-      .list('name', 'asc')
-      .pipe(finalize(() => this.categoriesLoading.set(false)))
-      .subscribe({
-        next: (res) => {
-          this.categories.set(res.categories.filter((c) => c.status === 'ACTIVE'));
-        },
-        error: () => {
-          this.categoriesLoadError.set(true);
-        },
-      });
+    this.activeCategories.load();
   }
 
   protected onFilesSelected(filesList: FileList | File[]): void {
@@ -191,7 +181,9 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     const current = this.files();
 
     if (current.length + incoming.length > MAX_BATCH_FILES) {
-      this.fileError.set('Solo puede cargar hasta 5 archivos a la vez');
+      this.fileError.set(
+        $localize`:@@documents.batch.error.tooMany:Solo puede cargar hasta ${MAX_BATCH_FILES}:max: archivos a la vez.`,
+      );
       return;
     }
 
@@ -202,12 +194,14 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
       const ext = file.name.split('.').pop()?.toLowerCase();
       if (!ext || !(ALLOWED_EXTENSIONS as readonly string[]).includes(ext)) {
         this.fileError.set(
-          `"${file.name}" tiene un formato no permitido. Use PDF, DOCX, XLSX, JPG o PNG.`,
+          $localize`:@@documents.batch.error.format:"${file.name}:fileName:" tiene un formato no permitido. Use PDF, DOCX, XLSX, JPG o PNG.`,
         );
         continue;
       }
       if (file.size > MAX_FILE_SIZE_BYTES) {
-        this.fileError.set(`"${file.name}" supera los 10 MB permitidos.`);
+        this.fileError.set(
+          $localize`:@@documents.batch.error.size:"${file.name}:fileName:" supera los 10 MB permitidos.`,
+        );
         continue;
       }
       valid.push({
@@ -288,20 +282,15 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     const fd = new FormData();
     this.files().forEach((item) => fd.append('files', item.file, item.file.name));
     fd.append('categoryId', String(raw.categoryId));
-    fd.append('responsibleArea', raw.responsibleArea ?? '');
-    fd.append('sensitivityLevel', raw.sensitivityLevel!);
+    fd.append('responsibleArea', raw.responsibleArea);
+    fd.append('sensitivityLevel', raw.sensitivityLevel);
     this.files().forEach((item) => fd.append('titles', item.title.trim() || item.file.name));
 
     this.documentsService
       .createBatch(fd)
       .pipe(
-        finalize(() => {
-          this.form.enable();
-          if (this.sensitivityLocked()) {
-            this.form.controls.sensitivityLevel.disable({ emitEvent: false });
-          }
-          this.dialogRef.disableClose = false;
-        }),
+        finalize(() => (this.dialogRef.disableClose = false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (event) => {
@@ -329,43 +318,10 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
     }
   }
 
-  protected inferFormat(filename: string): DocumentFormat {
-    const ext = filename.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'pdf':
-        return 'PDF';
-      case 'docx':
-        return 'DOCX';
-      case 'xlsx':
-        return 'XLSX';
-      case 'jpg':
-      case 'jpeg':
-        return 'JPG';
-      case 'png':
-        return 'PNG';
-      default:
-        return 'PDF';
-    }
-  }
+  protected readonly inferFormat = inferFormat;
 
   protected formatSize(bytes: number): string {
     return formatFileSize(bytes);
-  }
-
-  protected categoryError(): string | null {
-    const ctrl = this.form.controls.categoryId;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Seleccione una categoría.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected areaError(): string | null {
-    const ctrl = this.form.controls.responsibleArea;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'El área responsable es obligatoria.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
   }
 
   private applyResults(body: BatchUploadDocumentResponse): void {
@@ -376,7 +332,7 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
           return {
             ...item,
             status: 'error' as BatchFileStatus,
-            errorMessage: 'Sin respuesta del servidor.',
+            errorMessage: $localize`:@@documents.batch.error.noResponse:Sin respuesta del servidor.`,
           };
         }
         return {
@@ -391,38 +347,56 @@ export class UploadDocumentsBatchDialogComponent implements OnInit {
 
     if (body.totalSuccessful > 0) {
       this.notifications.success(
-        'Carga finalizada',
-        `${body.totalSuccessful} de ${body.totalReceived} archivos cargados correctamente.`,
+        $localize`:@@documents.batch.toast.title:Carga finalizada`,
+        $localize`:@@documents.batch.toast.description:${body.totalSuccessful}:success: de ${body.totalReceived}:total: archivos cargados correctamente.`,
       );
     }
     this.phase.set('done');
   }
 
+  /** Deja el formulario editable tras un error (la sensibilidad sigue bloqueada si procede). */
+  private unlockForm(): void {
+    this.form.enable();
+    if (this.sensitivityLocked()) {
+      this.form.controls.sensitivityLevel.disable({ emitEvent: false });
+    }
+    this.dialogRef.disableClose = false;
+  }
+
   private handleError(err: HttpErrorResponse): void {
+    // Antes de aplicar errores: enable() vuelve a validar y borraría los del backend (R12).
+    this.unlockForm();
     this.phase.set('compose');
     this.files.update((items) =>
       items.map((f) => ({ ...f, status: 'pending' as BatchFileStatus })),
     );
 
     switch (err.status) {
-      case 400:
+      case HttpStatusCode.BadRequest:
         this.submitError.set(
-          err.error?.message ?? 'Los datos del lote no son válidos. Revise el formulario.',
+          toApiError(err)?.message ??
+            $localize`:@@documents.batch.error.invalidData:Los datos del lote no son válidos. Revise el formulario.`,
         );
         break;
-      case 403:
-        this.submitError.set('No tiene permisos para cargar documentos.');
+      case HttpStatusCode.Forbidden:
+        this.submitError.set(
+          $localize`:@@documents.upload.error.forbidden:No tiene permisos para cargar documentos.`,
+        );
         break;
-      case 404:
-        this.submitError.set('La categoría seleccionada no existe o está inactiva.');
+      case HttpStatusCode.NotFound:
+        this.submitError.set(
+          $localize`:@@documents.batch.error.categoryNotFound:La categoría seleccionada no existe o está inactiva.`,
+        );
         this.loadCategories();
         break;
-      case 413:
-        this.submitError.set('El tamaño total del lote excede el límite del servidor.');
+      case HttpStatusCode.PayloadTooLarge:
+        this.submitError.set(
+          $localize`:@@documents.batch.error.tooLarge:El tamaño total del lote excede el límite del servidor.`,
+        );
         break;
       default:
         this.submitError.set(
-          'No fue posible cargar los documentos. Intente nuevamente en unos momentos.',
+          $localize`:@@documents.batch.error.generic:No fue posible cargar los documentos. Intente nuevamente en unos momentos.`,
         );
     }
   }

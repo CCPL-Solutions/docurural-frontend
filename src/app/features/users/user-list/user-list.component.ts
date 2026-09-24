@@ -1,30 +1,43 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { UsersService } from '../../../core/services/users.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { User } from '../../../core/models/user.model';
-import { ApiError } from '../../../core/models/api-error.model';
-import { SortBy, SortDir } from '../../../core/models/user-list.models';
-import { UserFormDialogComponent } from '../user-form-dialog/user-form-dialog.component';
-import { UserFormDialogData, UserFormDialogResult } from '../../../core/models/user-form.models';
-import { ToggleStatusDialogComponent } from '../toggle-status-dialog/toggle-status-dialog.component';
+import { UsersService } from '@core/services/users.service';
+import { NotificationService } from '@core/services/notification.service';
+import { User } from '@core/models/user.model';
+import { SortBy, SortDir } from '@core/models/user-list.model';
 import {
+  UserFormDialogComponent,
+  UserFormDialogData,
+  UserFormDialogResult,
+} from '../user-form-dialog/user-form-dialog.component';
+import {
+  ToggleStatusDialogComponent,
   ToggleStatusDialogData,
   ToggleStatusDialogResult,
-} from '../../../core/models/toggle-status-dialog.models';
+} from '../toggle-status-dialog/toggle-status-dialog.component';
 import { RoleBadgeComponent } from './components/role-badge.component';
 import { StatusBadgeComponent } from './components/status-badge.component';
 import { UserIdentityComponent } from './components/user-identity.component';
 import { UserRowActionsComponent } from './components/user-row-actions.component';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { SortTriggerComponent } from '../../../shared/components/sort-trigger/sort-trigger.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
+import { DatePipe } from '@angular/common';
+import { DATE_FORMAT, DATE_TIME_24H_FORMAT } from '@shared/utils/date-formats';
+import { DIALOG_MD, DIALOG_SM } from '@shared/ui/dialog-sizes';
 
 type SortOption = 'fullNameAsc' | 'fullNameDesc' | 'createdAtDesc' | 'createdAtAsc';
 
@@ -36,17 +49,37 @@ interface SortOptionConfig {
 }
 
 const SORT_OPTIONS: SortOptionConfig[] = [
-  { value: 'fullNameAsc', label: 'Nombre A–Z', sortBy: 'fullName', sortDir: 'asc' },
-  { value: 'fullNameDesc', label: 'Nombre Z–A', sortBy: 'fullName', sortDir: 'desc' },
-  { value: 'createdAtDesc', label: 'Más recientes', sortBy: 'createdAt', sortDir: 'desc' },
-  { value: 'createdAtAsc', label: 'Más antiguos', sortBy: 'createdAt', sortDir: 'asc' },
+  {
+    value: 'fullNameAsc',
+    label: $localize`:@@sort.nameAsc:Nombre A–Z`,
+    sortBy: 'fullName',
+    sortDir: 'asc',
+  },
+  {
+    value: 'fullNameDesc',
+    label: $localize`:@@sort.nameDesc:Nombre Z–A`,
+    sortBy: 'fullName',
+    sortDir: 'desc',
+  },
+  {
+    value: 'createdAtDesc',
+    label: $localize`:@@sort.newest:Más recientes`,
+    sortBy: 'createdAt',
+    sortDir: 'desc',
+  },
+  {
+    value: 'createdAtAsc',
+    label: $localize`:@@sort.oldest:Más antiguos`,
+    sortBy: 'createdAt',
+    sortDir: 'asc',
+  },
 ];
 
 @Component({
   selector: 'app-user-list',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule,
+    DatePipe,
     MatIconModule,
     MatMenuModule,
     MatDialogModule,
@@ -63,10 +96,14 @@ const SORT_OPTIONS: SortOptionConfig[] = [
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
 })
-export class UserListComponent {
+export class UserListComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** `switchMap` descarta la respuesta anterior si se cambia de orden rápido (R2). */
+  private readonly reload$ = new Subject<void>();
 
   protected readonly loading = signal(false);
   protected readonly users = signal<User[]>([]);
@@ -87,43 +124,46 @@ export class UserListComponent {
     );
   });
 
-  private readonly dateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  protected readonly dateFormat = DATE_FORMAT;
+  protected readonly dateTimeFormat = DATE_TIME_24H_FORMAT;
 
-  private readonly dateTimeFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
-
-  constructor() {
+  ngOnInit(): void {
+    this.reload$
+      .pipe(
+        switchMap(() => this.fetch()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res) => {
+        this.users.set(res.users);
+        this.totalUsers.set(res.totalUsers);
+        this.loading.set(false);
+      });
     this.loadUsers();
   }
 
   protected loadUsers(): void {
+    this.reload$.next();
+  }
+
+  /** Petición con el orden actual. Un error se notifica y no corta `reload$`. */
+  private fetch() {
     const opt = this.currentSortConfig();
     this.loading.set(true);
-    this.usersService.list(opt.sortBy, opt.sortDir).subscribe({
-      next: (res) => {
-        this.users.set(res.users);
-        this.totalUsers.set(res.totalUsers);
+    return this.usersService.list(opt.sortBy, opt.sortDir).pipe(
+      catchError((err: unknown) => {
         this.loading.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading.set(false);
-        const apiError = err.error as ApiError | undefined;
-        this.notifications.error(
-          'No se pudo cargar el listado',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
+        this.notifications.httpError(
+          err,
+          $localize`:@@common.error.listLoad:No se pudo cargar el listado`,
+          $localize`:@@common.error.checkConnection:Verifique su conexión e intente nuevamente.`,
         );
-      },
-    });
+        return EMPTY;
+      }),
+    );
+  }
+
+  protected onSearchInput(event: Event): void {
+    this.searchTerm.set((event.target as HTMLInputElement).value);
   }
 
   protected onSortChange(value: SortOption): void {
@@ -140,26 +180,33 @@ export class UserListComponent {
       ToggleStatusDialogResult
     >(ToggleStatusDialogComponent, {
       data: { user, action },
-      width: '400px',
-      maxWidth: '90vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_SM,
     });
 
-    ref.afterClosed().subscribe((result) => {
-      if (!result?.success) return;
-      this.notifications.success('Estado actualizado', result.message);
-      this.loadUsers();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result?.success) return;
+        this.notifications.success(
+          $localize`:@@users.toast.statusUpdated:Estado actualizado`,
+          result.message,
+        );
+        this.loadUsers();
+      });
   }
 
   protected goToCreate(): void {
     const ref = this.dialog.open<UserFormDialogComponent, UserFormDialogData, UserFormDialogResult>(
       UserFormDialogComponent,
-      { data: { mode: 'create' }, width: '480px', maxWidth: '95vw', autoFocus: 'first-tabbable' },
+      { data: { mode: 'create' }, ...DIALOG_MD },
     );
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'created') this.loadUsers();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'created') this.loadUsers();
+      });
   }
 
   protected goToEdit(user: User): void {
@@ -167,42 +214,22 @@ export class UserListComponent {
       UserFormDialogComponent,
       {
         data: { mode: 'edit', user },
-        width: '480px',
-        maxWidth: '95vw',
-        autoFocus: 'first-tabbable',
+        ...DIALOG_MD,
       },
     );
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'updated') this.loadUsers();
-    });
-  }
-
-  protected formatCreated(iso: string): string {
-    const d = this.parseIso(iso);
-    return d ? this.dateFormatter.format(d) : '—';
-  }
-
-  protected formatLastLogin(iso: string | null): string {
-    if (!iso) return 'Nunca';
-    const d = this.parseIso(iso);
-    return d ? this.dateTimeFormatter.format(d) : 'Nunca';
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'updated') this.loadUsers();
+      });
   }
 
   protected isMuted(user: User): boolean {
     return user.status === 'INACTIVE';
   }
 
-  protected trackById(_index: number, user: User): number {
-    return user.id;
-  }
-
   private currentSortConfig(): SortOptionConfig {
     return SORT_OPTIONS.find((o) => o.value === this.selectedSort()) ?? SORT_OPTIONS[0];
-  }
-
-  private parseIso(value: string): Date | null {
-    if (!value) return null;
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? null : d;
   }
 }

@@ -1,0 +1,22 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--color-bg-app);
+}
+
+.not-found {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+}
+
+.not-found__card {
+  width: 100%;
+  max-width: 560px;
+}
+
+.not-found__actions {
+  margin-top: var(--space-6);
+}

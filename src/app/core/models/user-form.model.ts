@@ -1,0 +1,35 @@
+import { Role } from './role.model';
+import { AuthenticatedUser, User } from './user.model';
+import { UserStatus } from './user-status.model';
+
+export interface CreateUserRequest {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: Role;
+}
+
+export interface UpdateUserRequest {
+  fullName: string;
+  email: string;
+  role: Role;
+  password?: string;
+  confirmPassword?: string;
+}
+
+export interface CreateUserResponse extends User {
+  message: string;
+}
+
+export interface UpdateUserResponse extends AuthenticatedUser {
+  status: UserStatus;
+  message: string;
+}
+
+// Límites de validación compartidos con el backend (FRM-02).
+export const MIN_FULL_NAME_LENGTH = 3;
+export const MAX_FULL_NAME_LENGTH = 100;
+export const MAX_EMAIL_LENGTH = 150;
+export const MIN_PASSWORD_LENGTH = 12;
+export const MAX_PASSWORD_LENGTH = 128;

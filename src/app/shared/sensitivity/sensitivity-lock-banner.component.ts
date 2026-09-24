@@ -4,11 +4,10 @@ import {
   SensitivityLevel,
   SENSITIVITY_ICONS,
   SENSITIVITY_LABELS,
-} from '../../core/models/sensitivity-level.model';
+} from '@core/models/sensitivity-level.model';
 
 @Component({
   selector: 'app-sensitivity-lock-banner',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   template: `
@@ -17,14 +16,24 @@ import {
         <mat-icon aria-hidden="true">{{ icon() }}</mat-icon>
       </div>
       <div class="lock-banner__body">
-        <p class="lock-banner__title">Esta categoría tiene datos sensibles</p>
+        <p class="lock-banner__title" i18n="@@sensitivity.lock.title">
+          Esta categoría tiene datos sensibles
+        </p>
         <p class="lock-banner__text">
-          El nivel de sensibilidad se asigna automáticamente como
-          <strong>{{ labelLower() }}</strong>
           @if (categoryName()) {
-            porque la categoría <strong>{{ categoryName() }}</strong> está configurada así
+            <ng-container i18n="@@sensitivity.lock.textWithCategory"
+              >El nivel de sensibilidad se asigna automáticamente como
+              <strong>{{ labelLower() }}</strong> porque la categoría
+              <strong>{{ categoryName() }}</strong> está configurada así. No puede modificarse desde
+              este formulario.</ng-container
+            >
+          } @else {
+            <ng-container i18n="@@sensitivity.lock.text"
+              >El nivel de sensibilidad se asigna automáticamente como
+              <strong>{{ labelLower() }}</strong
+              >. No puede modificarse desde este formulario.</ng-container
+            >
           }
-          . No puede modificarse desde este formulario.
         </p>
       </div>
     </div>

@@ -1,0 +1,392 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="dialog-title" i18n="@@dashboard.upload">Subir documento</h2>
+    <button
+      class="dialog-close"
+      type="button"
+      (click)="cancel()"
+      aria-label="Cerrar formulario"
+      i18n-aria-label="@@common.closeForm"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  @if (submitError()) {
+    <app-alert variant="error" class="dialog-alert">{{ submitError() }}</app-alert>
+  }
+
+  <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="dialog-fields">
+      <!-- Archivo -->
+      <div class="field">
+        <span class="field__label">
+          <ng-container i18n="@@documents.form.file">Archivo</ng-container>
+          <strong class="field__required" aria-hidden="true">*</strong>
+        </span>
+
+        <div
+          class="dropzone"
+          [class.dropzone--dragover]="dragOver()"
+          [class.dropzone--filled]="selectedFile() && !fileError()"
+          [class.dropzone--error]="fileError()"
+          role="button"
+          tabindex="0"
+          aria-label="Zona de carga de archivos. Haga clic o arrastre un archivo aquí."
+          i18n-aria-label="@@documents.form.dropzone.ariaLabel"
+          (click)="fileInput.click()"
+          (keydown.enter)="fileInput.click()"
+          (keydown.space)="fileInput.click(); $event.preventDefault()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)"
+        >
+          @if (selectedFile() && !fileError()) {
+            <div class="dropzone__filled">
+              <app-document-format-icon [format]="inferFormat(selectedFile()!.name)" />
+              <div class="dropzone__file-meta">
+                <span class="dropzone__file-name">{{ selectedFile()!.name }}</span>
+                <span class="dropzone__file-size"
+                  >{{ inferFormat(selectedFile()!.name) }} ·
+                  {{ formatSize(selectedFile()!.size) }}</span
+                >
+              </div>
+              <div class="dropzone__file-actions">
+                <button
+                  type="button"
+                  class="dropzone__replace-btn"
+                  (click)="$event.stopPropagation(); fileInput.click()"
+                  aria-label="Reemplazar archivo"
+                  i18n-aria-label="@@documents.form.file.replaceAriaLabel"
+                >
+                  <mat-icon aria-hidden="true">refresh</mat-icon>
+                  <ng-container i18n="@@documents.form.file.replace">Reemplazar</ng-container>
+                </button>
+                <button
+                  type="button"
+                  class="dropzone__remove-btn"
+                  (click)="$event.stopPropagation(); removeFile()"
+                  aria-label="Quitar archivo"
+                  i18n-aria-label="@@documents.form.file.removeAriaLabel"
+                >
+                  <mat-icon aria-hidden="true">delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          } @else if (fileError()) {
+            <div class="dropzone__icon-circle dropzone__icon-circle--error">
+              <mat-icon aria-hidden="true">error</mat-icon>
+            </div>
+            <div class="dropzone__prompt" i18n="@@documents.form.dropzone.prompt">
+              Arrastre el archivo aquí o <span class="dropzone__link">seleccione del equipo</span>
+            </div>
+            <div class="dropzone__subtitle" i18n="@@documents.form.dropzone.formats">
+              PDF, DOCX, XLSX, JPG o PNG. Máximo 10 MB por archivo.
+            </div>
+            <div class="dropzone__error-text">
+              <mat-icon aria-hidden="true">error</mat-icon>
+              {{ fileError() }}
+            </div>
+          } @else {
+            <div class="dropzone__icon-circle">
+              <mat-icon aria-hidden="true">cloud_upload</mat-icon>
+            </div>
+            <div class="dropzone__prompt" i18n="@@documents.form.dropzone.prompt">
+              Arrastre el archivo aquí o <span class="dropzone__link">seleccione del equipo</span>
+            </div>
+            <div class="dropzone__subtitle" i18n="@@documents.form.dropzone.formats">
+              PDF, DOCX, XLSX, JPG o PNG. Máximo 10 MB por archivo.
+            </div>
+          }
+        </div>
+
+        <input
+          #fileInput
+          type="file"
+          hidden
+          accept=".pdf,.docx,.xlsx,.jpg,.jpeg,.png"
+          (change)="onFileInputChange($event)"
+          aria-hidden="true"
+        />
+
+        @if (!fileError()) {
+          <small class="field__hint" i18n="@@documents.form.file.hint"
+            >El sistema valida el tipo real del archivo, no solo la extensión.</small
+          >
+        }
+      </div>
+
+      <!-- Título -->
+      <div class="field">
+        <div class="field__label-row">
+          <label class="field__label" for="title">
+            <ng-container i18n="@@documents.form.title">Título del documento</ng-container>
+            <strong class="field__required" aria-hidden="true">*</strong>
+          </label>
+          <span
+            class="field__counter"
+            [class.field__counter--over]="titleLen() > maxTitleLength"
+            aria-hidden="true"
+            >{{ titleLen() }}/{{ maxTitleLength }}</span
+          >
+        </div>
+        <div
+          class="field__control"
+          [class.field__control--error]="form.controls.title.invalid && form.controls.title.touched"
+        >
+          <input
+            class="field__input"
+            id="title"
+            type="text"
+            formControlName="title"
+            [maxlength]="maxTitleLength"
+            autocomplete="off"
+            placeholder="Ej. Acta Consejo Directivo Marzo 2026"
+            i18n-placeholder="@@documents.form.title.placeholder"
+            (input)="onTitleInput()"
+            [attr.aria-required]="true"
+            [attr.aria-invalid]="
+              (form.controls.title.invalid && form.controls.title.touched) || null
+            "
+            aria-describedby="title-error title-hint"
+          />
+        </div>
+        <app-field-error
+          [control]="form.controls.title"
+          [messages]="messages.title"
+          errorId="title-error"
+        >
+          <small class="field__hint" id="title-hint" i18n="@@documents.form.title.hint"
+            >Use un título descriptivo. Si lo deja en blanco se usará el nombre del archivo.</small
+          >
+        </app-field-error>
+      </div>
+
+      <!-- Categoría y Área (fila de dos columnas) -->
+      <div class="field-row">
+        <!-- Categoría -->
+        <div class="field">
+          <span class="field__label" id="category-label">
+            <ng-container i18n="@@document.field.category">Categoría</ng-container>
+            <strong class="field__required" aria-hidden="true">*</strong>
+          </span>
+          <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
+            <mat-icon matPrefix class="select-icon">sell</mat-icon>
+            <mat-select
+              formControlName="categoryId"
+              aria-labelledby="category-label"
+              aria-describedby="category-error category-hint"
+              [placeholder]="loadingCategories() ? labels.loadingCategories : labels.selectCategory"
+            >
+              @for (cat of categories(); track cat.id) {
+                <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (loadCategoriesError()) {
+            <div class="categories-error">
+              <mat-icon aria-hidden="true">warning</mat-icon>
+              <span i18n="@@documents.form.category.loadError"
+                >No se pudieron cargar las categorías.</span
+              >
+              <button type="button" class="categories-retry" (click)="loadCategories()">
+                <ng-container i18n="@@common.retry">Reintentar</ng-container>
+              </button>
+            </div>
+          }
+
+          <app-field-error
+            [control]="form.controls.categoryId"
+            [messages]="messages.categoryId"
+            errorId="category-error"
+          >
+            @if (!loadCategoriesError()) {
+              <small class="field__hint" id="category-hint" i18n="@@documents.form.category.hint"
+                >Solo aparecen las categorías activas.</small
+              >
+            }
+          </app-field-error>
+        </div>
+
+        <!-- Área responsable -->
+        <div class="field">
+          <span class="field__label" id="area-label">
+            <ng-container i18n="@@document.field.area">Área responsable</ng-container>
+            <strong class="field__required" aria-hidden="true">*</strong>
+          </span>
+          <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
+            <mat-icon matPrefix class="select-icon">apartment</mat-icon>
+            <mat-select
+              formControlName="responsibleArea"
+              aria-labelledby="area-label"
+              aria-describedby="area-error"
+              placeholder="Seleccione un área"
+              i18n-placeholder="@@documents.form.area.placeholder"
+            >
+              @for (area of areas; track area) {
+                <mat-option [value]="area">{{ area }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <app-field-error
+            [control]="form.controls.responsibleArea"
+            [messages]="messages.responsibleArea"
+            errorId="area-error"
+          />
+        </div>
+      </div>
+
+      <!-- Fecha del documento -->
+      <div class="field">
+        <label class="field__label" for="documentDate">
+          <ng-container i18n="@@document.field.documentDate">Fecha del documento</ng-container>
+          <strong class="field__required" aria-hidden="true">*</strong>
+        </label>
+        <div
+          class="field__control"
+          [class.field__control--error]="
+            form.controls.documentDate.invalid && form.controls.documentDate.touched
+          "
+        >
+          <input
+            class="field__input field__input--with-toggle field__input--datepicker"
+            id="documentDate"
+            type="text"
+            [matDatepicker]="picker"
+            formControlName="documentDate"
+            placeholder="DD/MM/AAAA"
+            i18n-placeholder="@@documents.form.date.placeholder"
+            readonly
+            (click)="picker.open()"
+            [attr.aria-required]="true"
+            [attr.aria-invalid]="
+              (form.controls.documentDate.invalid && form.controls.documentDate.touched) || null
+            "
+            aria-describedby="date-error date-hint"
+          />
+          <button
+            type="button"
+            class="field__toggle"
+            (click)="picker.open()"
+            [disabled]="form.disabled"
+            aria-label="Abrir calendario"
+            i18n-aria-label="@@documents.form.date.openCalendar"
+          >
+            <mat-icon aria-hidden="true">calendar_month</mat-icon>
+          </button>
+          <mat-datepicker #picker></mat-datepicker>
+        </div>
+        <app-field-error
+          [control]="form.controls.documentDate"
+          [messages]="messages.documentDate"
+          errorId="date-error"
+        >
+          <small class="field__hint" id="date-hint" i18n="@@documents.form.date.hint"
+            >Fecha real del documento original, no la fecha de carga.</small
+          >
+        </app-field-error>
+      </div>
+
+      <!-- Nivel de sensibilidad -->
+      <div class="field">
+        <span class="field__label">
+          <ng-container i18n="@@sensitivity.field.label">Nivel de sensibilidad</ng-container>
+          <strong class="field__required" aria-hidden="true">*</strong>
+        </span>
+
+        @if (sensitivityLocked()) {
+          <app-sensitivity-lock-banner
+            [level]="categoryDefault()"
+            [categoryName]="selectedCategory()?.name ?? null"
+          />
+        } @else if (selectedCategory() && form.controls.sensitivityLevel.value === 'INTERNAL') {
+          <app-sensitivity-inherited-banner
+            [level]="categoryDefault()"
+            [categoryName]="selectedCategory()!.name"
+            [canRaise]="true"
+          />
+        }
+
+        <div class="desktop-only">
+          <app-sensitivity-radio
+            formControlName="sensitivityLevel"
+            [minLevel]="minSensitivity()"
+            [editorRole]="editorRole()"
+            [locked]="sensitivityLocked()"
+          />
+        </div>
+        <div class="mobile-only">
+          <app-sensitivity-mobile-field
+            formControlName="sensitivityLevel"
+            [minLevel]="minSensitivity()"
+            [editorRole]="editorRole()"
+            [locked]="sensitivityLocked()"
+          />
+        </div>
+
+        <app-field-error
+          [control]="form.controls.sensitivityLevel"
+          [messages]="messages.sensitivityLevel"
+        />
+      </div>
+
+      <!-- Descripción -->
+      <div class="field">
+        <div class="field__label-row">
+          <label class="field__label" for="description">
+            <ng-container i18n="@@document.field.description">Descripción</ng-container>
+            <span class="field__optional" i18n="@@common.optional">(opcional)</span>
+          </label>
+          <span
+            class="field__counter"
+            [class.field__counter--over]="descLen() > maxDescriptionLength"
+            aria-hidden="true"
+            >{{ descLen() }}/{{ maxDescriptionLength }}</span
+          >
+        </div>
+        <div
+          class="field__control"
+          [class.field__control--error]="
+            form.controls.description.invalid && form.controls.description.touched
+          "
+        >
+          <textarea
+            class="field__textarea"
+            id="description"
+            formControlName="description"
+            rows="2"
+            [maxlength]="maxDescriptionLength"
+            autocomplete="off"
+            placeholder="Información adicional sobre el contenido del documento (opcional)."
+            i18n-placeholder="@@documents.form.description.placeholder"
+            [attr.aria-invalid]="
+              (form.controls.description.invalid && form.controls.description.touched) || null
+            "
+            aria-describedby="desc-error"
+          ></textarea>
+        </div>
+        <app-field-error
+          [control]="form.controls.description"
+          [messages]="messages.description"
+          errorId="desc-error"
+        />
+      </div>
+    </div>
+    <!-- /dialog-fields -->
+
+    <div class="dialog-footer">
+      <app-button variant="secondary" type="button" [disabled]="loading()" (click)="cancel()">
+        <ng-container i18n="@@common.cancel">Cancelar</ng-container>
+      </app-button>
+      <app-button variant="primary" type="submit" [loading]="loading()">
+        <mat-icon aria-hidden="true">upload_file</mat-icon>
+        @if (loading()) {
+          <span i18n="@@documents.upload.submitting">Cargando…</span>
+        } @else {
+          <span i18n="@@documents.upload.submit">Cargar documento</span>
+        }
+      </app-button>
+    </div>
+  </form>
+</div>

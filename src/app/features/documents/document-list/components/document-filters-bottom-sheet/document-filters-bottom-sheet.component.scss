@@ -1,3 +1,5 @@
+@use 'icons' as icon;
+
 :host {
   display: block;
 }
@@ -20,9 +22,7 @@
 }
 
 .sheet-header__icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
+  @include icon.size(20px);
   color: var(--color-primary-dark);
   flex-shrink: 0;
 }
@@ -51,9 +51,7 @@
   transition: background var(--duration-fast) var(--easing-standard);
 
   mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    @include icon.size(20px);
   }
 
   &:hover {

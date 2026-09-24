@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
 export type KpiAccent = 'primary' | 'success' | 'warning';
 
 @Component({
   selector: 'app-kpi-card',
-  standalone: true,
-  imports: [MatIconModule, NgClass],
+  imports: [MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './kpi-card.component.html',
   styleUrl: './kpi-card.component.scss',

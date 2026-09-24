@@ -1,50 +1,56 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
-  effect,
+  LOCALE_ID,
   inject,
   signal,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
+import { RouterLink } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DocumentsService } from '../../../core/services/documents.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { Document } from '../../../core/models/document.model';
+import { DocumentsService } from '@core/services/documents.service';
+import { NotificationService } from '@core/services/notification.service';
+import { AuthService } from '@core/services/auth.service';
+import { DocumentDownloadService } from '@core/services/document-download.service';
+import { Document } from '@core/models/document.model';
 import {
   ActiveFiltersDto,
   DocumentSortBy,
   DocumentSortDir,
-} from '../../../core/models/document-list.models';
-import { ApiError } from '../../../core/models/api-error.model';
+} from '@core/models/document-list.model';
 import {
   DocumentFilters,
   EMPTY_FILTERS,
   FilterChipDescriptor,
   countActiveFilters,
   hasAnyFilter,
-} from '../../../core/models/document-filters.model';
-import { FilterOptionsResponse } from '../../../core/models/filter-options.model';
-import { canUploadDocument } from './utils/document-permissions';
-import { formatFileSize } from './utils/file-size';
+} from './document-filters.model';
+import { FilterOptionsResponse } from '@core/models/filter-options.model';
 import {
-  buildFallbackFilename,
-  parseBlobError,
-  parseFilenameFromContentDisposition,
-  triggerBlobDownload,
-} from './utils/download-blob';
+  canDeleteDocument,
+  canEditDocument,
+  canSeeUploadedByFilter,
+  canUploadDocument,
+} from '@core/auth/permissions';
+import { DATE_FORMAT, DATE_TIME_FORMAT } from '@shared/utils/date-formats';
+import { downloadAriaLabel, downloadTooltip } from '@shared/i18n/download-labels';
+import { userInitials } from '@shared/utils/user-initials';
+import { formatFileSize } from '@shared/utils/file-size';
 import {
   UploadDocumentDialogComponent,
   UploadDocumentDialogData,
   UploadDocumentDialogResult,
-} from './components/upload-document-dialog/upload-document-dialog.component';
+} from '../dialogs/upload-document-dialog/upload-document-dialog.component';
 import {
   UploadDocumentsBatchDialogComponent,
   UploadDocumentsBatchDialogData,
@@ -54,14 +60,14 @@ import {
   EditDocumentMetadataDialogComponent,
   EditDocumentMetadataDialogData,
   EditDocumentMetadataDialogResult,
-} from './components/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
+} from '../dialogs/edit-document-metadata-dialog/edit-document-metadata-dialog.component';
 import {
   DeleteDocumentDialogComponent,
   DeleteDocumentDialogData,
   DeleteDocumentDialogResult,
 } from './components/delete-document-dialog/delete-document-dialog.component';
-import { DocumentFormatIconComponent } from './components/document-format-icon.component';
-import { DocumentCategoryPillComponent } from './components/document-category-pill.component';
+import { DocumentFormatIconComponent } from '@shared/components/document-format-icon/document-format-icon.component';
+import { CategoryPillComponent } from '@shared/components/category-pill/category-pill.component';
 import { DocumentRowActionsComponent } from './components/document-row-actions.component';
 import { DocumentSearchBarComponent } from './components/document-search-bar/document-search-bar.component';
 import { DocumentFiltersPanelComponent } from './components/document-filters-panel/document-filters-panel.component';
@@ -71,12 +77,15 @@ import {
   DocumentFiltersBottomSheetComponent,
   FiltersBottomSheetResult,
 } from './components/document-filters-bottom-sheet/document-filters-bottom-sheet.component';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { IconButtonComponent } from '../../../shared/components/icon-button/icon-button.component';
-import { SortTriggerComponent } from '../../../shared/components/sort-trigger/sort-trigger.component';
-import { SensitivityBadgeComponent } from '../../../shared/sensitivity/sensitivity-badge.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
+import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
+import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
+import { DatePipe, formatDate } from '@angular/common';
+import { BREAKPOINT_MD } from '@shared/ui/breakpoints';
+import { DIALOG_LG, DIALOG_MD, DIALOG_XL } from '@shared/ui/dialog-sizes';
 
 type SortOption =
   | 'createdAtDesc'
@@ -94,19 +103,39 @@ interface SortOptionConfig {
 }
 
 const SORT_OPTIONS: SortOptionConfig[] = [
-  { value: 'createdAtDesc', label: 'Más recientes', sortBy: 'createdAt', sortDir: 'desc' },
-  { value: 'createdAtAsc', label: 'Más antiguos', sortBy: 'createdAt', sortDir: 'asc' },
-  { value: 'titleAsc', label: 'Título A–Z', sortBy: 'title', sortDir: 'asc' },
-  { value: 'titleDesc', label: 'Título Z–A', sortBy: 'title', sortDir: 'desc' },
+  {
+    value: 'createdAtDesc',
+    label: $localize`:@@sort.newest:Más recientes`,
+    sortBy: 'createdAt',
+    sortDir: 'desc',
+  },
+  {
+    value: 'createdAtAsc',
+    label: $localize`:@@sort.oldest:Más antiguos`,
+    sortBy: 'createdAt',
+    sortDir: 'asc',
+  },
+  {
+    value: 'titleAsc',
+    label: $localize`:@@sort.titleAsc:Título A–Z`,
+    sortBy: 'title',
+    sortDir: 'asc',
+  },
+  {
+    value: 'titleDesc',
+    label: $localize`:@@sort.titleDesc:Título Z–A`,
+    sortBy: 'title',
+    sortDir: 'desc',
+  },
   {
     value: 'documentDateDesc',
-    label: 'Fecha doc. más reciente',
+    label: $localize`:@@sort.documentDateDesc:Fecha doc. más reciente`,
     sortBy: 'documentDate',
     sortDir: 'desc',
   },
   {
     value: 'documentDateAsc',
-    label: 'Fecha doc. más antigua',
+    label: $localize`:@@sort.documentDateAsc:Fecha doc. más antigua`,
     sortBy: 'documentDate',
     sortDir: 'asc',
   },
@@ -116,16 +145,16 @@ const PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-document-list',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     MatDialogModule,
     MatBottomSheetModule,
     MatIconModule,
     MatMenuModule,
     MatProgressSpinnerModule,
     DocumentFormatIconComponent,
-    DocumentCategoryPillComponent,
+    CategoryPillComponent,
     DocumentRowActionsComponent,
     DocumentSearchBarComponent,
     DocumentFiltersPanelComponent,
@@ -137,6 +166,7 @@ const PAGE_SIZE = 10;
     IconButtonComponent,
     SortTriggerComponent,
     SensitivityBadgeComponent,
+    RouterLink,
   ],
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.scss',
@@ -147,7 +177,16 @@ export class DocumentListComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly bottomSheet = inject(MatBottomSheet);
-  private readonly router = inject(Router);
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly downloads = inject(DocumentDownloadService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly localeId = inject(LOCALE_ID);
+
+  /**
+   * Cada emisión pide el listado con el estado actual. `switchMap` cancela la petición anterior:
+   * si se pagina, ordena o busca rápido, solo cuenta la última respuesta (R2).
+   */
+  private readonly reload$ = new Subject<void>();
 
   // ── Signals existentes ──────────────────────────────────────────────
   protected readonly loading = signal(false);
@@ -156,7 +195,7 @@ export class DocumentListComponent implements OnInit {
   protected readonly totalPages = signal(0);
   protected readonly currentPage = signal(1);
   protected readonly selectedSort = signal<SortOption>('createdAtDesc');
-  protected readonly downloadingIds = signal(new Set<number>());
+  protected readonly downloadingIds = this.downloads.downloadingIds;
 
   // ── Signals de búsqueda y filtros (RF-03) ───────────────────────────
   protected readonly searchInput = signal('');
@@ -177,7 +216,13 @@ export class DocumentListComponent implements OnInit {
   protected readonly role = computed(() => this.auth.currentUser()?.role ?? 'READER');
 
   protected readonly canUpload = computed(() => canUploadDocument(this.role()));
-  protected readonly canSeeUploadedByFilter = computed(() => this.role() === 'ADMIN');
+  protected readonly canSeeUploadedByFilter = computed(() => canSeeUploadedByFilter(this.role()));
+  protected readonly canDelete = computed(() => canDeleteDocument(this.role()));
+  protected readonly dateFormat = DATE_FORMAT;
+  protected readonly dateTimeFormat = DATE_TIME_FORMAT;
+  protected readonly userInitials = userInitials;
+  protected readonly downloadTooltip = downloadTooltip;
+  protected readonly downloadAriaLabel = downloadAriaLabel;
   protected readonly isEmpty = computed(() => !this.loading() && this.totalDocuments() === 0);
 
   protected readonly appliedFilterCount = computed(() => countActiveFilters(this.appliedFilters()));
@@ -206,21 +251,31 @@ export class DocumentListComponent implements OnInit {
     const total = this.totalDocuments();
     const term = this.appliedSearchTerm();
     const hasFilter = hasAnyFilter(this.appliedFilters());
-    const docWord = total === 1 ? 'documento' : 'documentos';
-    if (term && hasFilter)
-      return `Se encontraron ${total} ${docWord} para "${term}" con los filtros aplicados`;
-    if (term) return `Se encontraron ${total} ${docWord} para "${term}"`;
-    if (hasFilter) return `Se encontraron ${total} ${docWord} con los filtros aplicados`;
+    const one = total === 1;
+    if (term && hasFilter) {
+      return one
+        ? $localize`:@@documents.list.result.termAndFilters.one:Se encontró 1 documento para "${term}:term:" con los filtros aplicados`
+        : $localize`:@@documents.list.result.termAndFilters.other:Se encontraron ${total}:count: documentos para "${term}:term:" con los filtros aplicados`;
+    }
+    if (term) {
+      return one
+        ? $localize`:@@documents.list.result.term.one:Se encontró 1 documento para "${term}:term:"`
+        : $localize`:@@documents.list.result.term.other:Se encontraron ${total}:count: documentos para "${term}:term:"`;
+    }
+    if (hasFilter) {
+      return one
+        ? $localize`:@@documents.list.result.filters.one:Se encontró 1 documento con los filtros aplicados`
+        : $localize`:@@documents.list.result.filters.other:Se encontraron ${total}:count: documentos con los filtros aplicados`;
+    }
     return null;
   });
 
   protected readonly pageRangeLabel = computed(() => {
     const page = this.currentPage();
     const total = this.totalDocuments();
-    if (total === 0) return '0 documentos';
     const from = (page - 1) * PAGE_SIZE + 1;
     const to = Math.min(page * PAGE_SIZE, total);
-    return `Mostrando ${from}–${to} de ${total} documentos`;
+    return $localize`:@@pagination.range:Mostrando ${from}:from:–${to}:to: de ${total}:total: documentos`;
   });
 
   protected readonly pageNumbers = computed(() => {
@@ -240,26 +295,19 @@ export class DocumentListComponent implements OnInit {
     return pages;
   });
 
-  private readonly docDateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-  private readonly loadedAtFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-  constructor() {
-    effect(() => {
-      if (this.searchInput()) this.searchError.set(null);
-    });
-  }
-
   ngOnInit(): void {
+    this.reload$
+      .pipe(
+        switchMap(() => this.fetchDocuments()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res) => {
+        this.documents.set(res.documents);
+        this.totalDocuments.set(res.totalDocuments);
+        this.totalPages.set(res.totalPages);
+        this.activeFiltersMeta.set(res.activeFilters ?? null);
+        this.loading.set(false);
+      });
     this.loadDocuments();
     this.loadFilterOptions();
   }
@@ -267,6 +315,11 @@ export class DocumentListComponent implements OnInit {
   // ── Carga de datos ──────────────────────────────────────────────────
 
   protected loadDocuments(): void {
+    this.reload$.next();
+  }
+
+  /** Petición del listado con el estado actual. Un error se notifica y no corta `reload$`. */
+  private fetchDocuments() {
     const opt = this.currentSortConfig();
     const filters = this.appliedFilters();
     this.loading.set(true);
@@ -275,7 +328,7 @@ export class DocumentListComponent implements OnInit {
       ? (filters.uploadedBy ?? undefined)
       : undefined;
 
-    this.documentsService
+    return this.documentsService
       .list({
         page: this.currentPage(),
         size: PAGE_SIZE,
@@ -288,52 +341,54 @@ export class DocumentListComponent implements OnInit {
         dateTo: filters.dateTo ?? undefined,
         uploadedBy,
       })
-      .subscribe({
-        next: (res) => {
-          this.documents.set(res.documents);
-          this.totalDocuments.set(res.totalDocuments);
-          this.totalPages.set(res.totalPages);
-          this.activeFiltersMeta.set(res.activeFilters ?? null);
+      .pipe(
+        catchError((err: unknown) => {
           this.loading.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          const apiError = err.error as ApiError | undefined;
-          this.notifications.error(
-            'No se pudo cargar el listado',
-            apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
+          this.notifications.httpError(
+            err,
+            $localize`:@@common.error.listLoad:No se pudo cargar el listado`,
+            $localize`:@@common.error.checkConnection:Verifique su conexión e intente nuevamente.`,
           );
-        },
-      });
+          return EMPTY;
+        }),
+      );
   }
 
   private loadFilterOptions(): void {
     this.loadingFilterOptions.set(true);
-    this.documentsService.filterOptions().subscribe({
-      next: (opts) => {
-        this.filterOptions.set(opts);
-        this.loadingFilterOptions.set(false);
-      },
-      error: () => {
-        this.loadingFilterOptions.set(false);
-      },
-    });
+    this.documentsService
+      .filterOptions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (opts) => {
+          this.filterOptions.set(opts);
+          this.loadingFilterOptions.set(false);
+        },
+        error: () => {
+          this.loadingFilterOptions.set(false);
+        },
+      });
   }
 
   // ── Búsqueda (HU-20) ────────────────────────────────────────────────
 
   protected onSearchInputChange(value: string): void {
     this.searchInput.set(value);
+    if (value) this.searchError.set(null);
   }
 
   protected onSearchSubmit(): void {
     const term = this.searchInput().trim();
     if (term.length > 0 && term.length < 2) {
-      this.searchError.set('Ingrese al menos 2 caracteres para buscar.');
+      this.searchError.set(
+        $localize`:@@documents.search.error.minLength:Ingrese al menos 2 caracteres para buscar.`,
+      );
       return;
     }
     if (term.length > 100) {
-      this.searchError.set('El texto de búsqueda no puede superar los 100 caracteres.');
+      this.searchError.set(
+        $localize`:@@documents.search.error.maxLength:El texto de búsqueda no puede superar los 100 caracteres.`,
+      );
       return;
     }
     this.searchError.set(null);
@@ -353,7 +408,7 @@ export class DocumentListComponent implements OnInit {
   // ── Filtros (HU-21, HU-22) ──────────────────────────────────────────
 
   protected onToggleFiltersPanel(): void {
-    if (window.innerWidth <= 768) {
+    if (this.breakpointObserver.isMatched(BREAKPOINT_MD)) {
       const ref = this.bottomSheet.open(DocumentFiltersBottomSheetComponent, {
         data: {
           draft: { ...this.appliedFilters() },
@@ -363,11 +418,14 @@ export class DocumentListComponent implements OnInit {
         },
         panelClass: 'filters-bottom-sheet',
       });
-      ref.afterDismissed().subscribe((result: FiltersBottomSheetResult) => {
-        if (result?.action === 'apply') {
-          this.onFiltersApply(result.draft);
-        }
-      });
+      ref
+        .afterDismissed()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((result: FiltersBottomSheetResult) => {
+          if (result?.action === 'apply') {
+            this.onFiltersApply(result.draft);
+          }
+        });
     } else {
       const willOpen = !this.filtersPanelOpen();
       if (willOpen) {
@@ -472,84 +530,48 @@ export class DocumentListComponent implements OnInit {
     this.loadDocuments();
   }
 
-  protected onView(doc: Document): void {
-    this.router.navigate(['/documents', doc.id]);
-  }
-
   protected onDownload(doc: Document): void {
-    this.downloadingIds.update((ids) => new Set(ids).add(doc.id));
-
-    this.documentsService.download(doc.id).subscribe({
-      next: (response) => {
-        const filename =
-          parseFilenameFromContentDisposition(response.headers.get('Content-Disposition')) ??
-          buildFallbackFilename(doc.title, doc.fileFormat);
-        triggerBlobDownload(response.body!, filename);
-        this.notifications.success('Descarga iniciada', filename);
-        this.downloadingIds.update((ids) => {
-          const next = new Set(ids);
-          next.delete(doc.id);
-          return next;
-        });
-      },
-      error: async (err: HttpErrorResponse) => {
-        this.downloadingIds.update((ids) => {
-          const next = new Set(ids);
-          next.delete(doc.id);
-          return next;
-        });
-        if (err.status === 401) return;
-        if (err.status === 404) {
-          const apiError = await parseBlobError(err);
-          this.notifications.error(
-            'No se pudo descargar el documento',
-            apiError?.message ?? 'El archivo no está disponible. Contacte al administrador.',
-          );
-          return;
-        }
-        const apiError = await parseBlobError(err);
-        this.notifications.error(
-          'No se pudo descargar el documento',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
-        );
-      },
-    });
+    this.downloads.download(doc);
   }
 
   protected onEdit(doc: Document): void {
-    this.documentsService.getById(doc.id).subscribe({
-      next: (detail) => {
-        const ref = this.dialog.open<
-          EditDocumentMetadataDialogComponent,
-          EditDocumentMetadataDialogData,
-          EditDocumentMetadataDialogResult
-        >(EditDocumentMetadataDialogComponent, {
-          data: { document: detail },
-          width: '620px',
-          maxWidth: '95vw',
-          autoFocus: 'first-tabbable',
-        });
-        ref.afterClosed().subscribe((result) => {
-          if (result?.kind === 'updated') {
-            this.loadDocuments();
+    this.documentsService
+      .getById(doc.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (detail) => {
+          const ref = this.dialog.open<
+            EditDocumentMetadataDialogComponent,
+            EditDocumentMetadataDialogData,
+            EditDocumentMetadataDialogResult
+          >(EditDocumentMetadataDialogComponent, {
+            data: { document: detail },
+            ...DIALOG_LG,
+          });
+          ref
+            .afterClosed()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((result) => {
+              if (result?.kind === 'updated') {
+                this.loadDocuments();
+              }
+            });
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === HttpStatusCode.NotFound) {
+            this.notifications.error(
+              $localize`:@@documents.detail.notFound.title:Documento no encontrado`,
+              $localize`:@@documents.list.error.editNotFound:El documento ya no existe o fue eliminado.`,
+            );
+            return;
           }
-        });
-      },
-      error: (err: HttpErrorResponse) => {
-        if (err.status === 401) return;
-        if (err.status === 404) {
-          this.notifications.error(
-            'Documento no encontrado',
-            'El documento ya no existe o fue eliminado.',
+          this.notifications.httpError(
+            err,
+            $localize`:@@documents.list.error.openEditor.title:Error al abrir el editor`,
+            $localize`:@@documents.list.error.openEditor.description:No fue posible cargar los datos del documento. Intente nuevamente.`,
           );
-          return;
-        }
-        this.notifications.error(
-          'Error al abrir el editor',
-          'No fue posible cargar los datos del documento. Intente nuevamente.',
-        );
-      },
-    });
+        },
+      });
   }
 
   protected onDelete(doc: Document): void {
@@ -559,16 +581,20 @@ export class DocumentListComponent implements OnInit {
       DeleteDocumentDialogResult
     >(DeleteDocumentDialogComponent, {
       data: { document: doc },
-      width: '480px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_MD,
     });
 
-    ref.afterClosed().subscribe((result) => {
-      if (!result?.success) return;
-      this.notifications.success('Documento eliminado', result.message);
-      this.reloadAfterDelete();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result?.success) return;
+        this.notifications.success(
+          $localize`:@@documents.delete.toast.title:Documento eliminado`,
+          result.message,
+        );
+        this.reloadAfterDelete();
+      });
   }
 
   protected onUploadSingle(): void {
@@ -579,17 +605,18 @@ export class DocumentListComponent implements OnInit {
       UploadDocumentDialogResult
     >(UploadDocumentDialogComponent, {
       data: {},
-      width: '620px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_LG,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'uploaded') {
-        this.selectedSort.set('createdAtDesc');
-        this.currentPage.set(1);
-        this.loadDocuments();
-      }
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'uploaded') {
+          this.selectedSort.set('createdAtDesc');
+          this.currentPage.set(1);
+          this.loadDocuments();
+        }
+      });
   }
 
   protected onUploadBatch(): void {
@@ -600,54 +627,34 @@ export class DocumentListComponent implements OnInit {
       UploadDocumentsBatchDialogResult
     >(UploadDocumentsBatchDialogComponent, {
       data: {},
-      width: '720px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_XL,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'uploaded' && result.uploadedCount > 0) {
-        this.selectedSort.set('createdAtDesc');
-        this.currentPage.set(1);
-        this.loadDocuments();
-      }
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'uploaded' && result.uploadedCount > 0) {
+          this.selectedSort.set('createdAtDesc');
+          this.currentPage.set(1);
+          this.loadDocuments();
+        }
+      });
   }
 
-  protected formatDocumentDate(iso: string): string {
-    const d = this.parseDate(iso);
-    return d ? this.docDateFormatter.format(d) : '—';
+  protected canEdit(doc: Document): boolean {
+    return canEditDocument(this.role(), this.currentUser()?.id, doc.uploadedById);
   }
 
-  protected formatCreatedAt(iso: string): string {
-    const d = this.parseDate(iso);
-    return d ? this.loadedAtFormatter.format(d) : '—';
+  protected pageAriaLabel(page: number): string {
+    return $localize`:@@pagination.pageAriaLabel:Página ${page}:page:`;
   }
 
   protected formatSize(bytes: number): string {
     return formatFileSize(bytes);
   }
 
-  protected userInitials(fullName: string): string {
-    return fullName
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p[0].toUpperCase())
-      .join('');
-  }
-
-  protected trackById(_index: number, doc: Document): number {
-    return doc.id;
-  }
-
   private currentSortConfig(): SortOptionConfig {
     return SORT_OPTIONS.find((o) => o.value === this.selectedSort()) ?? SORT_OPTIONS[0];
-  }
-
-  private parseDate(value: string): Date | null {
-    if (!value) return null;
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? null : d;
   }
 
   private reloadAfterDelete(): void {
@@ -660,12 +667,13 @@ export class DocumentListComponent implements OnInit {
 
   private validateDateRange(from: string | null, to: string | null): string | null {
     if (!from || !to) return null;
-    return from > to ? 'La fecha de inicio no puede ser posterior a la fecha de fin.' : null;
+    return from > to
+      ? $localize`:@@documents.filters.error.dateRange:La fecha de inicio no puede ser posterior a la fecha de fin.`
+      : null;
   }
 
   private formatChipDate(ymd: string): string {
-    const [y, m, d] = ymd.split('-');
-    return `${d}/${m}/${y}`;
+    return formatDate(ymd, DATE_FORMAT, this.localeId);
   }
 
   private buildChips(
@@ -675,28 +683,45 @@ export class DocumentListComponent implements OnInit {
   ): FilterChipDescriptor[] {
     const chips: FilterChipDescriptor[] = [];
     if (term) {
-      chips.push({ key: 'q', label: 'Búsqueda', value: `"${term}"`, kind: 'search' });
+      chips.push({
+        key: 'q',
+        label: $localize`:@@documents.chips.search:Búsqueda`,
+        value: `"${term}"`,
+        kind: 'search',
+      });
     }
     if (filters.categoryId !== null) {
       chips.push({
         key: 'categoryId',
-        label: 'Categoría',
+        label: $localize`:@@document.field.category:Categoría`,
         value: meta?.categoryName ?? `#${filters.categoryId}`,
       });
     }
     if (filters.responsibleArea) {
-      chips.push({ key: 'responsibleArea', label: 'Área', value: filters.responsibleArea });
+      chips.push({
+        key: 'responsibleArea',
+        label: $localize`:@@documents.chips.area:Área`,
+        value: filters.responsibleArea,
+      });
     }
     if (filters.dateFrom) {
-      chips.push({ key: 'dateFrom', label: 'Desde', value: this.formatChipDate(filters.dateFrom) });
+      chips.push({
+        key: 'dateFrom',
+        label: $localize`:@@documents.chips.from:Desde`,
+        value: this.formatChipDate(filters.dateFrom),
+      });
     }
     if (filters.dateTo) {
-      chips.push({ key: 'dateTo', label: 'Hasta', value: this.formatChipDate(filters.dateTo) });
+      chips.push({
+        key: 'dateTo',
+        label: $localize`:@@documents.chips.to:Hasta`,
+        value: this.formatChipDate(filters.dateTo),
+      });
     }
     if (filters.uploadedBy !== null) {
       chips.push({
         key: 'uploadedBy',
-        label: 'Subido por',
+        label: $localize`:@@document.field.uploadedBy:Subido por`,
         value: meta?.uploadedByName ?? `#${filters.uploadedBy}`,
       });
     }

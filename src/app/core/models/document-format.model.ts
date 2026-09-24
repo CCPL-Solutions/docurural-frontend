@@ -4,6 +4,6 @@ export const DOCUMENT_FORMAT_LABELS: Record<DocumentFormat, string> = {
   PDF: 'PDF',
   DOCX: 'Word',
   XLSX: 'Excel',
-  JPG: 'Imagen JPG',
-  PNG: 'Imagen PNG',
+  JPG: $localize`:@@documentFormat.jpg:Imagen JPG`,
+  PNG: $localize`:@@documentFormat.png:Imagen PNG`,
 };

@@ -1,36 +1,47 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../../core/services/auth.service';
+import { isAdmin } from '@core/auth/permissions';
+import { AuthService } from '@core/services/auth.service';
+import { userInitials } from '@shared/utils/user-initials';
+import { LanguageSwitcherComponent } from '@shared/components/language-switcher/language-switcher.component';
 import { RoleLabelPipe } from '../../pipes/role-label.pipe';
 
 @Component({
   selector: 'app-main-layout',
-  standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, RoleLabelPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    MatIconModule,
+    RoleLabelPipe,
+    LanguageSwitcherComponent,
+  ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
 })
 export class MainLayoutComponent {
   private readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentUser = this.auth.currentUser;
 
   protected readonly sidebarOpen = signal(false);
 
-  protected readonly userInitials = computed(() => {
-    const name = this.currentUser()?.fullName ?? '';
-    return name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0].toUpperCase())
-      .join('');
-  });
+  protected readonly userInitials = computed(() => userInitials(this.currentUser()?.fullName));
 
-  protected readonly isAdmin = computed(() => this.currentUser()?.role === 'ADMIN');
+  protected readonly isAdmin = computed(() => isAdmin(this.currentUser()?.role));
 
   protected onLogout(): void {
-    this.auth.logout().subscribe();
+    this.auth.logout().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 }

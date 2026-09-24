@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -13,19 +22,21 @@ import {
   CategoryToggleStatusDialogData,
   CategoryToggleStatusDialogResult,
 } from './components/category-toggle-status-dialog/category-toggle-status-dialog.component';
-import { CategoriesService } from '../../../core/services/categories.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { Category } from '../../../core/models/category.model';
-import { ApiError } from '../../../core/models/api-error.model';
-import { CategorySortBy, CategorySortDir } from '../../../core/models/category-list.models';
+import { CategoriesService } from '@core/services/categories.service';
+import { NotificationService } from '@core/services/notification.service';
+import { Category } from '@core/models/category.model';
+import { CategorySortBy, CategorySortDir } from '@core/models/category-list.model';
 import { CategoryStatusBadgeComponent } from './components/category-status-badge.component';
 import { CategoryIconBadgeComponent } from './components/category-icon-badge.component';
 import { CategoryRowActionsComponent } from './components/category-row-actions.component';
-import { SensitivityBadgeComponent } from '../../../shared/sensitivity/sensitivity-badge.component';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { SortTriggerComponent } from '../../../shared/components/sort-trigger/sort-trigger.component';
+import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { SortTriggerComponent } from '@shared/components/sort-trigger/sort-trigger.component';
+import { DatePipe } from '@angular/common';
+import { DATE_FORMAT } from '@shared/utils/date-formats';
+import { DIALOG_LG, DIALOG_SM } from '@shared/ui/dialog-sizes';
 
 type SortOption = 'nameAsc' | 'nameDesc' | 'createdAtDesc' | 'createdAtAsc';
 
@@ -37,17 +48,37 @@ interface SortOptionConfig {
 }
 
 const SORT_OPTIONS: SortOptionConfig[] = [
-  { value: 'nameAsc', label: 'Nombre A–Z', sortBy: 'name', sortDir: 'asc' },
-  { value: 'nameDesc', label: 'Nombre Z–A', sortBy: 'name', sortDir: 'desc' },
-  { value: 'createdAtDesc', label: 'Más recientes', sortBy: 'createdAt', sortDir: 'desc' },
-  { value: 'createdAtAsc', label: 'Más antiguos', sortBy: 'createdAt', sortDir: 'asc' },
+  {
+    value: 'nameAsc',
+    label: $localize`:@@sort.nameAsc:Nombre A–Z`,
+    sortBy: 'name',
+    sortDir: 'asc',
+  },
+  {
+    value: 'nameDesc',
+    label: $localize`:@@sort.nameDesc:Nombre Z–A`,
+    sortBy: 'name',
+    sortDir: 'desc',
+  },
+  {
+    value: 'createdAtDesc',
+    label: $localize`:@@sort.newest:Más recientes`,
+    sortBy: 'createdAt',
+    sortDir: 'desc',
+  },
+  {
+    value: 'createdAtAsc',
+    label: $localize`:@@sort.oldest:Más antiguos`,
+    sortBy: 'createdAt',
+    sortDir: 'asc',
+  },
 ];
 
 @Component({
   selector: 'app-category-list',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     MatIconModule,
     MatMenuModule,
     MatDialogModule,
@@ -63,10 +94,14 @@ const SORT_OPTIONS: SortOptionConfig[] = [
   templateUrl: './category-list.component.html',
   styleUrl: './category-list.component.scss',
 })
-export class CategoryListComponent {
+export class CategoryListComponent implements OnInit {
   private readonly categoriesService = inject(CategoriesService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** `switchMap` descarta la respuesta anterior si se cambia de orden rápido (R2). */
+  private readonly reload$ = new Subject<void>();
 
   protected readonly loading = signal(false);
   protected readonly categories = signal<Category[]>([]);
@@ -78,36 +113,43 @@ export class CategoryListComponent {
   protected readonly sortOptions = SORT_OPTIONS;
   protected readonly currentSortLabel = computed(() => this.currentSortConfig().label);
 
-  private readonly dateFormatter = new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  protected readonly dateFormat = DATE_FORMAT;
 
-  constructor() {
-    this.loadCategories();
-  }
-
-  protected loadCategories(): void {
-    const opt = this.currentSortConfig();
-    this.loading.set(true);
-    this.categoriesService.list(opt.sortBy, opt.sortDir).subscribe({
-      next: (res) => {
+  ngOnInit(): void {
+    this.reload$
+      .pipe(
+        switchMap(() => this.fetch()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res) => {
         this.categories.set(res.categories);
         this.totalCategories.set(res.totalCategories);
         this.activeCategories.set(res.activeCategories);
         this.inactiveCategories.set(res.inactiveCategories);
         this.loading.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
+      });
+    this.loadCategories();
+  }
+
+  protected loadCategories(): void {
+    this.reload$.next();
+  }
+
+  /** Petición con el orden actual. Un error se notifica y no corta `reload$`. */
+  private fetch() {
+    const opt = this.currentSortConfig();
+    this.loading.set(true);
+    return this.categoriesService.list(opt.sortBy, opt.sortDir).pipe(
+      catchError((err: unknown) => {
         this.loading.set(false);
-        const apiError = err.error as ApiError | undefined;
-        this.notifications.error(
-          'No se pudo cargar el listado',
-          apiError?.message ?? 'Verifique su conexión e intente nuevamente.',
+        this.notifications.httpError(
+          err,
+          $localize`:@@common.error.listLoad:No se pudo cargar el listado`,
+          $localize`:@@common.error.checkConnection:Verifique su conexión e intente nuevamente.`,
         );
-      },
-    });
+        return EMPTY;
+      }),
+    );
   }
 
   protected onSortChange(value: SortOption): void {
@@ -122,13 +164,14 @@ export class CategoryListComponent {
       CategoryFormDialogResult
     >(CategoryFormDialogComponent, {
       data: { mode: 'create' },
-      width: '620px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_LG,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'created') this.loadCategories();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'created') this.loadCategories();
+      });
   }
 
   protected goToEdit(category: Category): void {
@@ -138,13 +181,14 @@ export class CategoryListComponent {
       CategoryFormDialogResult
     >(CategoryFormDialogComponent, {
       data: { mode: 'edit', category },
-      width: '620px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_LG,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'updated') this.loadCategories();
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'updated') this.loadCategories();
+      });
   }
 
   protected onToggleStatus(category: Category): void {
@@ -156,38 +200,27 @@ export class CategoryListComponent {
       CategoryToggleStatusDialogResult
     >(CategoryToggleStatusDialogComponent, {
       data: { category, action },
-      width: '400px',
-      maxWidth: '90vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_SM,
     });
 
-    ref.afterClosed().subscribe((result) => {
-      if (!result?.success) return;
-      this.notifications.success('Estado actualizado', result.message);
-      this.loadCategories();
-    });
-  }
-
-  protected formatCreated(iso: string): string {
-    const d = this.parseIso(iso);
-    return d ? this.dateFormatter.format(d) : '—';
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result?.success) return;
+        this.notifications.success(
+          $localize`:@@users.toast.statusUpdated:Estado actualizado`,
+          result.message,
+        );
+        this.loadCategories();
+      });
   }
 
   protected isMuted(category: Category): boolean {
     return category.status === 'INACTIVE';
   }
 
-  protected trackById(_index: number, category: Category): number {
-    return category.id;
-  }
-
   private currentSortConfig(): SortOptionConfig {
     return SORT_OPTIONS.find((o) => o.value === this.selectedSort()) ?? SORT_OPTIONS[0];
-  }
-
-  private parseIso(value: string): Date | null {
-    if (!value) return null;
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? null : d;
   }
 }

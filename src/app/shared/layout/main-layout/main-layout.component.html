@@ -12,14 +12,14 @@
         <mat-icon>description</mat-icon>
       </div>
       <div>
-        <div class="sb-logo__name">DocuRural</div>
-        <div class="sb-logo__sub">IERD Miña y Ticha</div>
+        <div class="sb-logo__name" i18n="@@app.name">DocuRural</div>
+        <div class="sb-logo__sub" i18n="@@app.institution">IERD Miña y Ticha</div>
       </div>
     </div>
 
     <!-- Navegación -->
-    <nav class="sb-nav" aria-label="Navegación principal">
-      <div class="sb-nav__section">Principal</div>
+    <nav class="sb-nav" aria-label="Navegación principal" i18n-aria-label="@@layout.nav.ariaLabel">
+      <div class="sb-nav__section" i18n="@@layout.nav.main">Principal</div>
       <a
         class="sb-nav__item"
         routerLink="/dashboard"
@@ -27,7 +27,7 @@
         (click)="sidebarOpen.set(false)"
       >
         <mat-icon>dashboard</mat-icon>
-        <span class="sb-nav__label">Dashboard</span>
+        <span class="sb-nav__label" i18n="@@layout.nav.dashboard">Dashboard</span>
       </a>
       <a
         class="sb-nav__item"
@@ -37,11 +37,13 @@
         (click)="sidebarOpen.set(false)"
       >
         <mat-icon>description</mat-icon>
-        <span class="sb-nav__label">Documentos</span>
+        <span class="sb-nav__label" i18n="@@layout.nav.documents">Documentos</span>
       </a>
 
       @if (isAdmin()) {
-        <div class="sb-nav__section sb-nav__section--admin">Administración</div>
+        <div class="sb-nav__section sb-nav__section--admin" i18n="@@layout.nav.adminSection">
+          Administración
+        </div>
         <button
           class="sb-nav__item"
           routerLink="/users"
@@ -49,8 +51,8 @@
           (click)="sidebarOpen.set(false)"
         >
           <mat-icon>group</mat-icon>
-          <span class="sb-nav__label">Usuarios</span>
-          <span class="sb-admin-badge">ADMIN</span>
+          <span class="sb-nav__label" i18n="@@layout.nav.users">Usuarios</span>
+          <span class="sb-admin-badge" i18n="@@layout.nav.adminBadge">ADMIN</span>
         </button>
         <button
           class="sb-nav__item"
@@ -59,8 +61,8 @@
           (click)="sidebarOpen.set(false)"
         >
           <mat-icon>local_offer</mat-icon>
-          <span class="sb-nav__label">Categorías</span>
-          <span class="sb-admin-badge">ADMIN</span>
+          <span class="sb-nav__label" i18n="@@layout.nav.categories">Categorías</span>
+          <span class="sb-admin-badge" i18n="@@layout.nav.adminBadge">ADMIN</span>
         </button>
       }
     </nav>
@@ -76,8 +78,11 @@
       </div>
       <button class="sb-user__logout" type="button" (click)="onLogout()">
         <mat-icon>logout</mat-icon>
-        Cerrar sesión
+        <ng-container i18n="@@layout.logout">Cerrar sesión</ng-container>
       </button>
+      <div class="sb-user__language">
+        <app-language-switcher />
+      </div>
     </div>
   </aside>
 
@@ -90,6 +95,7 @@
         type="button"
         (click)="sidebarOpen.set(!sidebarOpen())"
         aria-label="Abrir menú"
+        i18n-aria-label="@@layout.openMenu"
       >
         <mat-icon>menu</mat-icon>
       </button>
@@ -97,7 +103,7 @@
         <div class="topbar__brand-icon" aria-hidden="true">
           <mat-icon>description</mat-icon>
         </div>
-        <span class="topbar__brand-name">DocuRural</span>
+        <span class="topbar__brand-name" i18n="@@app.name">DocuRural</span>
       </div>
       <div class="topbar__avatar" aria-hidden="true">{{ userInitials() }}</div>
     </header>

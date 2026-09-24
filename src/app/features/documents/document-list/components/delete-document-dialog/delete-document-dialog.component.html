@@ -8,8 +8,10 @@
       <mat-icon>warning_amber</mat-icon>
     </div>
     <div class="dialog__copy">
-      <h2 class="dialog__title" mat-dialog-title>¿Eliminar este documento?</h2>
-      <p class="dialog__message">
+      <h2 class="dialog__title" mat-dialog-title i18n="@@documents.delete.title">
+        ¿Eliminar este documento?
+      </h2>
+      <p class="dialog__message" i18n="@@documents.delete.message">
         Esta acción no se puede deshacer. El documento se eliminará del repositorio y no podrá
         recuperarse.
       </p>
@@ -23,7 +25,7 @@
     </div>
     <div class="dialog__doc-copy">
       <div class="dialog__doc-title">{{ data.document.title }}</div>
-      <div class="dialog__doc-meta">
+      <div class="dialog__doc-meta" i18n="@@documents.delete.docMeta">
         {{ data.document.fileFormat }} · {{ formatSize(data.document.fileSizeBytes) }} · subido por
         {{ data.document.uploadedBy }}
       </div>
@@ -32,8 +34,10 @@
 
   <div class="dialog__confirm-block">
     <label class="dialog__confirm-label" for="delete-confirmation-input">
-      Para confirmar, escriba
-      <code class="dialog__confirm-code">{{ confirmPhrase }}</code>
+      <ng-container i18n="@@documents.delete.confirmLabel"
+        >Para confirmar, escriba
+        <code class="dialog__confirm-code">{{ confirmPhrase }}</code></ng-container
+      >
       <span class="dialog__required" aria-hidden="true">*</span>
     </label>
     <input
@@ -43,13 +47,13 @@
       [value]="confirmationText()"
       (input)="onConfirmationText($any($event.target).value)"
       autocomplete="off"
-      [attr.aria-label]="'Escriba ' + confirmPhrase + ' para confirmar eliminación'"
+      [attr.aria-label]="confirmAriaLabel"
     />
   </div>
 
   <div class="dialog__actions">
     <app-button variant="secondary" [disabled]="loading()" (click)="cancel()">
-      Cancelar
+      <ng-container i18n="@@common.cancel">Cancelar</ng-container>
     </app-button>
     <app-button
       variant="danger"
@@ -58,7 +62,7 @@
       (click)="confirm()"
     >
       <mat-icon aria-hidden="true">delete_outline</mat-icon>
-      Sí, eliminar documento
+      <ng-container i18n="@@documents.delete.submit">Sí, eliminar documento</ng-container>
     </app-button>
   </div>
 </div>

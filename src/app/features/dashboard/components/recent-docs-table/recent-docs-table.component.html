@@ -1,19 +1,27 @@
 <div class="recent-docs">
   <div class="recent-docs__header">
     <div>
-      <h2 class="recent-docs__title">Últimos documentos cargados</h2>
+      <h2 class="recent-docs__title" i18n="@@dashboard.recent.title">
+        Últimos documentos cargados
+      </h2>
       <p class="recent-docs__subtitle">
         @if (repoIsEmpty()) {
-          Aún no hay documentos en el sistema
+          <ng-container i18n="@@dashboard.recent.subtitleEmpty"
+            >Aún no hay documentos en el sistema</ng-container
+          >
         } @else {
-          Los 10 más recientes en el repositorio
+          <ng-container i18n="@@dashboard.recent.subtitle"
+            >Los 10 más recientes en el repositorio</ng-container
+          >
         }
       </p>
     </div>
     @if (!repoIsEmpty()) {
       <span class="recent-docs__order-badge">
         <mat-icon aria-hidden="true">schedule</mat-icon>
-        Ordenado por fecha de carga
+        <ng-container i18n="@@dashboard.recent.orderBadge"
+          >Ordenado por fecha de carga</ng-container
+        >
       </span>
     }
   </div>
@@ -23,15 +31,17 @@
       <app-empty-state
         variant="empty"
         icon="inbox"
-        title="Aún no hay documentos cargados."
+        title="Aún no hay documentos cargados"
+        i18n-title="@@dashboard.recent.empty.title"
         description="Sea el primero en subir un documento."
+        i18n-description="@@dashboard.recent.empty.description"
       >
         @if (canUpload()) {
           <div actions>
-            <button class="recent-docs__upload-cta" (click)="uploadFirst.emit()">
-              <mat-icon>upload</mat-icon>
-              Cargar primer documento
-            </button>
+            <app-button variant="primary" (click)="uploadFirst.emit()">
+              <mat-icon aria-hidden="true">upload</mat-icon>
+              <span i18n="@@dashboard.uploadFirst">Cargar primer documento</span>
+            </app-button>
           </div>
         }
       </app-empty-state>
@@ -39,14 +49,18 @@
   } @else {
     <!-- Vista de tabla — desktop / tablet (≥ 768px) -->
     <div class="recent-docs__table-wrap">
-      <table class="recent-docs__table" aria-label="Últimos documentos cargados">
+      <table
+        class="recent-docs__table"
+        aria-label="Últimos documentos cargados"
+        i18n-aria-label="@@dashboard.recent.tableAriaLabel"
+      >
         <thead>
           <tr>
-            <th class="col--title">Título</th>
-            <th class="col--category">Categoría</th>
-            <th class="col--area">Área responsable</th>
-            <th class="col--date">Fecha de carga</th>
-            <th class="col--actions th-actions">Acciones</th>
+            <th class="col--title" i18n="@@document.field.title">Título</th>
+            <th class="col--category" i18n="@@document.field.category">Categoría</th>
+            <th class="col--area" i18n="@@document.field.area">Área responsable</th>
+            <th class="col--date" i18n="@@document.field.uploadDate">Fecha de carga</th>
+            <th class="col--actions th-actions" i18n="@@common.actions">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -56,35 +70,46 @@
                 <div class="doc-title-cell">
                   <app-document-format-icon [format]="doc.fileFormat" />
                   <div class="doc-title-cell__text">
-                    <span class="doc-title-cell__name" [title]="doc.title">
+                    <a
+                      class="doc-title-cell__name title-link"
+                      [routerLink]="['/documents', doc.id]"
+                      [title]="doc.title"
+                    >
                       {{ truncateTitle(doc.title) }}
-                    </span>
-                    <span class="doc-title-cell__meta">
-                      Cargado el {{ formatCreatedAt(doc.createdAt) }}
-                    </span>
+                    </a>
+                    <span class="doc-title-cell__meta" i18n="@@dashboard.recent.uploadedOn"
+                      >Cargado el {{ doc.createdAt | date: dateFormat }}</span
+                    >
                   </div>
                 </div>
               </td>
               <td class="col--category">
-                <app-document-category-pill [name]="doc.category" />
+                <app-category-pill [name]="doc.category" />
               </td>
               <td class="col--area">{{ doc.responsibleArea }}</td>
-              <td class="col--date">{{ formatCreatedAt(doc.createdAt) }}</td>
+              <td class="col--date">{{ doc.createdAt | date: dateFormat }}</td>
               <td class="col--actions">
                 <div class="actions-cell">
                   <app-icon-button
                     tooltip="Visualizar"
+                    i18n-tooltip="@@common.view"
                     ariaLabel="Visualizar documento"
-                    (click)="view.emit(doc.id)"
+                    i18n-ariaLabel="@@document.view.ariaLabel"
+                    [link]="['/documents', doc.id]"
                   >
                     <mat-icon>visibility</mat-icon>
                   </app-icon-button>
                   <app-icon-button
-                    tooltip="Descargar"
-                    ariaLabel="Descargar documento"
+                    [tooltip]="downloadTooltip(downloadingIds().has(doc.id))"
+                    [ariaLabel]="downloadAriaLabel(doc.title, downloadingIds().has(doc.id))"
+                    [disabled]="downloadingIds().has(doc.id)"
                     (click)="download.emit(doc)"
                   >
-                    <mat-icon>download</mat-icon>
+                    @if (downloadingIds().has(doc.id)) {
+                      <mat-progress-spinner diameter="18" mode="indeterminate" />
+                    } @else {
+                      <mat-icon>download</mat-icon>
+                    }
                   </app-icon-button>
                 </div>
               </td>
@@ -100,23 +125,36 @@
         <li class="rdt-card">
           <app-document-format-icon [format]="doc.fileFormat" />
           <div class="rdt-card__text">
-            <span class="rdt-card__title" [title]="doc.title">{{ doc.title }}</span>
-            <span class="rdt-card__meta">{{ formatCreatedAt(doc.createdAt) }}</span>
+            <a
+              class="rdt-card__title title-link"
+              [routerLink]="['/documents', doc.id]"
+              [title]="doc.title"
+            >
+              {{ doc.title }}
+            </a>
+            <span class="rdt-card__meta">{{ doc.createdAt | date: dateFormat }}</span>
           </div>
           <div class="rdt-card__actions">
             <app-icon-button
               tooltip="Visualizar"
+              i18n-tooltip="@@common.view"
               ariaLabel="Visualizar documento"
-              (click)="view.emit(doc.id)"
+              i18n-ariaLabel="@@document.view.ariaLabel"
+              [link]="['/documents', doc.id]"
             >
               <mat-icon>visibility</mat-icon>
             </app-icon-button>
             <app-icon-button
-              tooltip="Descargar"
-              ariaLabel="Descargar documento"
+              [tooltip]="downloadTooltip(downloadingIds().has(doc.id))"
+              [ariaLabel]="downloadAriaLabel(doc.title, downloadingIds().has(doc.id))"
+              [disabled]="downloadingIds().has(doc.id)"
               (click)="download.emit(doc)"
             >
-              <mat-icon>download</mat-icon>
+              @if (downloadingIds().has(doc.id)) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                <mat-icon>download</mat-icon>
+              }
             </app-icon-button>
           </div>
         </li>
@@ -124,7 +162,7 @@
     </ul>
 
     <a class="recent-docs__view-all" routerLink="/documents">
-      Ver todos los documentos
+      <ng-container i18n="@@dashboard.recent.viewAll">Ver todos los documentos</ng-container>
       <mat-icon aria-hidden="true">arrow_forward</mat-icon>
     </a>
   }

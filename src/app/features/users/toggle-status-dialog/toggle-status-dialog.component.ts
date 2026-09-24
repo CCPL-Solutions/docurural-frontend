@@ -1,19 +1,33 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { UsersService } from '../../../core/services/users.service';
-import { ApiError } from '../../../core/models/api-error.model';
-import { UserStatus } from '../../../core/models/user-status.model';
 import {
-  ToggleStatusDialogData,
-  ToggleStatusDialogResult,
-} from '../../../core/models/toggle-status-dialog.models';
-import { AlertComponent } from '../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { UsersService } from '@core/services/users.service';
+import { User } from '@core/models/user.model';
+import { UserStatus } from '@core/models/user-status.model';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { toApiError } from '@shared/http/api-error';
+
+export interface ToggleStatusDialogData {
+  user: User;
+  action: 'activate' | 'deactivate';
+}
+
+export interface ToggleStatusDialogResult {
+  success: true;
+  message: string;
+}
 
 @Component({
   selector: 'app-toggle-status-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, AlertComponent, ButtonComponent],
   templateUrl: './toggle-status-dialog.component.html',
@@ -24,6 +38,7 @@ export class ToggleStatusDialogComponent {
   private readonly dialogRef =
     inject<MatDialogRef<ToggleStatusDialogComponent, ToggleStatusDialogResult>>(MatDialogRef);
   private readonly usersService = inject(UsersService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -32,16 +47,22 @@ export class ToggleStatusDialogComponent {
   protected readonly isDeactivate = computed(() => this.data.action === 'deactivate');
 
   protected readonly title = computed(() =>
-    this.isDeactivate() ? '¿Desactivar usuario?' : '¿Activar usuario?',
+    this.isDeactivate()
+      ? $localize`:@@users.toggle.titleDeactivate:¿Desactivar usuario?`
+      : $localize`:@@users.toggle.titleActivate:¿Activar usuario?`,
   );
 
   protected readonly secondaryMessage = computed(() =>
     this.isDeactivate()
-      ? 'El usuario no podrá acceder al sistema. Sus documentos permanecerán disponibles.'
-      : 'El usuario podrá volver a acceder al sistema.',
+      ? $localize`:@@users.toggle.hintDeactivate:El usuario no podrá acceder al sistema. Sus documentos permanecerán disponibles.`
+      : $localize`:@@users.toggle.hintActivate:El usuario podrá volver a acceder al sistema.`,
   );
 
-  protected readonly actionLabel = computed(() => (this.isDeactivate() ? 'Desactivar' : 'Activar'));
+  protected readonly actionLabel = computed(() =>
+    this.isDeactivate()
+      ? $localize`:@@users.action.deactivate:Desactivar`
+      : $localize`:@@users.action.activate:Activar`,
+  );
 
   protected readonly actionDisabled = computed(() => this.loading() || this.errorBlocksAction());
 
@@ -52,16 +73,19 @@ export class ToggleStatusDialogComponent {
 
     const newStatus: UserStatus = this.isDeactivate() ? 'INACTIVE' : 'ACTIVE';
 
-    this.usersService.updateStatus(this.data.user.id, newStatus).subscribe({
-      next: (res) => {
-        this.dialogRef.close({ success: true, message: res.message });
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading.set(false);
-        this.dialogRef.disableClose = false;
-        this.handleError(err);
-      },
-    });
+    this.usersService
+      .updateStatus(this.data.user.id, newStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.dialogRef.close({ success: true, message: res.message });
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.dialogRef.disableClose = false;
+          this.handleError(err);
+        },
+      });
   }
 
   cancel(): void {
@@ -69,12 +93,16 @@ export class ToggleStatusDialogComponent {
   }
 
   private handleError(err: HttpErrorResponse): void {
-    const apiError = err.error as ApiError | undefined;
-    if (err.status === 403) {
-      this.errorMessage.set(apiError?.message ?? 'No puedes desactivar tu propia cuenta');
+    if (err.status === HttpStatusCode.Forbidden) {
+      this.errorMessage.set(
+        toApiError(err)?.message ??
+          $localize`:@@users.toggle.errorSelf:No puede desactivar su propia cuenta.`,
+      );
       this.errorBlocksAction.set(true);
     } else {
-      this.errorMessage.set('Ocurrió un error inesperado. Por favor, inténtalo de nuevo');
+      this.errorMessage.set(
+        $localize`:@@common.error.unexpected:Ocurrió un error inesperado. Por favor, inténtelo de nuevo.`,
+      );
       this.errorBlocksAction.set(false);
     }
   }

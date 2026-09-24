@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
@@ -20,7 +20,7 @@ const ICON_BY_TYPE: Record<ToastType, string> = {
 
 @Component({
   selector: 'app-toast',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, MatButtonModule],
   templateUrl: './toast.component.html',
   styleUrl: './toast.component.scss',

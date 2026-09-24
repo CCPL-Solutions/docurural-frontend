@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "schematicCollections": ["angular-eslint", "playwright-ng-schematics"]
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -16,6 +17,18 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": {
+          "code": "es-CO",
+          "subPath": "es"
+        },
+        "locales": {
+          "en": {
+            "translation": "src/locale/messages.en.xlf",
+            "subPath": "en"
+          }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -32,9 +45,9 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"],
+            "polyfills": ["@angular/localize/init"],
+            "i18nMissingTranslation": "error"
           },
           "configurations": {
             "production": {
@@ -56,7 +69,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "localize": true
             },
             "development": {
               "optimization": false,
@@ -84,6 +98,9 @@
                   "with": "src/environments/environment.qa.ts"
                 }
               ]
+            },
+            "en": {
+              "localize": ["en"]
             }
           },
           "defaultConfiguration": "production"
@@ -104,12 +121,46 @@
             "qa": {
               "buildTarget": "docurural-frontend:build:qa",
               "proxyConfig": "proxy.conf.qa.json"
+            },
+            "en": {
+              "buildTarget": "docurural-frontend:build:development,en"
             }
           },
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "runnerConfig": "vitest-base.config.ts",
+            "coverageInclude": ["src/app/**/*.ts"],
+            "coverageExclude": ["src/app/**/*.spec.ts"],
+            "coverageReporters": ["text-summary", "json-summary", "html"]
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+          }
+        },
+        "e2e": {
+          "builder": "playwright-ng-schematics:playwright",
+          "options": {
+            "devServerTarget": "docurural-frontend:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "docurural-frontend:serve:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "buildTarget": "docurural-frontend:build",
+            "format": "xlf",
+            "outputPath": "src/locale"
+          }
         }
       }
     }

@@ -1,3 +1,6 @@
+@use 'breakpoints' as bp;
+@use 'icons' as icon;
+
 // Estilos específicos del dialog de cambio de estado de categoría.
 // Estructura base (.dialog, .dialog__header, .dialog__icon, .dialog__copy,
 // .dialog__title, .dialog__message, .dialog__actions): globales (_confirmation-dialog.scss).
@@ -9,7 +12,8 @@
 
 // ─── Tarjeta de documentos asociados ─────────────────────────────────────────
 .dialog__docs {
-  margin: var(--space-4) 0 0 60px; // 44px (icono) + 16px (gap)
+  // 60px para alinear con el texto: icono de 44px + hueco de 16px.
+  margin: var(--space-4) 0 0 calc(var(--space-9) + var(--space-3));
   padding: var(--space-3) var(--space-4);
   background: var(--color-bg-app);
   border-radius: var(--radius-md);
@@ -30,14 +34,12 @@
   font-weight: 500;
 
   mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    @include icon.size(16px);
     color: var(--color-text-secondary);
   }
 }
 
-@media (max-width: 600px) {
+@include bp.sm {
   .dialog__docs {
     margin-left: 0;
   }

@@ -1,3 +1,5 @@
+@use 'icons' as icon;
+
 // Estilos específicos de la vista de lista de documentos.
 // action-bar, sort-trigger, counter, cell-date, cell-actions: globales (_list-view.scss).
 @use 'data-table' as dt;
@@ -54,9 +56,7 @@
   }
 
   mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    @include icon.size(20px);
   }
 }
 
@@ -100,7 +100,7 @@
 .cell-title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   min-width: 0;
 }
 
@@ -129,7 +129,7 @@
 .cell-title__meta {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  margin-top: 2px;
+  margin-top: var(--space-0-5);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -151,20 +151,20 @@
 .cell-uploader {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 0;
 }
 
 .cell-uploader__avatar {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: var(--text-2xs);
   font-weight: 700;
   flex-shrink: 0;
 }
@@ -180,7 +180,7 @@
 // ── Tarjetas (móvil) ─────────────────────────────────────────────────────────
 .doc-cards {
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-2-5);
 }
 
 .doc-card {
@@ -190,13 +190,13 @@
 .doc-card__top {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .doc-card__info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1-5);
   min-width: 0;
   flex: 1;
 }
@@ -215,7 +215,7 @@
 .doc-card__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px var(--space-4);
+  gap: var(--space-2) var(--space-4);
   padding: var(--space-3) 0;
   border-top: 1px solid var(--color-divider);
   border-bottom: 1px solid var(--color-divider);
@@ -224,14 +224,12 @@
 .doc-card__meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
 
   mat-icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    @include icon.size(14px);
     flex-shrink: 0;
   }
 }
@@ -268,7 +266,7 @@
 .pagination__controls {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .pagination__page {

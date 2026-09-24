@@ -5,15 +5,25 @@
     <app-alert variant="error" class="dialog__alert">{{ errorMessage() }}</app-alert>
   }
   <p class="dialog__message">
-    ¿Está seguro de {{ isDeactivate() ? 'desactivar' : 'activar' }} la cuenta de
-    <strong>{{ data.user.fullName }}</strong
-    >?
+    @if (isDeactivate()) {
+      <ng-container i18n="@@users.toggle.confirmDeactivate"
+        >¿Está seguro de desactivar la cuenta de <strong>{{ data.user.fullName }}</strong
+        >?</ng-container
+      >
+    } @else {
+      <ng-container i18n="@@users.toggle.confirmActivate"
+        >¿Está seguro de activar la cuenta de <strong>{{ data.user.fullName }}</strong
+        >?</ng-container
+      >
+    }
   </p>
   <p class="dialog__hint">{{ secondaryMessage() }}</p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="dialog__actions">
-  <app-button variant="secondary" [disabled]="loading()" (click)="cancel()"> Cancelar </app-button>
+  <app-button variant="secondary" [disabled]="loading()" (click)="cancel()">
+    <ng-container i18n="@@common.cancel">Cancelar</ng-container>
+  </app-button>
   <app-button
     [variant]="isDeactivate() ? 'danger' : 'primary'"
     [loading]="loading()"

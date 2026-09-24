@@ -1,18 +1,21 @@
 <!-- Cabecera de página -->
 <app-page-header
   kicker="Repositorio"
+  i18n-kicker="@@documents.list.kicker"
   title="Documentos"
+  i18n-title="@@layout.nav.documents"
   subtitle="Consulte, descargue y gestione los documentos institucionales."
+  i18n-subtitle="@@documents.list.subtitle"
 >
   @if (canUpload()) {
     <div actions class="header-actions">
       <app-button class="header-action-batch" variant="secondary" (click)="onUploadBatch()">
         <mat-icon>upload_file</mat-icon>
-        <span>Carga múltiple</span>
+        <span i18n="@@documents.list.batchUpload">Carga múltiple</span>
       </app-button>
       <app-button class="header-action-upload" variant="primary" (click)="onUploadSingle()">
         <mat-icon>add</mat-icon>
-        <span>Subir documento</span>
+        <span i18n="@@dashboard.upload">Subir documento</span>
       </app-button>
     </div>
   }
@@ -27,7 +30,7 @@
     [filtersOpen]="filtersPanelOpen()"
     [filtersCount]="appliedFilterCount()"
     (valueChange)="onSearchInputChange($event)"
-    (submit)="onSearchSubmit()"
+    (searchSubmit)="onSearchSubmit()"
     (clear)="onSearchClear()"
     (toggleFilters)="onToggleFiltersPanel()"
   />
@@ -42,8 +45,8 @@
       [loadingOptions]="loadingFilterOptions()"
       (draftChange)="onDraftChange($event)"
       (apply)="onFiltersApply($event)"
-      (reset)="onFiltersReset()"
-      (close)="onFiltersClose()"
+      (resetFilters)="onFiltersReset()"
+      (closePanel)="onFiltersClose()"
     />
   }
 
@@ -65,9 +68,10 @@
     @if (searchResultLabel()) {
       <strong>{{ searchResultLabel() }}</strong>
     } @else {
-      <strong
-        >{{ totalDocuments() }} {{ totalDocuments() === 1 ? 'documento' : 'documentos' }}</strong
-      >
+      <strong i18n="@@documents.list.counter">{totalDocuments(), plural,
+        =1 {1 documento}
+        other {{{ totalDocuments() }} documentos}
+      }</strong>
     }
   </span>
 
@@ -81,7 +85,9 @@
 
 <!-- State machine principal -->
 @if (loading()) {
-  <app-empty-state variant="loading">Cargando documentos…</app-empty-state>
+  <app-empty-state variant="loading" i18n="@@documents.list.loading"
+    >Cargando documentos…</app-empty-state
+  >
 } @else if (isEmpty() && emptyVariant() !== null) {
   <!-- Sin resultados para la búsqueda/filtros activos (HU-20, HU-21, HU-22) -->
   <app-document-empty-results
@@ -95,17 +101,19 @@
     variant="empty"
     icon="cloud_upload"
     title="No hay documentos en el repositorio"
+    i18n-title="@@documents.list.empty.title"
     description="Comience cargando el primer documento. Los archivos PDF, DOCX, XLSX, JPG y PNG son compatibles, hasta 10 MB cada uno."
+    i18n-description="@@documents.list.empty.description"
   >
     @if (canUpload()) {
       <div actions class="empty-actions">
         <app-button variant="secondary" (click)="onUploadBatch()">
           <mat-icon>upload_file</mat-icon>
-          <span>Carga múltiple</span>
+          <span i18n="@@documents.list.batchUpload">Carga múltiple</span>
         </app-button>
         <app-button variant="primary" (click)="onUploadSingle()">
           <mat-icon>add</mat-icon>
-          <span>Subir documento</span>
+          <span i18n="@@dashboard.upload">Subir documento</span>
         </app-button>
       </div>
     }
@@ -125,37 +133,39 @@
       </colgroup>
       <thead>
         <tr>
-          <th>Título</th>
-          <th>Categoría</th>
-          <th>Área responsable</th>
-          <th>Fecha doc.</th>
-          <th class="th-right">Tamaño</th>
-          <th>Subido por</th>
-          <th class="th-actions">Acciones</th>
+          <th i18n="@@document.field.title">Título</th>
+          <th i18n="@@document.field.category">Categoría</th>
+          <th i18n="@@document.field.area">Área responsable</th>
+          <th i18n="@@document.field.documentDateShort">Fecha doc.</th>
+          <th class="th-right" i18n="@@document.field.size">Tamaño</th>
+          <th i18n="@@document.field.uploadedBy">Subido por</th>
+          <th class="th-actions" i18n="@@common.actions">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        @for (doc of documents(); track trackById($index, doc)) {
+        @for (doc of documents(); track doc.id) {
           <tr>
             <td>
               <div class="cell-title">
                 <app-document-format-icon [format]="doc.fileFormat" />
                 <div class="cell-title__info">
                   <div class="cell-title__name-row">
-                    <span class="cell-title__name">{{ doc.title }}</span>
+                    <a class="cell-title__name title-link" [routerLink]="['/documents', doc.id]">{{
+                      doc.title
+                    }}</a>
                     <app-sensitivity-badge size="sm" [level]="doc.sensitivityLevel" />
                   </div>
-                  <span class="cell-title__meta"
-                    >Cargado el {{ formatCreatedAt(doc.createdAt) }}</span
+                  <span class="cell-title__meta" i18n="@@dashboard.recent.uploadedOn"
+                    >Cargado el {{ doc.createdAt | date: dateTimeFormat }}</span
                   >
                 </div>
               </div>
             </td>
             <td>
-              <app-document-category-pill [name]="doc.category" />
+              <app-category-pill [name]="doc.category" />
             </td>
             <td class="cell-area">{{ doc.responsibleArea }}</td>
-            <td class="cell-date">{{ formatDocumentDate(doc.documentDate) }}</td>
+            <td class="cell-date">{{ doc.documentDate | date: dateFormat }}</td>
             <td class="cell-size td-right">{{ formatSize(doc.fileSizeBytes) }}</td>
             <td>
               <div class="cell-uploader">
@@ -169,9 +179,8 @@
               <app-document-row-actions
                 [doc]="doc"
                 [role]="role()"
-                [currentUserName]="currentUser()?.fullName ?? ''"
+                [currentUserId]="currentUser()?.id ?? null"
                 [downloading]="downloadingIds().has(doc.id)"
-                (view)="onView($event)"
                 (download)="onDownload($event)"
                 (edit)="onEdit($event)"
                 (delete)="onDelete($event)"
@@ -185,13 +194,15 @@
 
   <!-- ── Tarjetas mobile (< 768 px) ────────────────────────────────── -->
   <div class="doc-cards mobile-only">
-    @for (doc of documents(); track trackById($index, doc)) {
+    @for (doc of documents(); track doc.id) {
       <div class="doc-card">
         <div class="doc-card__top">
           <app-document-format-icon [format]="doc.fileFormat" />
           <div class="doc-card__info">
-            <span class="doc-card__title">{{ doc.title }}</span>
-            <app-document-category-pill [name]="doc.category" />
+            <a class="doc-card__title title-link" [routerLink]="['/documents', doc.id]">{{
+              doc.title
+            }}</a>
+            <app-category-pill [name]="doc.category" />
           </div>
         </div>
         <div class="doc-card__meta">
@@ -202,7 +213,7 @@
           </span>
           <span class="doc-card__meta-item">
             <mat-icon aria-hidden="true">calendar_today</mat-icon>
-            {{ formatDocumentDate(doc.documentDate) }}
+            {{ doc.documentDate | date: dateFormat }}
           </span>
           <span class="doc-card__meta-item">
             <mat-icon aria-hidden="true">data_usage</mat-icon>
@@ -210,17 +221,13 @@
           </span>
         </div>
         <div class="doc-card__actions">
-          <app-button variant="primary" [fullWidth]="true" (click)="onView(doc)">
+          <app-button variant="primary" [fullWidth]="true" [link]="['/documents', doc.id]">
             <mat-icon>visibility</mat-icon>
-            <span>Ver</span>
+            <span i18n="@@documents.list.view">Ver</span>
           </app-button>
           <app-icon-button
-            [tooltip]="downloadingIds().has(doc.id) ? 'Descargando…' : 'Descargar'"
-            [ariaLabel]="
-              downloadingIds().has(doc.id)
-                ? 'Descargando documento ' + doc.title
-                : 'Descargar documento ' + doc.title
-            "
+            [tooltip]="downloadTooltip(downloadingIds().has(doc.id))"
+            [ariaLabel]="downloadAriaLabel(doc.title, downloadingIds().has(doc.id))"
             [disabled]="downloadingIds().has(doc.id)"
             (click)="onDownload(doc)"
           >
@@ -230,27 +237,25 @@
               <mat-icon>download</mat-icon>
             }
           </app-icon-button>
-          @if (
-            role() === 'ADMIN' ||
-            (role() === 'EDITOR' && doc.uploadedBy === (currentUser()?.fullName ?? ''))
-          ) {
+          @if (canEdit(doc)) {
             <button
               type="button"
               class="more-btn"
               [matMenuTriggerFor]="moreMenu"
               aria-label="Más opciones"
+              i18n-aria-label="@@documents.list.moreOptions"
             >
               <mat-icon>more_horiz</mat-icon>
             </button>
             <mat-menu #moreMenu="matMenu">
               <button mat-menu-item (click)="onEdit(doc)">
                 <mat-icon>edit</mat-icon>
-                <span>Editar</span>
+                <span i18n="@@common.edit">Editar</span>
               </button>
-              @if (role() === 'ADMIN') {
+              @if (canDelete()) {
                 <button mat-menu-item class="menu-item--danger" (click)="onDelete(doc)">
                   <mat-icon>delete_outline</mat-icon>
-                  <span>Eliminar</span>
+                  <span i18n="@@common.delete">Eliminar</span>
                 </button>
               }
             </mat-menu>
@@ -267,7 +272,9 @@
       <div class="pagination__controls">
         <app-icon-button
           tooltip="Primera página"
+          i18n-tooltip="@@pagination.first"
           ariaLabel="Ir a la primera página"
+          i18n-ariaLabel="@@pagination.firstAriaLabel"
           [disabled]="currentPage() === 1"
           (click)="goToFirst()"
         >
@@ -275,7 +282,9 @@
         </app-icon-button>
         <app-icon-button
           tooltip="Página anterior"
+          i18n-tooltip="@@pagination.previous"
           ariaLabel="Ir a la página anterior"
+          i18n-ariaLabel="@@pagination.previousAriaLabel"
           [disabled]="currentPage() === 1"
           (click)="goToPrev()"
         >
@@ -291,7 +300,7 @@
               class="pagination__page"
               [class.pagination__page--active]="currentPage() === page"
               [attr.aria-current]="currentPage() === page ? 'page' : null"
-              [attr.aria-label]="'Página ' + page"
+              [attr.aria-label]="pageAriaLabel(page)"
               (click)="goToPage(page)"
             >
               {{ page }}
@@ -301,7 +310,9 @@
 
         <app-icon-button
           tooltip="Página siguiente"
+          i18n-tooltip="@@pagination.next"
           ariaLabel="Ir a la página siguiente"
+          i18n-ariaLabel="@@pagination.nextAriaLabel"
           [disabled]="currentPage() === totalPages()"
           (click)="goToNext()"
         >
@@ -309,7 +320,9 @@
         </app-icon-button>
         <app-icon-button
           tooltip="Última página"
+          i18n-tooltip="@@pagination.last"
           ariaLabel="Ir a la última página"
+          i18n-ariaLabel="@@pagination.lastAriaLabel"
           [disabled]="currentPage() === totalPages()"
           (click)="goToLast()"
         >

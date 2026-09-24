@@ -1,12 +1,13 @@
 <div class="dialog-container">
   <div class="dialog-header">
-    <h2 class="dialog-title">Carga múltiple de documentos</h2>
+    <h2 class="dialog-title" i18n="@@documents.batch.title">Carga múltiple de documentos</h2>
     <button
       class="dialog-close"
       type="button"
       [disabled]="phase() === 'uploading'"
       (click)="cancel()"
       aria-label="Cerrar formulario"
+      i18n-aria-label="@@common.closeForm"
     >
       <mat-icon>close</mat-icon>
     </button>
@@ -21,11 +22,13 @@
       <!-- Zona de arrastre (visible en fase compose mientras no se alcance el límite) -->
       @if (phase() === 'compose') {
         <div class="field">
-          <label class="field__label">
-            Archivos
+          <span class="field__label">
+            <ng-container i18n="@@documents.batch.files">Archivos</ng-container>
             <strong class="field__required" aria-hidden="true">*</strong>
-            <span class="field__hint-inline">Máximo {{ maxBatchFiles }} archivos</span>
-          </label>
+            <span class="field__hint-inline" i18n="@@documents.batch.maxFiles"
+              >Máximo {{ maxBatchFiles }} archivos</span
+            >
+          </span>
 
           @if (files().length < maxBatchFiles) {
             <div
@@ -34,13 +37,7 @@
               [class.dropzone--error]="fileError() && files().length === 0"
               role="button"
               tabindex="0"
-              [attr.aria-label]="
-                files().length === 0
-                  ? 'Zona de carga. Haga clic o arrastre archivos aquí.'
-                  : 'Agregar más archivos. Puede añadir ' +
-                    (maxBatchFiles - files().length) +
-                    ' más.'
-              "
+              [attr.aria-label]="dropzoneAriaLabel()"
               (click)="fileInput.click()"
               (keydown.enter)="fileInput.click()"
               (keydown.space)="fileInput.click(); $event.preventDefault()"
@@ -61,15 +58,15 @@
               }
 
               @if (files().length === 0) {
-                <div class="dropzone__prompt">
+                <div class="dropzone__prompt" i18n="@@documents.batch.dropzone.prompt">
                   Arrastre hasta {{ maxBatchFiles }} archivos aquí o
                   <span class="dropzone__link">seleccione del equipo</span>
                 </div>
-                <div class="dropzone__subtitle">
+                <div class="dropzone__subtitle" i18n="@@documents.form.dropzone.formats">
                   PDF, DOCX, XLSX, JPG o PNG. Máximo 10 MB por archivo.
                 </div>
               } @else {
-                <div class="dropzone__prompt">
+                <div class="dropzone__prompt" i18n="@@documents.batch.dropzone.addMore">
                   <span class="dropzone__link">Agregar más archivos</span>
                   &nbsp;(puede añadir {{ maxBatchFiles - files().length }} más)
                 </div>
@@ -85,7 +82,9 @@
           } @else {
             <p class="field__hint field__hint--limit">
               <mat-icon aria-hidden="true">info</mat-icon>
-              Ha alcanzado el máximo de {{ maxBatchFiles }} archivos.
+              <ng-container i18n="@@documents.batch.limitReached"
+                >Ha alcanzado el máximo de {{ maxBatchFiles }} archivos.</ng-container
+              >
             </p>
           }
 
@@ -103,7 +102,11 @@
 
       <!-- Lista de archivos -->
       @if (files().length > 0) {
-        <ul class="file-list" aria-label="Archivos seleccionados">
+        <ul
+          class="file-list"
+          aria-label="Archivos seleccionados"
+          i18n-aria-label="@@documents.batch.fileList"
+        >
           @for (file of files(); track file.id) {
             <li
               class="file-row"
@@ -124,8 +127,9 @@
                     [value]="file.title"
                     [attr.maxlength]="maxTitleLength"
                     placeholder="Título del documento"
+                    i18n-placeholder="@@documents.form.title"
                     autocomplete="off"
-                    [attr.aria-label]="'Título para ' + file.file.name"
+                    [attr.aria-label]="titleAriaLabel(file.file.name)"
                     (input)="updateTitle(file.id, titleInput.value)"
                   />
                 } @else {
@@ -140,7 +144,7 @@
                     class="file-row__progress"
                     mode="determinate"
                     [value]="globalProgress()"
-                    [attr.aria-label]="'Progreso de carga de ' + file.file.name"
+                    [attr.aria-label]="progressAriaLabel(file.file.name)"
                   />
                 }
 
@@ -163,19 +167,21 @@
                   @switch (file.status) {
                     @case ('uploading') {
                       <mat-icon aria-hidden="true">upload</mat-icon>
-                      Subiendo
+                      <ng-container i18n="@@documents.batch.status.uploading"
+                        >Subiendo</ng-container
+                      >
                     }
                     @case ('success') {
                       <mat-icon aria-hidden="true">check_circle</mat-icon>
-                      Cargado
+                      <ng-container i18n="@@documents.batch.status.success">Cargado</ng-container>
                     }
                     @case ('error') {
                       <mat-icon aria-hidden="true">error</mat-icon>
-                      Error
+                      <ng-container i18n="@@documents.batch.status.error">Error</ng-container>
                     }
                     @default {
                       <mat-icon aria-hidden="true">schedule</mat-icon>
-                      En cola
+                      <ng-container i18n="@@documents.batch.status.pending">En cola</ng-container>
                     }
                   }
                 </span>
@@ -185,7 +191,7 @@
                 <button
                   type="button"
                   class="file-row__remove"
-                  [attr.aria-label]="'Quitar ' + file.file.name"
+                  [attr.aria-label]="removeAriaLabel(file.file.name)"
                   (click)="removeFile(file.id)"
                 >
                   <mat-icon aria-hidden="true">delete</mat-icon>
@@ -210,14 +216,14 @@
             <mat-icon class="summary-card__icon summary-card__icon--success" aria-hidden="true"
               >check_circle</mat-icon
             >
-            <p class="summary-card__text">
+            <p class="summary-card__text" i18n="@@documents.batch.summary.allOk">
               {{ summary().success }} de {{ summary().total }} archivos cargados correctamente.
             </p>
           } @else if (summary().success === 0) {
             <mat-icon class="summary-card__icon summary-card__icon--error" aria-hidden="true"
               >cancel</mat-icon
             >
-            <p class="summary-card__text">
+            <p class="summary-card__text" i18n="@@documents.batch.summary.allFailed">
               Ningún archivo se cargó correctamente. Revise los errores e intente nuevamente.
             </p>
           } @else {
@@ -225,8 +231,13 @@
               >warning</mat-icon
             >
             <p class="summary-card__text">
-              {{ summary().success }} de {{ summary().total }} archivos cargados.
-              {{ summary().failed }} {{ summary().failed === 1 ? 'falló' : 'fallaron' }}.
+              <ng-container i18n="@@documents.batch.summary.partial">{summary().failed, plural,
+                =1 {{{ summary().success }} de {{ summary().total }} archivos cargados. 1 falló.}
+                other {
+                  {{ summary().success }} de {{ summary().total }} archivos cargados. {{
+                  summary().failed }} fallaron.
+                }
+              }</ng-container>
             </p>
           }
         </div>
@@ -236,7 +247,7 @@
       @if (phase() !== 'done') {
         <div class="metadata-info" role="note">
           <mat-icon aria-hidden="true">info</mat-icon>
-          <p>
+          <p i18n="@@documents.batch.metadataInfo">
             Los metadatos comunes (<strong>categoría</strong> y <strong>área</strong>) se aplican a
             todos los archivos del lote. Cada archivo conserva su propio título, editable arriba.
           </p>
@@ -245,10 +256,10 @@
         <div class="field-row">
           <!-- Categoría -->
           <div class="field">
-            <label class="field__label" id="batch-category-label">
-              Categoría
+            <span class="field__label" id="batch-category-label">
+              <ng-container i18n="@@document.field.category">Categoría</ng-container>
               <strong class="field__required" aria-hidden="true">*</strong>
-            </label>
+            </span>
             <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
               <mat-icon matPrefix class="select-icon">sell</mat-icon>
               <mat-select
@@ -256,7 +267,7 @@
                 aria-labelledby="batch-category-label"
                 aria-describedby="batch-category-error batch-category-hint"
                 [placeholder]="
-                  categoriesLoading() ? 'Cargando categorías...' : 'Seleccione una categoría'
+                  loadingCategories() ? labels.loadingCategories : labels.selectCategory
                 "
               >
                 @for (cat of categories(); track cat.id) {
@@ -265,30 +276,31 @@
               </mat-select>
             </mat-form-field>
 
-            @if (categoriesLoadError()) {
+            @if (loadCategoriesError()) {
               <div class="categories-error">
                 <mat-icon aria-hidden="true">warning</mat-icon>
-                <span>No se pudieron cargar las categorías.</span>
+                <span i18n="@@documents.form.category.loadError"
+                  >No se pudieron cargar las categorías.</span
+                >
                 <button type="button" class="categories-retry" (click)="loadCategories()">
-                  Reintentar
+                  <ng-container i18n="@@common.retry">Reintentar</ng-container>
                 </button>
               </div>
             }
 
-            @if (categoryError(); as msg) {
-              <p class="field__error" id="batch-category-error">
-                <mat-icon aria-hidden="true">error</mat-icon>
-                {{ msg }}
-              </p>
-            }
+            <app-field-error
+              [control]="form.controls.categoryId"
+              [messages]="messages.categoryId"
+              errorId="batch-category-error"
+            />
           </div>
 
           <!-- Área responsable -->
           <div class="field">
-            <label class="field__label" id="batch-area-label">
-              Área responsable
+            <span class="field__label" id="batch-area-label">
+              <ng-container i18n="@@document.field.area">Área responsable</ng-container>
               <strong class="field__required" aria-hidden="true">*</strong>
-            </label>
+            </span>
             <mat-form-field class="mat-select-field" appearance="outline" subscriptSizing="dynamic">
               <mat-icon matPrefix class="select-icon">apartment</mat-icon>
               <mat-select
@@ -296,28 +308,30 @@
                 aria-labelledby="batch-area-label"
                 aria-describedby="batch-area-error"
                 placeholder="Seleccione un área"
+                i18n-placeholder="@@documents.form.area.placeholder"
               >
                 @for (area of areas; track area) {
                   <mat-option [value]="area">{{ area }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
-            @if (areaError(); as msg) {
-              <p class="field__error" id="batch-area-error">
-                <mat-icon aria-hidden="true">error</mat-icon>
-                {{ msg }}
-              </p>
-            }
+            <app-field-error
+              [control]="form.controls.responsibleArea"
+              [messages]="messages.responsibleArea"
+              errorId="batch-area-error"
+            />
           </div>
         </div>
 
         <!-- Nivel de sensibilidad (aplica a todo el lote) -->
         <div class="field">
-          <label class="field__label">
-            Nivel de sensibilidad
+          <span class="field__label">
+            <ng-container i18n="@@sensitivity.field.label">Nivel de sensibilidad</ng-container>
             <strong class="field__required" aria-hidden="true">*</strong>
-          </label>
-          <small class="field__hint">Se aplicará a todos los archivos del lote.</small>
+          </span>
+          <small class="field__hint" i18n="@@documents.batch.sensitivityHint"
+            >Se aplicará a todos los archivos del lote.</small
+          >
 
           @if (sensitivityLocked()) {
             <app-sensitivity-lock-banner
@@ -330,6 +344,7 @@
               [categoryName]="selectedCategory()!.name"
               [canRaise]="true"
               raiseHint="Si los documentos contienen datos sensibles, puede subir el nivel."
+              i18n-raiseHint="@@documents.batch.raiseHint"
             />
           }
 
@@ -357,24 +372,24 @@
     <div class="dialog-footer">
       @if (phase() === 'compose') {
         <app-button variant="secondary" type="button" (click)="cancel()">
-          <span>Cancelar</span>
+          <span i18n="@@common.cancel">Cancelar</span>
         </app-button>
         <app-button variant="primary" type="submit" [disabled]="!canSubmit()">
           <mat-icon aria-hidden="true">upload_file</mat-icon>
-          <span>
-            Cargar
-            {{ files().length }} {{ files().length === 1 ? 'archivo' : 'archivos' }}
-          </span>
+          <span i18n="@@documents.batch.submit">{files().length, plural,
+            =1 {Cargar 1 archivo}
+            other {Cargar {{ files().length }} archivos}
+          }</span>
         </app-button>
       } @else if (phase() === 'uploading') {
         <app-button variant="primary" [loading]="true">
           <mat-icon aria-hidden="true">upload_file</mat-icon>
-          <span>Subiendo...</span>
+          <span i18n="@@documents.batch.submitting">Subiendo…</span>
         </app-button>
       } @else {
         <app-button variant="primary" type="button" (click)="close()">
           <mat-icon aria-hidden="true">check</mat-icon>
-          <span>Cerrar</span>
+          <span i18n="@@common.close">Cerrar</span>
         </app-button>
       }
     </div>

@@ -3,35 +3,42 @@ import {
   Component,
   OnInit,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { AlertComponent } from '../../../../../shared/components/alert/alert.component';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent, ButtonVariant } from '@shared/components/button/button.component';
+import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
+import { CategoriesService } from '@core/services/categories.service';
+import { NotificationService } from '@core/services/notification.service';
 import {
-  ButtonComponent,
-  ButtonVariant,
-} from '../../../../../shared/components/button/button.component';
-import { SensitivityRadioComponent } from '../../../../../shared/sensitivity/sensitivity-radio.component';
-import { CategoriesService } from '../../../../../core/services/categories.service';
-import { NotificationService } from '../../../../../core/services/notification.service';
-import { Category } from '../../../../../core/models/category.model';
+  Category,
+  MAX_CATEGORY_DESCRIPTION_LENGTH,
+  MAX_CATEGORY_NAME_LENGTH,
+  MIN_CATEGORY_NAME_LENGTH,
+} from '@core/models/category.model';
+import { applyFieldErrors } from '@shared/forms/apply-field-errors';
+import { trimmedMinLength } from '@shared/forms/validators';
 import {
   SensitivityLevel,
   SENSITIVITY_LABELS,
   compareSensitivity,
-} from '../../../../../core/models/sensitivity-level.model';
+} from '@core/models/sensitivity-level.model';
 import {
   CreateCategoryRequest,
   CreateCategoryResponse,
   UpdateCategoryRequest,
   UpdateCategoryResponse,
-} from '../../../../../core/models/category-list.models';
+} from '@core/models/category-list.model';
+import { FieldErrorComponent } from '@shared/forms/field-error.component';
+import { CATEGORY_FORM_MESSAGES } from './category-form.messages';
 
 export type CategoryFormDialogMode = 'create' | 'edit';
 
@@ -45,20 +52,11 @@ export type CategoryFormDialogResult =
   | { kind: 'updated'; category: Category }
   | undefined;
 
-function trimmedMinLength(min: number): ValidatorFn {
-  return (control) => {
-    const value = ((control.value as string) ?? '').trim();
-    return value.length >= min
-      ? null
-      : { minlength: { requiredLength: min, actualLength: value.length } };
-  };
-}
-
 @Component({
   selector: 'app-category-form-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FieldErrorComponent,
     ReactiveFormsModule,
     MatIconModule,
     MatDialogModule,
@@ -75,6 +73,7 @@ export class CategoryFormDialogComponent implements OnInit {
     inject<MatDialogRef<CategoryFormDialogComponent, CategoryFormDialogResult>>(MatDialogRef);
 
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly categoriesService = inject(CategoriesService);
   private readonly notifications = inject(NotificationService);
 
@@ -85,8 +84,15 @@ export class CategoryFormDialogComponent implements OnInit {
   private readonly previousLevel = signal<SensitivityLevel | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
-    name: ['', [Validators.required, trimmedMinLength(3), Validators.maxLength(100)]],
-    description: ['', [Validators.maxLength(500)]],
+    name: [
+      '',
+      [
+        Validators.required,
+        trimmedMinLength(MIN_CATEGORY_NAME_LENGTH),
+        Validators.maxLength(MAX_CATEGORY_NAME_LENGTH),
+      ],
+    ],
+    description: ['', [Validators.maxLength(MAX_CATEGORY_DESCRIPTION_LENGTH)]],
     defaultSensitivityLevel: ['INTERNAL' as SensitivityLevel, [Validators.required]],
   });
 
@@ -99,15 +105,23 @@ export class CategoryFormDialogComponent implements OnInit {
     { initialValue: this.form.controls.defaultSensitivityLevel.value },
   );
 
+  protected readonly messages = CATEGORY_FORM_MESSAGES;
+  protected readonly maxNameLength = MAX_CATEGORY_NAME_LENGTH;
+  protected readonly maxDescriptionLength = MAX_CATEGORY_DESCRIPTION_LENGTH;
+
   protected readonly nameLen = computed(() => this.nameValue().length);
   protected readonly descLen = computed(() => this.descValue().length);
 
   protected readonly isEdit = computed(() => this.data.mode === 'edit');
   protected readonly title = computed(() =>
-    this.isEdit() ? 'Editar categoría' : 'Nueva categoría',
+    this.isEdit()
+      ? $localize`:@@categories.form.titleEdit:Editar categoría`
+      : $localize`:@@categories.form.titleCreate:Nueva categoría`,
   );
   protected readonly loadingLabel = computed(() =>
-    this.isEdit() ? 'Actualizando...' : 'Guardando...',
+    this.isEdit()
+      ? $localize`:@@common.updating:Actualizando…`
+      : $localize`:@@common.saving:Guardando…`,
   );
 
   protected readonly showDocumentBanner = computed(
@@ -139,9 +153,11 @@ export class CategoryFormDialogComponent implements OnInit {
   );
 
   protected readonly primaryLabel = computed(() => {
-    if (this.warningKind() === 'edit-raise') return 'Guardar y actualizar documentos';
-    if (this.isEdit()) return 'Guardar cambios';
-    return 'Crear categoría';
+    if (this.warningKind() === 'edit-raise') {
+      return $localize`:@@categories.form.submitRaise:Guardar y actualizar documentos`;
+    }
+    if (this.isEdit()) return $localize`:@@common.saveChanges:Guardar cambios`;
+    return $localize`:@@categories.form.submitCreate:Crear categoría`;
   });
 
   protected readonly primaryVariant = computed<ButtonVariant>(() =>
@@ -163,32 +179,6 @@ export class CategoryFormDialogComponent implements OnInit {
       });
       this.previousLevel.set(defaultSensitivityLevel ?? 'INTERNAL');
     }
-  }
-
-  protected nameError(): string | null {
-    const ctrl = this.form.controls.name;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Ingrese el nombre de la categoría.';
-    if (ctrl.hasError('minlength') || ctrl.hasError('maxlength'))
-      return 'El nombre debe tener entre 3 y 100 caracteres.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected descriptionError(): string | null {
-    const ctrl = this.form.controls.description;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('maxlength')) return 'La descripción no puede superar los 500 caracteres.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected sensitivityError(): string | null {
-    const ctrl = this.form.controls.defaultSensitivityLevel;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Seleccione el nivel de sensibilidad por defecto.';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
   }
 
   protected onSubmit(): void {
@@ -224,11 +214,8 @@ export class CategoryFormDialogComponent implements OnInit {
 
     request$
       .pipe(
-        finalize(() => {
-          this.loading.set(false);
-          this.form.enable();
-          this.dialogRef.disableClose = false;
-        }),
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (res) => this.handleSuccess(res),
@@ -239,8 +226,8 @@ export class CategoryFormDialogComponent implements OnInit {
   private handleSuccess(res: CreateCategoryResponse | UpdateCategoryResponse): void {
     if (this.isEdit() && this.data.category) {
       this.notifications.success(
-        'Categoría actualizada',
-        'Los cambios se guardaron correctamente.',
+        $localize`:@@categories.toast.updated.title:Categoría actualizada`,
+        $localize`:@@users.toast.updated.description:Los cambios se guardaron correctamente.`,
       );
       const updated: Category = {
         ...this.data.category,
@@ -252,51 +239,49 @@ export class CategoryFormDialogComponent implements OnInit {
       this.dialogRef.close({ kind: 'updated', category: updated });
     } else {
       this.notifications.success(
-        'Categoría creada',
-        'La categoría está disponible para clasificar documentos.',
+        $localize`:@@categories.toast.created.title:Categoría creada`,
+        $localize`:@@categories.toast.created.description:La categoría está disponible para clasificar documentos.`,
       );
       this.dialogRef.close({ kind: 'created', category: res as CreateCategoryResponse });
     }
   }
 
   private handleError(err: HttpErrorResponse): void {
+    // Antes de aplicar errores: enable() vuelve a validar y borraría los del backend (R12).
+    this.form.enable();
+    this.dialogRef.disableClose = false;
     switch (err.status) {
-      case 409:
-        this.submitError.set('Ya existe una categoría con este nombre.');
+      case HttpStatusCode.Conflict:
+        this.submitError.set(
+          $localize`:@@categories.form.error.duplicate:Ya existe una categoría con este nombre.`,
+        );
         this.form.controls.name.setErrors({ duplicate: true });
         this.form.controls.name.markAsTouched();
         break;
-      case 400:
-        if (err.error?.fieldErrors) {
-          const fieldErrors = err.error.fieldErrors as Record<string, string>;
-          Object.entries(fieldErrors).forEach(([field, msg]) => {
-            const ctrl = this.form.get(field);
-            if (ctrl) {
-              ctrl.setErrors({ backend: msg });
-              ctrl.markAsTouched();
-            }
-          });
-        } else {
-          this.submitError.set('Los datos enviados no son válidos. Revise el formulario.');
+      case HttpStatusCode.BadRequest:
+        if (!applyFieldErrors(this.form, err)) {
+          this.submitError.set(
+            $localize`:@@common.error.invalidData:Los datos enviados no son válidos. Revise el formulario.`,
+          );
         }
         break;
-      case 403:
+      case HttpStatusCode.Forbidden:
         this.submitError.set(
           this.isEdit()
-            ? 'No es posible editar la categoría. Verifique sus permisos o que la categoría siga activa.'
-            : 'No tiene permisos para crear categorías.',
+            ? $localize`:@@categories.form.error.editForbidden:No es posible editar la categoría. Verifique sus permisos o que la categoría siga activa.`
+            : $localize`:@@categories.form.error.createForbidden:No tiene permisos para crear categorías.`,
         );
         break;
-      case 404:
+      case HttpStatusCode.NotFound:
         this.submitError.set(
-          'La categoría ya no existe. Cierre el formulario y recargue el listado.',
+          $localize`:@@categories.form.error.notFound:La categoría ya no existe. Cierre el formulario y recargue el listado.`,
         );
         break;
       default:
         this.submitError.set(
           this.isEdit()
-            ? 'No fue posible guardar los cambios. Intente de nuevo.'
-            : 'No fue posible crear la categoría. Intente de nuevo.',
+            ? $localize`:@@common.error.saveChanges:No fue posible guardar los cambios. Intente de nuevo.`
+            : $localize`:@@categories.form.error.create:No fue posible crear la categoría. Intente de nuevo.`,
         );
     }
   }

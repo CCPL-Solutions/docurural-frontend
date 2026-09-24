@@ -3,35 +3,62 @@ import {
   Component,
   OnInit,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AlertComponent } from '../../../shared/components/alert/alert.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { AuthService } from '../../../core/services/auth.service';
-import { UsersService } from '../../../core/services/users.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { Role, ROLE_LABELS } from '../../../core/models/role.model';
+import { AlertComponent } from '@shared/components/alert/alert.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { AuthService } from '@core/services/auth.service';
+import { UsersService } from '@core/services/users.service';
+import { NotificationService } from '@core/services/notification.service';
+import { Role, ROLE_LABELS } from '@core/models/role.model';
+import { AuthenticatedUser, User } from '@core/models/user.model';
+import { UserStatus } from '@core/models/user-status.model';
 import {
   CreateUserRequest,
+  MAX_EMAIL_LENGTH,
+  MAX_FULL_NAME_LENGTH,
+  MIN_FULL_NAME_LENGTH,
   UpdateUserRequest,
-  UserFormDialogData,
-  UserFormDialogResult,
-} from '../../../core/models/user-form.models';
+} from '@core/models/user-form.model';
+import { applyFieldErrors } from '@shared/forms/apply-field-errors';
+import { trimmedMinLength } from '@shared/forms/validators';
 import { passwordMatchValidator } from './validators/password-match.validator';
 import { passwordComplexityValidator } from './validators/password-complexity.validator';
+import { FieldErrorComponent } from '@shared/forms/field-error.component';
+import { USER_FORM_MESSAGES } from './user-form.messages';
+
+export type UserFormMode = 'create' | 'edit';
+
+export interface UserFormDialogData {
+  mode: UserFormMode;
+  user?: User;
+}
+
+export type UserFormDialogResult =
+  | { kind: 'created'; user: User }
+  | { kind: 'updated'; user: AuthenticatedUser & { status: UserStatus } }
+  | { kind: 'cancelled' };
 
 @Component({
   selector: 'app-user-form-dialog',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatIconModule, MatTooltipModule, AlertComponent, ButtonComponent],
+  imports: [
+    FieldErrorComponent,
+    ReactiveFormsModule,
+    MatIconModule,
+    MatTooltipModule,
+    AlertComponent,
+    ButtonComponent,
+  ],
   templateUrl: './user-form-dialog.component.html',
   styleUrl: './user-form-dialog.component.scss',
 })
@@ -40,6 +67,7 @@ export class UserFormDialogComponent implements OnInit {
   private readonly dialogRef =
     inject<MatDialogRef<UserFormDialogComponent, UserFormDialogResult>>(MatDialogRef);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly usersService = inject(UsersService);
   private readonly notifications = inject(NotificationService);
   private readonly auth = inject(AuthService);
@@ -50,23 +78,45 @@ export class UserFormDialogComponent implements OnInit {
   protected readonly hideConfirmPassword = signal(true);
 
   protected readonly isEdit = computed(() => this.data.mode === 'edit');
-  protected readonly title = computed(() => (this.isEdit() ? 'Editar usuario' : 'Nuevo usuario'));
+  protected readonly title = computed(() =>
+    this.isEdit()
+      ? $localize`:@@users.form.titleEdit:Editar usuario`
+      : $localize`:@@users.form.titleCreate:Nuevo usuario`,
+  );
   protected readonly primaryLabel = computed(() =>
-    this.isEdit() ? 'Guardar cambios' : 'Crear usuario',
+    this.isEdit()
+      ? $localize`:@@common.saveChanges:Guardar cambios`
+      : $localize`:@@users.form.submitCreate:Crear usuario`,
   );
   protected readonly loadingLabel = computed(() =>
-    this.isEdit() ? 'Actualizando...' : 'Guardando...',
+    this.isEdit()
+      ? $localize`:@@common.updating:Actualizando…`
+      : $localize`:@@common.saving:Guardando…`,
   );
   protected readonly isSelfEdit = computed(
     () => this.isEdit() && this.data.user?.id === this.auth.currentUser()?.id,
   );
 
+  protected readonly messages = USER_FORM_MESSAGES;
+  protected readonly labels = {
+    showPassword: $localize`:@@login.password.show:Mostrar contraseña`,
+    hidePassword: $localize`:@@login.password.hide:Ocultar contraseña`,
+    showConfirmation: $localize`:@@users.form.confirmPassword.show:Mostrar confirmación`,
+    hideConfirmation: $localize`:@@users.form.confirmPassword.hide:Ocultar confirmación`,
+  };
   protected readonly roleOptions = Object.entries(ROLE_LABELS) as [Role, string][];
 
   protected readonly form = this.fb.nonNullable.group(
     {
-      fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      email: ['', [Validators.required, Validators.email, Validators.maxLength(150)]],
+      fullName: [
+        '',
+        [
+          Validators.required,
+          trimmedMinLength(MIN_FULL_NAME_LENGTH),
+          Validators.maxLength(MAX_FULL_NAME_LENGTH),
+        ],
+      ],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(MAX_EMAIL_LENGTH)]],
       role: ['', [Validators.required]],
       password: [
         '',
@@ -92,63 +142,6 @@ export class UserFormDialogComponent implements OnInit {
     if (this.isSelfEdit()) {
       this.form.controls.role.disable();
     }
-  }
-
-  protected fullNameError(): string | null {
-    const ctrl = this.form.controls.fullName;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Ingrese el nombre completo';
-    if (ctrl.hasError('minlength')) return 'El nombre debe tener al menos 3 caracteres';
-    if (ctrl.hasError('maxlength')) return 'El nombre no puede superar los 100 caracteres';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected emailError(): string | null {
-    const ctrl = this.form.controls.email;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Ingrese el correo electrónico';
-    if (ctrl.hasError('email')) return 'Ingrese un correo electrónico válido';
-    if (ctrl.hasError('maxlength')) return 'El correo no puede superar los 150 caracteres';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected roleError(): string | null {
-    const ctrl = this.form.controls.role;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Seleccione un rol';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected passwordError(): string | null {
-    const ctrl = this.form.controls.password;
-    if (!ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required')) return 'Ingrese una contraseña';
-    if (ctrl.hasError('minLength')) return 'Debe tener al menos 12 caracteres';
-    if (ctrl.hasError('maxLength')) return 'No puede superar los 128 caracteres';
-    if (ctrl.hasError('noLowercase')) return 'Debe incluir al menos una letra minúscula';
-    if (ctrl.hasError('noUppercase')) return 'Debe incluir al menos una letra mayúscula';
-    if (ctrl.hasError('noDigit')) return 'Debe incluir al menos un número';
-    if (ctrl.hasError('noSymbol')) return 'Debe incluir al menos un símbolo (ej: !, @, #, $)';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    return null;
-  }
-
-  protected confirmPasswordError(): string | null {
-    const ctrl = this.form.controls.confirmPassword;
-    if (!ctrl.touched) return null;
-    if (ctrl.hasError('required')) return 'Confirme su contraseña';
-    if (ctrl.hasError('minLength')) return 'Debe tener al menos 12 caracteres';
-    if (ctrl.hasError('maxLength')) return 'No puede superar los 128 caracteres';
-    if (ctrl.hasError('noLowercase')) return 'Debe incluir al menos una letra minúscula';
-    if (ctrl.hasError('noUppercase')) return 'Debe incluir al menos una letra mayúscula';
-    if (ctrl.hasError('noDigit')) return 'Debe incluir al menos un número';
-    if (ctrl.hasError('noSymbol')) return 'Debe incluir al menos un símbolo (ej: !, @, #, $)';
-    if (ctrl.hasError('backend')) return ctrl.getError('backend') as string;
-    if (this.form.hasError('passwordMismatch')) return 'Las contraseñas no coinciden';
-    return null;
   }
 
   protected onSubmit(): void {
@@ -177,18 +170,14 @@ export class UserFormDialogComponent implements OnInit {
       this.usersService
         .update(this.data.user.id, req)
         .pipe(
-          finalize(() => {
-            this.loading.set(false);
-            this.form.enable();
-            this.dialogRef.disableClose = false;
-            if (this.isSelfEdit()) this.form.controls.role.disable();
-          }),
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe({
           next: (res) => {
             this.notifications.success(
-              'Usuario actualizado',
-              'Los cambios se guardaron correctamente.',
+              $localize`:@@users.toast.updated.title:Usuario actualizado`,
+              $localize`:@@users.toast.updated.description:Los cambios se guardaron correctamente.`,
             );
             this.dialogRef.close({ kind: 'updated', user: res });
           },
@@ -207,17 +196,14 @@ export class UserFormDialogComponent implements OnInit {
       this.usersService
         .create(req)
         .pipe(
-          finalize(() => {
-            this.loading.set(false);
-            this.form.enable();
-            this.dialogRef.disableClose = false;
-          }),
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe({
           next: (res) => {
             this.notifications.success(
-              'Usuario creado',
-              'Ya puede iniciar sesión con sus credenciales.',
+              $localize`:@@users.toast.created.title:Usuario creado`,
+              $localize`:@@users.toast.created.description:Ya puede iniciar sesión con sus credenciales.`,
             );
             this.dialogRef.close({ kind: 'created', user: res });
           },
@@ -230,32 +216,42 @@ export class UserFormDialogComponent implements OnInit {
     this.dialogRef.close({ kind: 'cancelled' });
   }
 
+  /** Deja el formulario editable tras un error. */
+  private unlockForm(): void {
+    this.form.enable();
+    if (this.isSelfEdit()) this.form.controls.role.disable();
+    this.dialogRef.disableClose = false;
+  }
+
   private handleError(err: HttpErrorResponse): void {
+    // Antes de aplicar errores: enable() vuelve a validar y borraría los del backend (R12).
+    this.unlockForm();
     switch (err.status) {
-      case 400:
-        if (err.error?.fieldErrors) {
-          const fieldErrors = err.error.fieldErrors as Record<string, string>;
-          Object.entries(fieldErrors).forEach(([field, msg]) => {
-            const ctrl = this.form.get(field);
-            if (ctrl) {
-              ctrl.setErrors({ backend: msg });
-              ctrl.markAsTouched();
-            }
-          });
-        } else {
-          this.submitError.set('Los datos enviados no son válidos. Revise el formulario');
+      case HttpStatusCode.BadRequest:
+        if (!applyFieldErrors(this.form, err)) {
+          this.submitError.set(
+            $localize`:@@common.error.invalidData:Los datos enviados no son válidos. Revise el formulario.`,
+          );
         }
         break;
-      case 409:
-        this.submitError.set('Ya existe un usuario registrado con este correo electrónico');
-        this.form.controls.email.setErrors({ backend: 'Este correo ya está registrado' });
+      case HttpStatusCode.Conflict:
+        this.submitError.set(
+          $localize`:@@users.form.error.emailConflict:Ya existe un usuario registrado con este correo electrónico.`,
+        );
+        this.form.controls.email.setErrors({
+          backend: $localize`:@@users.form.error.emailTaken:Este correo ya está registrado.`,
+        });
         this.form.controls.email.markAsTouched();
         break;
-      case 403:
-        this.submitError.set('No tienes permisos para realizar esta acción');
+      case HttpStatusCode.Forbidden:
+        this.submitError.set(
+          $localize`:@@common.error.forbidden:No tiene permisos para realizar esta acción.`,
+        );
         break;
       default:
-        this.submitError.set('Ocurrió un error inesperado. Por favor, inténtalo de nuevo');
+        this.submitError.set(
+          $localize`:@@common.error.unexpected:Ocurrió un error inesperado. Por favor, inténtelo de nuevo.`,
+        );
     }
   }
 }

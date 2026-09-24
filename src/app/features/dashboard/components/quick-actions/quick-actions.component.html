@@ -1,18 +1,15 @@
 <div class="qa-section">
   <div class="qa-section__header">
-    <h2 class="qa-section__title">Accesos directos</h2>
-    <span class="qa-section__subtitle">Adaptados a su rol</span>
+    <h2 class="qa-section__title" i18n="@@dashboard.quickActions.title">Accesos directos</h2>
+    <span class="qa-section__subtitle" i18n="@@dashboard.quickActions.subtitle"
+      >Adaptados a su rol</span
+    >
     <span class="qa-section__role-badge">{{ roleLabels[role()] }}</span>
   </div>
 
-  <div class="qa-section__grid" [style.--qa-cols]="actions().length">
+  <div class="qa-section__grid">
     @for (action of actions(); track action.id) {
-      <a
-        class="qa-btn"
-        [ngClass]="variantClass(action.variant)"
-        [routerLink]="action.routerLink"
-        [queryParams]="action.queryParams ?? {}"
-      >
+      <a class="qa-btn" [class]="variantClass(action.variant)" [routerLink]="action.routerLink">
         <div class="qa-btn__icon-wrap" aria-hidden="true">
           <mat-icon>{{ action.icon }}</mat-icon>
         </div>
@@ -20,7 +17,7 @@
           <div class="qa-btn__title-row">
             <span class="qa-btn__title">{{ action.title }}</span>
             @if (action.adminBadge) {
-              <span class="qa-btn__admin-badge">ADMIN</span>
+              <span class="qa-btn__admin-badge" i18n="@@layout.nav.adminBadge">ADMIN</span>
             }
           </div>
           <p class="qa-btn__desc">{{ action.description }}</p>

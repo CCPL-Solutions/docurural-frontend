@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { Category } from '../../../../core/models/category.model';
-import { IconButtonComponent } from '../../../../shared/components/icon-button/icon-button.component';
+import { Category } from '@core/models/category.model';
+import { IconButtonComponent } from '@shared/components/icon-button/icon-button.component';
 
 @Component({
   selector: 'app-category-row-actions',
-  standalone: true,
   imports: [MatIconModule, IconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -13,7 +12,9 @@ import { IconButtonComponent } from '../../../../shared/components/icon-button/i
       @if (category().status === 'ACTIVE') {
         <app-icon-button
           tooltip="Editar"
+          i18n-tooltip="@@common.edit"
           ariaLabel="Editar categoría"
+          i18n-ariaLabel="@@categories.row.editAriaLabel"
           (click)="edit.emit(category())"
         >
           <mat-icon>edit</mat-icon>
@@ -21,7 +22,9 @@ import { IconButtonComponent } from '../../../../shared/components/icon-button/i
         <app-icon-button
           variant="danger"
           tooltip="Desactivar"
+          i18n-tooltip="@@users.action.deactivate"
           ariaLabel="Desactivar categoría"
+          i18n-ariaLabel="@@categories.row.deactivateAriaLabel"
           (click)="toggleStatus.emit(category())"
         >
           <mat-icon>delete_outline</mat-icon>
@@ -29,7 +32,9 @@ import { IconButtonComponent } from '../../../../shared/components/icon-button/i
       } @else {
         <app-icon-button
           tooltip="Activar"
+          i18n-tooltip="@@users.action.activate"
           ariaLabel="Activar categoría"
+          i18n-ariaLabel="@@categories.row.activateAriaLabel"
           (click)="toggleStatus.emit(category())"
         >
           <mat-icon>restart_alt</mat-icon>

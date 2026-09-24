@@ -1,49 +1,45 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  LOCALE_ID,
   OnInit,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../core/services/auth.service';
-import { DocumentsService } from '../../core/services/documents.service';
-import { DashboardService } from '../../core/services/dashboard.service';
-import { NotificationService } from '../../core/services/notification.service';
-import {
-  DashboardStatsResponse,
-  RecentDocumentItem,
-} from '../../core/models/dashboard-stats.model';
-import { ApiError } from '../../core/models/api-error.model';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { AuthService } from '@core/services/auth.service';
+import { DocumentDownloadService } from '@core/services/document-download.service';
+import { DashboardService } from '@core/services/dashboard.service';
+import { NotificationService } from '@core/services/notification.service';
+import { DashboardStatsResponse, RecentDocumentItem } from '@core/models/dashboard-stats.model';
 import { getQuickActionsForRole } from './utils/quick-action.model';
-import {
-  parseFilenameFromContentDisposition,
-  buildFallbackFilename,
-  triggerBlobDownload,
-  parseBlobError,
-} from '../documents/document-list/utils/download-blob';
 import {
   UploadDocumentDialogComponent,
   UploadDocumentDialogData,
   UploadDocumentDialogResult,
-} from '../documents/document-list/components/upload-document-dialog/upload-document-dialog.component';
-import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+} from '@features/documents/dialogs/upload-document-dialog/upload-document-dialog.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
 import { TopCategoryCardComponent } from './components/top-category-card/top-category-card.component';
 import { CategoryChartComponent } from './components/category-chart/category-chart.component';
 import { RecentDocsTableComponent } from './components/recent-docs-table/recent-docs-table.component';
 import { QuickActionsComponent } from './components/quick-actions/quick-actions.component';
+import { formatDate } from '@angular/common';
+import { canUploadDocument } from '@core/auth/permissions';
+import { MONTH_YEAR_FORMAT } from '@shared/utils/date-formats';
+import { DIALOG_LG } from '@shared/ui/dialog-sizes';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ButtonComponent,
     MatIconModule,
     MatDialogModule,
     PageHeaderComponent,
@@ -59,31 +55,33 @@ import { QuickActionsComponent } from './components/quick-actions/quick-actions.
 })
 export class DashboardComponent implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly dashboardSvc = inject(DashboardService);
-  private readonly documentsSvc = inject(DocumentsService);
+  private readonly downloads = inject(DocumentDownloadService);
   private readonly notifications = inject(NotificationService);
-  private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
 
   protected readonly loading = signal(true);
-  protected readonly error = signal<string | null>(null);
   protected readonly stats = signal<DashboardStatsResponse | null>(null);
 
   protected readonly role = computed(() => this.auth.currentUser()?.role ?? 'READER');
   protected readonly firstName = computed(
     () => this.auth.currentUser()?.fullName?.split(' ')[0] ?? '',
   );
-  protected readonly canUpload = computed(
-    () => this.role() === 'ADMIN' || this.role() === 'EDITOR',
+  protected readonly welcomeTitle = computed(
+    () => $localize`:@@dashboard.welcome:Bienvenido, ${this.firstName()}:name:`,
   );
+  protected readonly canUpload = computed(() => canUploadDocument(this.role()));
+  protected readonly downloadingIds = this.downloads.downloadingIds;
   protected readonly quickActions = computed(() => getQuickActionsForRole(this.role()));
   protected readonly isEmptyRepo = computed(
     () => (this.stats()?.summary.totalActiveDocuments ?? 0) === 0,
   );
-  protected readonly currentMonthLabel = new Intl.DateTimeFormat('es-CO', {
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date());
+  protected readonly currentMonthLabel = formatDate(
+    new Date(),
+    MONTH_YEAR_FORMAT,
+    inject(LOCALE_ID),
+  );
 
   ngOnInit(): void {
     this.loadStats();
@@ -91,42 +89,27 @@ export class DashboardComponent implements OnInit {
 
   protected loadStats(): void {
     this.loading.set(true);
-    this.error.set(null);
-    this.dashboardSvc.getStats().subscribe({
-      next: (s) => {
-        this.stats.set(s);
-        this.loading.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
-        const apiErr = err.error as ApiError;
-        this.error.set(apiErr?.message ?? 'No se pudo cargar el panel de control.');
-        this.loading.set(false);
-      },
-    });
-  }
-
-  protected onView(docId: number): void {
-    this.router.navigate(['/documents', docId]);
+    this.dashboardSvc
+      .getStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (s) => {
+          this.stats.set(s);
+          this.loading.set(false);
+        },
+        error: (err: unknown) => {
+          this.loading.set(false);
+          this.notifications.httpError(
+            err,
+            $localize`:@@dashboard.loadError.title:No se pudo cargar el panel de control`,
+            $localize`:@@common.error.checkConnection:Verifique su conexión e intente nuevamente.`,
+          );
+        },
+      });
   }
 
   protected onDownload(doc: RecentDocumentItem): void {
-    this.documentsSvc.download(doc.id).subscribe({
-      next: (response) => {
-        const blob = response.body!;
-        const header = response.headers.get('Content-Disposition');
-        const filename =
-          parseFilenameFromContentDisposition(header) ??
-          buildFallbackFilename(doc.title, doc.fileFormat);
-        triggerBlobDownload(blob, filename);
-      },
-      error: async (err: HttpErrorResponse) => {
-        const apiErr = await parseBlobError(err);
-        this.notifications.error(
-          'Error al descargar',
-          apiErr?.message ?? 'No se pudo descargar el documento.',
-        );
-      },
-    });
+    this.downloads.download(doc);
   }
 
   protected onUploadDoc(): void {
@@ -137,14 +120,15 @@ export class DashboardComponent implements OnInit {
       UploadDocumentDialogResult
     >(UploadDocumentDialogComponent, {
       data: {},
-      width: '620px',
-      maxWidth: '95vw',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_LG,
     });
-    ref.afterClosed().subscribe((result) => {
-      if (result?.kind === 'uploaded') {
-        this.loadStats();
-      }
-    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.kind === 'uploaded') {
+          this.loadStats();
+        }
+      });
   }
 }

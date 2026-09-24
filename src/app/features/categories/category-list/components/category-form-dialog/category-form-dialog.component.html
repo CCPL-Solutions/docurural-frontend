@@ -1,7 +1,13 @@
 <div class="dialog-container">
   <div class="dialog-header">
     <h2 class="dialog-title">{{ title() }}</h2>
-    <button class="dialog-close" type="button" (click)="cancel()" aria-label="Cerrar formulario">
+    <button
+      class="dialog-close"
+      type="button"
+      (click)="cancel()"
+      aria-label="Cerrar formulario"
+      i18n-aria-label="@@common.closeForm"
+    >
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -11,11 +17,20 @@
   }
 
   @if (showDocumentBanner()) {
-    <app-alert variant="info" class="dialog-alert">
-      <strong>{{ documentCount() }}</strong>
-      {{ documentCount() === 1 ? 'documento está clasificado' : 'documentos están clasificados' }}
-      en esta categoría. Conservarán su asociación con el nuevo nombre.
-    </app-alert>
+    <app-alert variant="info" class="dialog-alert"
+      ><ng-container i18n="@@categories.form.documentsBanner">{documentCount(), plural,
+        =1 {
+          <strong>1</strong>
+          documento está clasificado en esta categoría. Conservará su asociación con el nuevo
+          nombre.
+        }
+        other {
+          <strong>{{ documentCount() }}</strong>
+          documentos están clasificados en esta categoría. Conservarán su asociación con el nuevo
+          nombre.
+        }
+      }</ng-container></app-alert
+    >
   }
 
   <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
@@ -24,14 +39,14 @@
       <div class="field">
         <div class="field__label-row">
           <label class="field__label" for="name">
-            Nombre de la categoría
+            <ng-container i18n="@@categories.form.name">Nombre de la categoría</ng-container>
             <strong class="field__required" aria-hidden="true">*</strong>
           </label>
           <span
             class="field__counter"
-            [class.field__counter--over]="nameLen() > 100"
+            [class.field__counter--over]="nameLen() > maxNameLength"
             aria-hidden="true"
-            >{{ nameLen() }}/100</span
+            >{{ nameLen() }}/{{ maxNameLength }}</span
           >
         </div>
         <div
@@ -43,38 +58,38 @@
             id="name"
             type="text"
             formControlName="name"
-            maxlength="100"
+            [maxlength]="maxNameLength"
             autocomplete="off"
             placeholder="Ej. Proyectos Biotecnología"
+            i18n-placeholder="@@categories.form.name.placeholder"
             [attr.aria-required]="true"
             [attr.aria-invalid]="(form.controls.name.invalid && form.controls.name.touched) || null"
             aria-describedby="name-error name-hint"
           />
         </div>
-        @if (nameError(); as msg) {
-          <p class="field__error" id="name-error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        } @else {
-          <small class="field__hint" id="name-hint"
+        <app-field-error
+          [control]="form.controls.name"
+          [messages]="messages.name"
+          errorId="name-error"
+        >
+          <small class="field__hint" id="name-hint" i18n="@@categories.form.name.hint"
             >Entre 3 y 100 caracteres. Debe ser único en el sistema.</small
           >
-        }
+        </app-field-error>
       </div>
 
       <!-- Descripción -->
       <div class="field">
         <div class="field__label-row">
           <label class="field__label" for="description">
-            Descripción
-            <span class="field__optional">(opcional)</span>
+            <ng-container i18n="@@document.field.description">Descripción</ng-container>
+            <span class="field__optional" i18n="@@common.optional">(opcional)</span>
           </label>
           <span
             class="field__counter"
-            [class.field__counter--over]="descLen() > 500"
+            [class.field__counter--over]="descLen() > maxDescriptionLength"
             aria-hidden="true"
-            >{{ descLen() }}/500</span
+            >{{ descLen() }}/{{ maxDescriptionLength }}</span
           >
         </div>
         <div
@@ -88,37 +103,42 @@
             id="description"
             formControlName="description"
             rows="4"
-            maxlength="500"
+            [maxlength]="maxDescriptionLength"
             autocomplete="off"
             placeholder="Describa brevemente qué tipo de documentos agrupa esta categoría (opcional)."
+            i18n-placeholder="@@categories.form.description.placeholder"
             [attr.aria-invalid]="
               (form.controls.description.invalid && form.controls.description.touched) || null
             "
             aria-describedby="desc-error desc-hint"
           ></textarea>
         </div>
-        @if (descriptionError(); as msg) {
-          <p class="field__error" id="desc-error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        } @else {
-          <small class="field__hint" id="desc-hint"
+        <app-field-error
+          [control]="form.controls.description"
+          [messages]="messages.description"
+          errorId="desc-error"
+        >
+          <small class="field__hint" id="desc-hint" i18n="@@categories.form.description.hint"
             >Máximo 500 caracteres. Ayuda a otros administradores a clasificar correctamente.</small
           >
-        }
+        </app-field-error>
       </div>
 
       <!-- Sensibilidad por defecto -->
       <div class="field sensitivity-field">
-        <label class="field__label sensitivity-field__label">
+        <span class="field__label sensitivity-field__label">
           <mat-icon class="sensitivity-field__label-icon" aria-hidden="true"
             >verified_user</mat-icon
           >
-          Sensibilidad por defecto
+          <ng-container i18n="@@categories.field.defaultSensitivity"
+            >Sensibilidad por defecto</ng-container
+          >
           <strong class="field__required" aria-hidden="true">*</strong>
-        </label>
-        <small class="field__hint sensitivity-field__hint">
+        </span>
+        <small
+          class="field__hint sensitivity-field__hint"
+          i18n="@@categories.form.sensitivity.hint"
+        >
           Nivel mínimo que heredan automáticamente los documentos cargados en esta categoría. Solo
           administradores pueden modificarlo.
         </small>
@@ -129,10 +149,10 @@
               <mat-icon aria-hidden="true">warning</mat-icon>
             </div>
             <div class="level-banner__body">
-              <p class="level-banner__title">
+              <p class="level-banner__title" i18n="@@categories.form.raise.title">
                 Está subiendo el nivel: {{ levelLabelFrom() }} → {{ levelLabelTo() }}
               </p>
-              <p class="level-banner__text">
+              <p class="level-banner__text" i18n="@@categories.form.raise.text">
                 Al guardar, los <strong>{{ documentCount() }} documentos</strong> de esta categoría
                 que tengan un nivel inferior serán <strong>actualizados automáticamente</strong>
                 al nuevo nivel mínimo. Los documentos pasarán a ser visibles únicamente para
@@ -144,7 +164,9 @@
                   [checked]="confirmChecked()"
                   (change)="confirmChecked.set($any($event.target).checked)"
                 />
-                Confirmo que entiendo el alcance de este cambio.
+                <ng-container i18n="@@categories.form.raise.confirm"
+                  >Confirmo que entiendo el alcance de este cambio.</ng-container
+                >
               </label>
             </div>
           </div>
@@ -154,10 +176,10 @@
               <mat-icon aria-hidden="true">info</mat-icon>
             </div>
             <div class="level-banner__body">
-              <p class="level-banner__title">
+              <p class="level-banner__title" i18n="@@categories.form.lower.title">
                 Está bajando el nivel: {{ levelLabelFrom() }} → {{ levelLabelTo() }}
               </p>
-              <p class="level-banner__text">
+              <p class="level-banner__text" i18n="@@categories.form.lower.text">
                 Esta acción no modificará automáticamente los documentos existentes. Cada documento
                 conservará su nivel actual. Solo los <strong>nuevos documentos</strong>
                 que se carguen heredarán el nuevo nivel inferior.
@@ -167,7 +189,7 @@
         } @else if (warningKind() === 'create-sensitive') {
           <div class="level-banner level-banner--warn level-banner--simple" role="status">
             <mat-icon aria-hidden="true">warning</mat-icon>
-            <p>
+            <p i18n="@@categories.form.createSensitive.text">
               Esta categoría queda marcada como <strong>{{ levelLabelTo() }}</strong
               >. Todos los documentos que se carguen en ella serán visibles únicamente para
               administradores.
@@ -179,19 +201,17 @@
           <app-sensitivity-radio formControlName="defaultSensitivityLevel" [compact]="true" />
         </div>
 
-        @if (sensitivityError(); as msg) {
-          <p class="field__error">
-            <mat-icon aria-hidden="true">error</mat-icon>
-            {{ msg }}
-          </p>
-        }
+        <app-field-error
+          [control]="form.controls.defaultSensitivityLevel"
+          [messages]="messages.defaultSensitivityLevel"
+        />
       </div>
     </div>
     <!-- /dialog-fields -->
 
     <div class="dialog-footer">
       <app-button variant="secondary" type="button" [disabled]="loading()" (click)="cancel()">
-        Cancelar
+        <ng-container i18n="@@common.cancel">Cancelar</ng-container>
       </app-button>
       <app-button
         [variant]="primaryVariant()"

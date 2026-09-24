@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
-import { AuthState } from '../models/auth.models';
+import { environment } from '@env/environment';
+import { AuthState } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthStorageService {

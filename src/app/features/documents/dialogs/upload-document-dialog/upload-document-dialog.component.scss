@@ -1,0 +1,106 @@
+@use 'breakpoints' as bp;
+@use 'icons' as icon;
+
+// Estilos específicos del dialog de carga de un único documento.
+// Los estilos de estructura (dialog-shell, form-field, dropzone base, mat-select)
+// son globales y viven en src/styles/.
+
+// ─── Archivo seleccionado (dropzone en estado --filled) ───────────────────────
+.dropzone__filled {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+}
+
+.dropzone__file-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.dropzone__file-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropzone__file-size {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.dropzone__file-actions {
+  display: inline-flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.dropzone__replace-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-1-5) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--easing-standard);
+
+  mat-icon {
+    @include icon.size(14px);
+  }
+
+  &:hover {
+    background: var(--color-bg-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}
+
+.dropzone__remove-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-error);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--duration-fast) var(--easing-standard);
+
+  mat-icon {
+    @include icon.size(16px);
+  }
+
+  &:hover {
+    background: var(--color-error-light);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring-error);
+  }
+}
+
+@include bp.sm {
+  .dropzone__filled {
+    flex-wrap: wrap;
+  }
+}

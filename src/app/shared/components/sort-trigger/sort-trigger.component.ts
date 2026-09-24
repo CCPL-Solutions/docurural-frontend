@@ -9,7 +9,6 @@ export interface SortOptionItem {
 
 @Component({
   selector: 'app-sort-trigger',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, MatMenuModule],
   // Los estilos de .sort-trigger son globales (_list-view.scss) — no styleUrl necesario.
@@ -20,10 +19,11 @@ export interface SortOptionItem {
       [matMenuTriggerFor]="menu"
       [disabled]="disabled()"
       aria-label="Ordenar listado"
+      i18n-aria-label="@@sortTrigger.ariaLabel"
     >
       <mat-icon class="sort-trigger__icon" aria-hidden="true">swap_vert</mat-icon>
       <span class="sort-trigger__label">
-        <span class="sort-trigger__prefix">Ordenar:</span>
+        <span class="sort-trigger__prefix" i18n="@@sortTrigger.prefix">Ordenar:</span>
         {{ activeLabel() }}
       </span>
       <mat-icon class="sort-trigger__chevron" aria-hidden="true">expand_more</mat-icon>
