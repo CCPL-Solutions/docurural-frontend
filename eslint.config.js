@@ -1,6 +1,6 @@
 // @ts-check
 // Configuración de ESLint (angular-eslint 21). Es el mecanismo de verificación automática de las
-// reglas del proyecto (docs/constitucion-borrador.md). Cada regla en 'warn' indica la fase de
+// reglas del proyecto (.specify/memory/constitution.md). Cada regla en 'warn' indica la fase de
 // docs/plan-remediacion.md que la corrige y la pasa a 'error'.
 const eslint = require('@eslint/js');
 const { defineConfig } = require('eslint/config');

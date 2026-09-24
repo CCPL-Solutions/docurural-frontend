@@ -1,7 +1,7 @@
 // Configuración base de Vitest que el builder `@angular/build:unit-test` fusiona con la suya
 // (`runnerConfig` en angular.json). Solo define la cobertura: el resto lo gestiona Angular.
 //
-// Umbrales (regla CAL-07 de docs/constitucion-borrador.md): funcionan como trinquete, así que
+// Umbrales (regla CAL-07 de .specify/memory/constitution.md): funcionan como trinquete, así que
 // solo pueden subir. Objetivo final: ≥ 80 % de líneas en core/ y shared/utils/, y ≥ 70 % global.
 import { defineConfig } from 'vitest/config';
 

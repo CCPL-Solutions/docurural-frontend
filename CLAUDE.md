@@ -4,13 +4,17 @@ Guía para agentes de código (Claude Code) y personas que trabajan en este repo
 Frontend Angular de DocuRural (gestión documental de la IERD Mina y Ticha). Consume la API de
 `docurural-backend`.
 
-> **Fuente de verdad de las reglas:** `docs/constitucion-borrador.md` (borrador de la constitución
-> de Spec Kit). Este archivo solo resume lo imprescindible y **no** debe duplicar esas reglas: si
-> algo cambia, se cambia allí.
+> **Fuente de verdad de las reglas:** `.specify/memory/constitution.md` (constitución de Spec Kit).
+> Este archivo solo resume lo imprescindible y **no** debe duplicar esas reglas: si algo cambia, se
+> cambia allí. Si este resumen y la constitución difieren, manda la constitución.
 >
-> **Remediación en curso:** `docs/plan-remediacion.md` (diagnóstico en
-> `docs/auditoria-consistencia.md`). Parte del código aún no cumple las reglas; no copies un patrón
-> solo porque ya exista: comprueba la regla.
+> **Remediación:** las fases 0–8 de `docs/plan-remediacion.md` están cerradas (diagnóstico en
+> `docs/auditoria-consistencia.md`; el borrador `docs/constitucion-borrador.md` queda como
+> histórico). Algunas reglas tienen deuda conocida (UI-08, CAL-05, CAL-07, RUT-03); no copies un
+> patrón solo porque ya exista: comprueba la regla.
+>
+> **Flujo de trabajo:** los cambios nuevos siguen Spec Kit (`/speckit-specify` → `/speckit-clarify`
+> → `/speckit-plan` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`).
 
 ## Stack
 
