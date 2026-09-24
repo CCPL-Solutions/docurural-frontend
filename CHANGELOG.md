@@ -7,6 +7,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-09-23
+
 ### Added
 
 - Añadido pipeline de CI/CD con GitHub Actions: workflow de integración continua
