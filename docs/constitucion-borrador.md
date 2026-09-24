@@ -1,5 +1,10 @@
 # Borrador de reglas del proyecto — insumo para la constitución de Spec Kit
 
+> **Documento histórico, no vigente.** Las reglas se ratificaron el 2026-09-23 en
+> `.specify/memory/constitution.md` (v1.0.0), junto con las candidatas del final de este
+> documento. Ante cualquier diferencia, manda la constitución. Este borrador se conserva por la
+> trazabilidad de los estados y las evidencias de la remediación.
+
 > Fecha: 2026-09-22 (estado actualizado al cerrar la Fase 8, 2026-09-23) · Base: decisiones cerradas en el checkpoint (D1–D40 según las recomendaciones de `docs/auditoria-consistencia.md`, respuestas P1–P13 y Q1–Q4 de `docs/plan-remediacion.md`).
 > Alcance: Angular 21.2, zoneless. Idioma del documento: español (P4).
 > Cada regla indica su **estado hoy** (✅ Cumple · 🟡 Parcial · ❌ No cumple), la evidencia, **cómo se verifica** y la **fase** de `docs/plan-remediacion.md` que la hace cumplir.

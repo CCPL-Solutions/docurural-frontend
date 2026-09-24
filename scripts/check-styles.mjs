@@ -1,5 +1,6 @@
-// Verifica las reglas de estilos del proyecto que ESLint no cubre (docs/constitucion-borrador.md,
-// §7: UI-01, UI-03, UI-05, UI-09). Sin dependencias: recorre src/ y cuenta literales prohibidos.
+// Verifica las reglas de estilos del proyecto que ESLint no cubre (.specify/memory/constitution.md,
+// principio VII: UI-01, UI-03, UI-05, UI-09). Sin dependencias: recorre src/ y cuenta literales
+// prohibidos.
 //
 // Uso: node scripts/check-styles.mjs [--verbose]
 // Una categoría con `strict: true` hace fallar el proceso (y la CI) si tiene hallazgos. Desde la
