@@ -33,14 +33,14 @@ sesión (FR-017).
 | `canApprove` | `boolean` | Nuevo | Valor efectivo tras el retiro automático; decide el toast de retirada. |
 
 `CreateUserResponse` lo hereda de `User`. `UserFormDialogResult` (`kind: 'updated'`) pasa a usar
-`UpdateUserResponse` sin `message` o un tipo equivalente con `canApprove`.
+`Omit<UpdateUserResponse, 'message'>`, que incluye `canApprove`.
 
 ## Estado del formulario (`UserFormDialogComponent`)
 
 | Elemento | Tipo | Origen | Regla |
 |----------|------|--------|-------|
 | `form.controls.canApprove` | `FormControl<boolean>` | `fb.nonNullable`, `false` | En edición se rellena con `user.canApprove`. |
-| `role` (signal) | `Role \| ''` | `toSignal(role.valueChanges)` | Deriva ayuda, aviso y habilitación. |
+| `selectedRole` (signal) | `Role \| ''` | `toSignal(role.valueChanges)` | Deriva ayuda, aviso y habilitación. |
 | `rememberedCanApprove` | `boolean` (campo privado) | Valor al entrar en READER | Se restaura al salir de READER (FR-006). |
 | `approvalHint` | `computed` | rol + autoedición | Texto por rol (FR-003) o de autoedición (FR-008). |
 | `showRevokeWarning` | `computed` | edición, no autoedición, `user.canApprove`, rol READER | FR-005. |

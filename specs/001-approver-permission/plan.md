@@ -58,7 +58,7 @@ nuevas); contrato del backend en `feature/hu-32`
 | FRM-01/05 | Control en `fb.nonNullable`; casilla con `formControlName` (sin `ngModel`) | ✅ |
 | UI-01/02/09 | Colores `--color-purple-*` y `--color-warning-*` ya existentes; espaciado con tokens | ✅ |
 | UI-05/10 | Casilla envuelta en `<label>`; ayuda con `aria-describedby`; aviso con `<app-alert>` (`role="alert"`) | ✅ |
-| UI-08 | Textos de ayuda y aviso ≥ `--text-base` salvo la etiqueta (badge, permitido) | ✅ (revisar en la implementación) |
+| UI-08 | Etiqueta de la casilla, texto de ayuda y aviso con `--text-base` (16 px), sin reutilizar `field__hint` (14 px); solo la etiqueta "Aprobador" (badge) usa un token menor | ✅ |
 | CAL-01/02 | Textos en usted, `i18n`/`$localize` con IDs `@@users.*`; `messages.en.xlf` actualizado | ✅ |
 | CAL-07/08 | Specs nuevas y ampliadas; fixture E2E y captura `users` actualizados | ✅ |
 | FR-017 | `AuthenticatedUser` no cambia; nada lee el permiso de la sesión | ✅ |

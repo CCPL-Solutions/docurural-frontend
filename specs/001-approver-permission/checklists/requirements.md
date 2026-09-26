@@ -33,8 +33,9 @@
 
 - La autoedición del permiso se resolvió con la opción B (bloqueada); consta en Clarifications.
 - El hand off de Claude Design (`Users.html`, secciones HU-32) se leyó e incorporó: textos de
-  ayuda por rol, aviso de retirada, toast específico, etiqueta atenuada para inactivos, contador de
-  aprobadores activos y textos en la confirmación de activar/desactivar.
+  ayuda por rol, aviso de retirada, toast específico, etiqueta atenuada para inactivos y textos en la
+  confirmación de activar/desactivar. El contador de aprobadores activos quedó fuera
+  (Clarifications).
 - Las menciones a `docurural-backend`, `EDIT_USER` y los artboards están en Assumptions como
   dependencias y referencias, no como decisiones de implementación.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`

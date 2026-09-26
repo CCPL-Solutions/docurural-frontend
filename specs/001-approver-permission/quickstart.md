@@ -19,7 +19,7 @@ npm start          # http://localhost:4200
 | 1 | "Nuevo usuario" | Bloque "Aprobación de documentos", casilla desmarcada | US2-1, FR-001 |
 | 2 | Crear EDITOR con la casilla marcada | Toast de creación; la fila muestra "Aprobador" | US2-2, FR-010 |
 | 3 | En creación, elegir Administrador | Texto "El rol Administrador no incluye este permiso…" | US1-3, FR-003 |
-| 4 | En creación, elegir Lector | Casilla desmarcada y deshabilitada, "Los lectores no pueden aprobar documentos" | US3-1, FR-004 |
+| 4 | En creación, elegir Lector | Casilla desmarcada y deshabilitada, "Los lectores no pueden aprobar documentos." | US3-1, FR-004 |
 | 5 | Editar el EDITOR aprobador → rol Lector | Casilla desmarcada y bloqueada, aviso de retirada con su nombre | US3-2, FR-005 |
 | 6 | En el mismo formulario → rol Editor | Casilla marcada de nuevo, sin aviso | US3-3, FR-006 |
 | 7 | Repetir 5 y guardar | Toast "Se retiró el permiso para aprobar documentos."; sin etiqueta | US3-4, FR-007 |

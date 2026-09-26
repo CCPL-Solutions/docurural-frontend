@@ -78,7 +78,7 @@ la etiqueta "Aprobador".
 ### User Story 3 - Impedir el permiso a los lectores (Priority: P1)
 
 El permiso solo puede asignarse a usuarios ADMIN o EDITOR. Cuando el rol seleccionado es READER, la
-casilla aparece deshabilitada con el texto "Los lectores no pueden aprobar documentos". Si a un
+casilla aparece deshabilitada con el texto "Los lectores no pueden aprobar documentos.". Si a un
 usuario con el permiso se le cambia el rol a READER, la casilla se desmarca y el formulario avisa
 al administrador antes de guardar.
 
@@ -93,7 +93,7 @@ tiene el permiso y el aviso de éxito lo menciona.
 
 1. **Given** el formulario (creación o edición) tiene el rol READER seleccionado, **When** se
    muestra la casilla, **Then** aparece desmarcada, deshabilitada y con el texto "Los lectores no
-   pueden aprobar documentos".
+   pueden aprobar documentos.".
 2. **Given** un administrador edita a un usuario que tenía el permiso, **When** cambia el rol a
    READER, **Then** la casilla se desmarca y bloquea, y bajo ella aparece el aviso "Se retirará el
    permiso de aprobación. Al cambiar el rol a Lector, [nombre] dejará de poder aprobar documentos
@@ -171,8 +171,11 @@ permiso, y comprobar que el texto extra solo aparece en el primer caso.
 - **Guardando**: mientras se guarda, la casilla queda bloqueada como el resto del formulario.
 - **Error al guardar**: si el guardado falla, el formulario conserva el valor de la casilla y el
   aviso de retirada (si aplica); el error se comunica como el resto de errores del formulario.
-- **Rechazo del servidor**: si el servidor rechaza la combinación READER + permiso o un cambio del
-  propio permiso, se muestra su mensaje de error y no se guarda nada.
+- **Rechazo del servidor**: si el servidor rechaza la combinación READER + permiso, se muestra su
+  mensaje de error y no se guarda nada.
+- **Propio permiso en el servidor**: el servidor no rechaza hoy que un ADMIN cambie su propio
+  permiso. El formulario lo evita no enviando el permiso en la autoedición (el servidor conserva el
+  valor); el rechazo en el servidor queda como seguimiento de `docurural-backend`.
 - **Usuarios existentes antes de la HU**: todos aparecen sin el permiso hasta que un administrador
   lo conceda.
 - **Retirada con vistos buenos previos**: retirar el permiso no altera los vistos buenos ya
@@ -192,7 +195,7 @@ permiso, y comprobar que el texto extra solo aparece en el primer caso.
 - **FR-003**: La casilla DEBE ir acompañada de un texto de ayuda según el rol seleccionado: para
   ADMIN, "El rol Administrador no incluye este permiso: márquelo solo si esta persona debe
   aprobar."; para EDITOR, "Podrá revisar y aprobar los documentos enviados a aprobación."; para
-  READER, "Los lectores no pueden aprobar documentos".
+  READER, "Los lectores no pueden aprobar documentos." (con punto final, CAL-01).
 - **FR-004**: Con el rol READER seleccionado, la casilla DEBE aparecer desmarcada y deshabilitada.
 - **FR-005**: Al cambiar a READER el rol de un usuario que tenía el permiso guardado, el formulario
   DEBE mostrar, antes de guardar, el aviso "Se retirará el permiso de aprobación. Al cambiar el rol
@@ -268,8 +271,8 @@ permiso, y comprobar que el texto extra solo aparece en el primer caso.
   con `EDIT_USER` y `can_approve: anterior → nuevo` (criterio 8) son responsabilidad de
   `docurural-backend`.
 - **Dependencia del backend**: la API de usuarios expone el permiso en el listado, la creación y la
-  edición (peticiones y respuestas). Los nombres exactos de los campos se confirman en el plan contra el contrato
-  del backend.
+  edición (peticiones y respuestas) con el campo booleano `canApprove` (ver
+  `contracts/users-api.md`).
 - **Diseño**: la apariencia sigue el hand off de Claude Design (`Users.html`, secciones HU-32:
   artboards 4.1–4.9 y el prototipo interactivo), adaptada a los componentes y tokens del proyecto.
   El diseño no contempla el bloqueo en la autoedición; se aplica la decisión de Clarifications con

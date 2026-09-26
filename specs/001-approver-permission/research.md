@@ -136,7 +136,9 @@ el contrato ya implementado en `docurural-backend` (rama `feature/hu-32`, commit
   `@@users.form.approval.revokeBody`, `@@users.toast.updated.approvalRevoked`,
   `@@users.list.approverBadge`, `@@users.list.approverInactive`,
   `@@users.toggle.approverDeactivate`, `@@users.toggle.approverActivate`.
-  El aviso interpola el nombre con un placeholder (`{{ name }}` en plantilla).
+  El aviso interpola el nombre con un placeholder (`{{ name }}` en plantilla). La pista para
+  lectores lleva punto final ("Los lectores no pueden aprobar documentos.", CAL-01); el mensaje del
+  backend se muestra tal como llega.
 - **Rationale**: CAL-02; `npm run extract-i18n` y `messages.en.xlf` actualizados (definición de
   terminado).
 
