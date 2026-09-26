@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-23
 
-**Status**: Draft
+**Status**: Implemented (validada en Desarrollo el 2026-09-25)
 
 **Input**: User description: "HU-32 — Permiso para aprobar documentos (RF-07, prioridad Alta, v2.0 — Flujo de aprobación). Como administrador del sistema, quiero indicar qué usuarios pueden revisar y aprobar documentos, para que la responsabilidad de aprobar recaiga solo en las personas autorizadas por la institución, como la rectoría o la coordinación. Incluye el hand off de Claude Design del proyecto `Users.html` (secciones HU-32)."
 
