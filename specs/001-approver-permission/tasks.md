@@ -169,6 +169,7 @@ flujos, y el plan los detalla en research R12. Patrón zoneless: _act → `await
 - [X] T034 Ejecutar `npm run build` (ambos idiomas, `i18nMissingTranslation: error`) y `npm run e2e:ci`
 - [X] T035 En Windows, regenerar la captura del listado con `npm run e2e -- --update-snapshots` (cambia a propósito por la etiqueta "Aprobador") y revisar el diff de `e2e/visual.spec.ts-snapshots/`
 - [ ] T036 Validar manualmente los 14 escenarios de `specs/001-approver-permission/quickstart.md` contra el backend `feature/hu-32`, incluida la comprobación de red (autoedición sin `canApprove`) y la revisión de UI-08 (cuerpo ≥ 16 px en ayuda y aviso)
+- [X] T037 Corrección tras la validación en Desarrollo: en móvil el formulario de usuario no hacía scroll y los botones quedaban fuera de la vista. Envolver los campos de `src/app/features/users/user-form-dialog/user-form-dialog.component.html` en `<form class="dialog-form">` y `<div class="dialog-fields">` (patrón de `_dialog-shell.scss`), con `.dialog-footer` fuera del área con scroll
 
 ---
 

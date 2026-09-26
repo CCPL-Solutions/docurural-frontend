@@ -16,227 +16,233 @@
     <app-alert variant="error" class="dialog-alert">{{ submitError() }}</app-alert>
   }
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-    <!-- Nombre completo -->
-    <div class="field">
-      <label class="field__label" for="fullName">
-        <ng-container i18n="@@users.form.fullName">Nombre completo</ng-container>
-        <strong class="field__required" aria-hidden="true">*</strong>
-      </label>
-      <div
-        class="field__control"
-        [class.field__control--error]="
-          form.controls.fullName.invalid && form.controls.fullName.touched
-        "
-      >
-        <input
-          class="field__input"
-          id="fullName"
-          type="text"
-          formControlName="fullName"
-          autocomplete="name"
-          placeholder="Nombre y apellidos"
-          i18n-placeholder="@@users.form.fullName.placeholder"
-          [attr.aria-required]="true"
-          [attr.aria-invalid]="
-            (form.controls.fullName.invalid && form.controls.fullName.touched) || null
-          "
-        />
-      </div>
-      <app-field-error [control]="form.controls.fullName" [messages]="messages.fullName" />
-    </div>
-
-    <!-- Correo electrónico -->
-    <div class="field">
-      <label class="field__label" for="email">
-        <ng-container i18n="@@users.form.email">Correo electrónico</ng-container>
-        <strong class="field__required" aria-hidden="true">*</strong>
-      </label>
-      <div
-        class="field__control"
-        [class.field__control--error]="form.controls.email.invalid && form.controls.email.touched"
-      >
-        <input
-          class="field__input"
-          id="email"
-          type="email"
-          formControlName="email"
-          autocomplete="email"
-          placeholder="correo@minayticha.edu.co"
-          i18n-placeholder="@@login.email.placeholder"
-          [attr.aria-required]="true"
-          [attr.aria-invalid]="(form.controls.email.invalid && form.controls.email.touched) || null"
-        />
-      </div>
-      <app-field-error [control]="form.controls.email" [messages]="messages.email" />
-    </div>
-
-    <!-- Rol -->
-    <div class="field">
-      <label class="field__label" for="role">
-        <ng-container i18n="@@users.form.role">Rol</ng-container>
-        <strong class="field__required" aria-hidden="true">*</strong>
-      </label>
-      <div
-        class="field__control"
-        [class.field__control--error]="form.controls.role.invalid && form.controls.role.touched"
-        matTooltip="No puede cambiar su propio rol"
-        i18n-matTooltip="@@users.form.role.selfTooltip"
-        [matTooltipDisabled]="!isSelfEdit()"
-        matTooltipPosition="above"
-      >
-        <select
-          class="field__select"
-          id="role"
-          formControlName="role"
-          [attr.aria-required]="true"
-          [attr.aria-invalid]="(form.controls.role.invalid && form.controls.role.touched) || null"
-        >
-          <option value="" disabled hidden i18n="@@users.form.role.placeholder">
-            Seleccione un rol
-          </option>
-          @for (opt of roleOptions; track opt[0]) {
-            <option [value]="opt[0]">{{ opt[1] }}</option>
-          }
-        </select>
-      </div>
-      <app-field-error [control]="form.controls.role" [messages]="messages.role" />
-    </div>
-
-    <!-- Contraseña -->
-    <div class="field field--password">
-      <label class="field__label" for="password">
-        <ng-container i18n="@@users.form.password">Contraseña</ng-container>
-        @if (isEdit()) {
-          <span class="field__optional" i18n="@@common.optional">(opcional)</span>
-        } @else {
+  <!-- Los campos hacen scroll y el pie queda fijo: en móvil el formulario supera el alto del diálogo. -->
+  <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="dialog-fields">
+      <!-- Nombre completo -->
+      <div class="field">
+        <label class="field__label" for="fullName">
+          <ng-container i18n="@@users.form.fullName">Nombre completo</ng-container>
           <strong class="field__required" aria-hidden="true">*</strong>
-        }
-      </label>
-      <div
-        class="field__control"
-        [class.field__control--error]="
-          form.controls.password.invalid && form.controls.password.touched
-        "
-      >
-        <input
-          class="field__input field__input--with-toggle"
-          id="password"
-          [type]="hidePassword() ? 'password' : 'text'"
-          formControlName="password"
-          autocomplete="new-password"
-          placeholder="••••••••"
-          [attr.aria-required]="!isEdit()"
-          [attr.aria-invalid]="
-            (form.controls.password.invalid && form.controls.password.touched) || null
+        </label>
+        <div
+          class="field__control"
+          [class.field__control--error]="
+            form.controls.fullName.invalid && form.controls.fullName.touched
           "
-        />
-        <button
-          class="field__toggle"
-          type="button"
-          (click)="hidePassword.set(!hidePassword())"
-          [attr.aria-label]="hidePassword() ? labels.showPassword : labels.hidePassword"
         >
-          <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
-        </button>
+          <input
+            class="field__input"
+            id="fullName"
+            type="text"
+            formControlName="fullName"
+            autocomplete="name"
+            placeholder="Nombre y apellidos"
+            i18n-placeholder="@@users.form.fullName.placeholder"
+            [attr.aria-required]="true"
+            [attr.aria-invalid]="
+              (form.controls.fullName.invalid && form.controls.fullName.touched) || null
+            "
+          />
+        </div>
+        <app-field-error [control]="form.controls.fullName" [messages]="messages.fullName" />
       </div>
-      @if (isEdit()) {
-        <small class="field__hint" i18n="@@users.form.password.keepHint"
-          >Déjelo en blanco para mantener la contraseña actual.</small
-        >
-      }
-      <small class="field__hint" i18n="@@users.form.password.rulesHint"
-        >Mínimo 12 caracteres, con una mayúscula, una minúscula, un número y un símbolo.</small
-      >
-      <app-field-error [control]="form.controls.password" [messages]="messages.password" />
-    </div>
 
-    <!-- Confirmar contraseña -->
-    <div class="field">
-      <label class="field__label" for="confirmPassword">
-        <ng-container i18n="@@users.form.confirmPassword">Confirmar contraseña</ng-container>
-        @if (!isEdit()) {
+      <!-- Correo electrónico -->
+      <div class="field">
+        <label class="field__label" for="email">
+          <ng-container i18n="@@users.form.email">Correo electrónico</ng-container>
           <strong class="field__required" aria-hidden="true">*</strong>
-        }
-      </label>
-      <div
-        class="field__control"
-        [class.field__control--error]="
-          (form.controls.confirmPassword.invalid || form.hasError('passwordMismatch')) &&
-          form.controls.confirmPassword.touched
-        "
-      >
-        <input
-          class="field__input field__input--with-toggle"
-          id="confirmPassword"
-          [type]="hideConfirmPassword() ? 'password' : 'text'"
-          formControlName="confirmPassword"
-          autocomplete="new-password"
-          placeholder="••••••••"
-          [attr.aria-required]="!isEdit()"
-          [attr.aria-invalid]="
-            ((form.controls.confirmPassword.invalid || form.hasError('passwordMismatch')) &&
-              form.controls.confirmPassword.touched) ||
-            null
-          "
-        />
-        <button
-          class="field__toggle"
-          type="button"
-          (click)="hideConfirmPassword.set(!hideConfirmPassword())"
-          [attr.aria-label]="
-            hideConfirmPassword() ? labels.showConfirmation : labels.hideConfirmation
-          "
+        </label>
+        <div
+          class="field__control"
+          [class.field__control--error]="form.controls.email.invalid && form.controls.email.touched"
         >
-          <mat-icon>{{ hideConfirmPassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
-        </button>
+          <input
+            class="field__input"
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            placeholder="correo@minayticha.edu.co"
+            i18n-placeholder="@@login.email.placeholder"
+            [attr.aria-required]="true"
+            [attr.aria-invalid]="
+              (form.controls.email.invalid && form.controls.email.touched) || null
+            "
+          />
+        </div>
+        <app-field-error [control]="form.controls.email" [messages]="messages.email" />
       </div>
-      <app-field-error
-        [control]="form.controls.confirmPassword"
-        [messages]="messages.confirmPassword"
-        [groupErrors]="['passwordMismatch']"
-      />
-    </div>
 
-    <!-- Aprobación de documentos (HU-32) -->
-    <div class="field approval" role="group" aria-labelledby="approval-title">
-      <span class="field__label" id="approval-title" i18n="@@users.form.approval.section"
-        >Aprobación de documentos</span
-      >
-      <label class="approval__card" [class.approval__card--locked]="approvalLocked()">
-        <input
-          class="approval__checkbox"
-          id="canApprove"
-          type="checkbox"
-          formControlName="canApprove"
-          aria-describedby="canApprove-hint"
-        />
-        <span class="approval__text">
-          <span class="approval__label" i18n="@@users.form.approval.label"
-            >Puede aprobar documentos</span
+      <!-- Rol -->
+      <div class="field">
+        <label class="field__label" for="role">
+          <ng-container i18n="@@users.form.role">Rol</ng-container>
+          <strong class="field__required" aria-hidden="true">*</strong>
+        </label>
+        <div
+          class="field__control"
+          [class.field__control--error]="form.controls.role.invalid && form.controls.role.touched"
+          matTooltip="No puede cambiar su propio rol"
+          i18n-matTooltip="@@users.form.role.selfTooltip"
+          [matTooltipDisabled]="!isSelfEdit()"
+          matTooltipPosition="above"
+        >
+          <select
+            class="field__select"
+            id="role"
+            formControlName="role"
+            [attr.aria-required]="true"
+            [attr.aria-invalid]="(form.controls.role.invalid && form.controls.role.touched) || null"
           >
-          <span class="approval__hint">
-            @if (approvalLocked()) {
-              <mat-icon class="approval__lock" aria-hidden="true">lock</mat-icon>
+            <option value="" disabled hidden i18n="@@users.form.role.placeholder">
+              Seleccione un rol
+            </option>
+            @for (opt of roleOptions; track opt[0]) {
+              <option [value]="opt[0]">{{ opt[1] }}</option>
             }
-            <span id="canApprove-hint">{{ approvalHint() }}</span>
-          </span>
-        </span>
-      </label>
-      @if (showRevokeWarning()) {
-        <app-alert
-          class="approval__warning"
-          variant="warning"
-          title="Se retirará el permiso de aprobación."
-          i18n-title="@@users.form.approval.revokeTitle"
+          </select>
+        </div>
+        <app-field-error [control]="form.controls.role" [messages]="messages.role" />
+      </div>
+
+      <!-- Contraseña -->
+      <div class="field field--password">
+        <label class="field__label" for="password">
+          <ng-container i18n="@@users.form.password">Contraseña</ng-container>
+          @if (isEdit()) {
+            <span class="field__optional" i18n="@@common.optional">(opcional)</span>
+          } @else {
+            <strong class="field__required" aria-hidden="true">*</strong>
+          }
+        </label>
+        <div
+          class="field__control"
+          [class.field__control--error]="
+            form.controls.password.invalid && form.controls.password.touched
+          "
         >
-          <ng-container i18n="@@users.form.approval.revokeBody"
-            >Al cambiar el rol a Lector, {{ data.user?.fullName }} dejará de poder aprobar
-            documentos cuando guarde los cambios.</ng-container
+          <input
+            class="field__input field__input--with-toggle"
+            id="password"
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="new-password"
+            placeholder="••••••••"
+            [attr.aria-required]="!isEdit()"
+            [attr.aria-invalid]="
+              (form.controls.password.invalid && form.controls.password.touched) || null
+            "
+          />
+          <button
+            class="field__toggle"
+            type="button"
+            (click)="hidePassword.set(!hidePassword())"
+            [attr.aria-label]="hidePassword() ? labels.showPassword : labels.hidePassword"
           >
-        </app-alert>
-      }
+            <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+        </div>
+        @if (isEdit()) {
+          <small class="field__hint" i18n="@@users.form.password.keepHint"
+            >Déjelo en blanco para mantener la contraseña actual.</small
+          >
+        }
+        <small class="field__hint" i18n="@@users.form.password.rulesHint"
+          >Mínimo 12 caracteres, con una mayúscula, una minúscula, un número y un símbolo.</small
+        >
+        <app-field-error [control]="form.controls.password" [messages]="messages.password" />
+      </div>
+
+      <!-- Confirmar contraseña -->
+      <div class="field">
+        <label class="field__label" for="confirmPassword">
+          <ng-container i18n="@@users.form.confirmPassword">Confirmar contraseña</ng-container>
+          @if (!isEdit()) {
+            <strong class="field__required" aria-hidden="true">*</strong>
+          }
+        </label>
+        <div
+          class="field__control"
+          [class.field__control--error]="
+            (form.controls.confirmPassword.invalid || form.hasError('passwordMismatch')) &&
+            form.controls.confirmPassword.touched
+          "
+        >
+          <input
+            class="field__input field__input--with-toggle"
+            id="confirmPassword"
+            [type]="hideConfirmPassword() ? 'password' : 'text'"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+            placeholder="••••••••"
+            [attr.aria-required]="!isEdit()"
+            [attr.aria-invalid]="
+              ((form.controls.confirmPassword.invalid || form.hasError('passwordMismatch')) &&
+                form.controls.confirmPassword.touched) ||
+              null
+            "
+          />
+          <button
+            class="field__toggle"
+            type="button"
+            (click)="hideConfirmPassword.set(!hideConfirmPassword())"
+            [attr.aria-label]="
+              hideConfirmPassword() ? labels.showConfirmation : labels.hideConfirmation
+            "
+          >
+            <mat-icon>{{ hideConfirmPassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+        </div>
+        <app-field-error
+          [control]="form.controls.confirmPassword"
+          [messages]="messages.confirmPassword"
+          [groupErrors]="['passwordMismatch']"
+        />
+      </div>
+
+      <!-- Aprobación de documentos (HU-32) -->
+      <div class="field approval" role="group" aria-labelledby="approval-title">
+        <span class="field__label" id="approval-title" i18n="@@users.form.approval.section"
+          >Aprobación de documentos</span
+        >
+        <label class="approval__card" [class.approval__card--locked]="approvalLocked()">
+          <input
+            class="approval__checkbox"
+            id="canApprove"
+            type="checkbox"
+            formControlName="canApprove"
+            aria-describedby="canApprove-hint"
+          />
+          <span class="approval__text">
+            <span class="approval__label" i18n="@@users.form.approval.label"
+              >Puede aprobar documentos</span
+            >
+            <span class="approval__hint">
+              @if (approvalLocked()) {
+                <mat-icon class="approval__lock" aria-hidden="true">lock</mat-icon>
+              }
+              <span id="canApprove-hint">{{ approvalHint() }}</span>
+            </span>
+          </span>
+        </label>
+        @if (showRevokeWarning()) {
+          <app-alert
+            class="approval__warning"
+            variant="warning"
+            title="Se retirará el permiso de aprobación."
+            i18n-title="@@users.form.approval.revokeTitle"
+          >
+            <ng-container i18n="@@users.form.approval.revokeBody"
+              >Al cambiar el rol a Lector, {{ data.user?.fullName }} dejará de poder aprobar
+              documentos cuando guarde los cambios.</ng-container
+            >
+          </app-alert>
+        }
+      </div>
     </div>
+    <!-- /dialog-fields -->
 
     <div class="dialog-footer">
       <app-button variant="secondary" type="button" [disabled]="loading()" (click)="cancel()">
