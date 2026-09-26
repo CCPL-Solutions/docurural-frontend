@@ -12,4 +12,6 @@ export interface User extends AuthenticatedUser {
   status: UserStatus;
   createdAt: string;
   lastLogin: string | null;
+  /** Puede aprobar documentos (HU-32). No viaja en la sesión: el backend lo valida al aprobar. */
+  canApprove: boolean;
 }

@@ -17,17 +17,18 @@ const user: User = {
   status: 'ACTIVE',
   createdAt: '2026-01-01T00:00:00Z',
   lastLogin: null,
+  canApprove: false,
 };
 
 describe('ToggleStatusDialogComponent', () => {
   let updateStatus: ReturnType<typeof vi.fn>;
   let close: ReturnType<typeof vi.fn>;
 
-  async function render(action: ToggleStatusDialogData['action']) {
+  async function render(action: ToggleStatusDialogData['action'], dialogUser: User = user) {
     close = vi.fn();
     TestBed.configureTestingModule({
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: { user, action } },
+        { provide: MAT_DIALOG_DATA, useValue: { user: dialogUser, action } },
         { provide: MatDialogRef, useValue: { close, disableClose: false } },
         { provide: UsersService, useValue: { updateStatus } },
       ],
@@ -71,6 +72,42 @@ describe('ToggleStatusDialogComponent', () => {
 
     expect(updateStatus).toHaveBeenCalledWith(4, 'INACTIVE');
     expect(close).toHaveBeenCalledWith({ success: true, message: 'Usuario desactivado' });
+  });
+
+  describe('aprobadores (HU-32)', () => {
+    const approver: User = { ...user, canApprove: true };
+
+    it('al desactivar avisa de que dejará de contar como aprobador activo', async () => {
+      const { host } = await render('deactivate', approver);
+
+      expect(host.textContent).toContain('Dejará de contar como aprobador activo de documentos.');
+    });
+
+    it('al activar indica que conserva el permiso', async () => {
+      const { host } = await render('activate', { ...approver, status: 'INACTIVE' });
+
+      expect(host.textContent).toContain(
+        'Conserva el permiso para aprobar documentos y vuelve a contar como aprobador activo.',
+      );
+    });
+
+    it('sin el permiso no menciona la aprobación', async () => {
+      const deactivate = await render('deactivate');
+      expect(deactivate.host.textContent).not.toContain('aprobador');
+
+      TestBed.resetTestingModule();
+      const activate = await render('activate');
+      expect(activate.host.textContent).not.toContain('aprobador');
+    });
+
+    it('el cambio de estado no toca el permiso', async () => {
+      const { fixture, confirmButton } = await render('deactivate', approver);
+
+      confirmButton().click();
+      await fixture.whenStable();
+
+      expect(updateStatus).toHaveBeenCalledWith(4, 'INACTIVE');
+    });
   });
 
   it('un 403 bloquea la acción y explica el motivo', async () => {

@@ -17,8 +17,11 @@ import { userInitials } from '@shared/utils/user-initials';
         {{ initials() }}
       </div>
       <div class="identity__text">
-        <div class="identity__name" [class.identity__name--muted]="muted()">
-          {{ user().fullName }}
+        <div class="identity__name-row">
+          <div class="identity__name" [class.identity__name--muted]="muted()">
+            {{ user().fullName }}
+          </div>
+          <ng-content />
         </div>
         <div class="identity__email" [class.identity__email--muted]="muted()">
           {{ user().email }}

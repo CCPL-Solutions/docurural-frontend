@@ -8,7 +8,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { UsersService } from '@core/services/users.service';
 import { UserListComponent } from './user-list.component';
 
-const user = (id: number, fullName: string): User => ({
+const user = (id: number, fullName: string, overrides: Partial<User> = {}): User => ({
   id,
   fullName,
   email: `u${id}@ierd.edu.co`,
@@ -16,6 +16,8 @@ const user = (id: number, fullName: string): User => ({
   status: 'ACTIVE',
   createdAt: '2026-01-01T00:00:00Z',
   lastLogin: null,
+  canApprove: false,
+  ...overrides,
 });
 const page = (...users: User[]): UserListResponse => ({ totalUsers: users.length, users });
 
@@ -66,6 +68,28 @@ describe('UserListComponent', () => {
 
     expect(list).toHaveBeenLastCalledWith('createdAt', 'desc');
     expect(component['users']().map((u) => u.fullName)).toEqual(['Última']);
+  });
+
+  it('marca con "Aprobador" solo a quien tiene el permiso, atenuado si está inactivo', async () => {
+    const { fixture } = await render();
+    responses[0].next(
+      page(
+        user(1, 'Activo', { canApprove: true }),
+        user(2, 'Inactivo', { canApprove: true, status: 'INACTIVE' }),
+        user(3, 'Sin permiso'),
+      ),
+    );
+    await fixture.whenStable();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const badgesIn = (row: Element) => row.querySelectorAll('app-approver-badge .badge');
+    const rows = Array.from(host.querySelectorAll('tbody tr'));
+    expect(badgesIn(rows[0])[0]?.classList).toContain('badge--accent');
+    expect(badgesIn(rows[1])[0]?.classList).toContain('badge--neutral');
+    expect(badgesIn(rows[2])).toHaveLength(0);
+
+    const cards = Array.from(host.querySelectorAll('.user-card'));
+    expect(cards.map((card) => badgesIn(card).length)).toEqual([1, 1, 0]);
   });
 
   it('un error se notifica y no impide recargar', async () => {

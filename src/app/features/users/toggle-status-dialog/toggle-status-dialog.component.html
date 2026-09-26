@@ -18,6 +18,9 @@
     }
   </p>
   <p class="dialog__hint">{{ secondaryMessage() }}</p>
+  @if (approverNote(); as note) {
+    <p class="dialog__hint">{{ note }}</p>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="dialog__actions">

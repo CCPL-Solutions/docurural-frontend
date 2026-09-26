@@ -1,0 +1,10 @@
+@use 'icons' as icon;
+
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.approver-badge__icon {
+  @include icon.size(14px);
+}

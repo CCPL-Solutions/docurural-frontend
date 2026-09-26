@@ -149,6 +149,7 @@ async function mockApi(page: Page): Promise<void> {
             status: 'ACTIVE',
             createdAt: '2026-01-05T08:00:00-05:00',
             lastLogin: '2026-09-22T17:30:00-05:00',
+            canApprove: true,
           },
           {
             id: 2,
@@ -158,6 +159,7 @@ async function mockApi(page: Page): Promise<void> {
             status: 'INACTIVE',
             createdAt: '2026-02-01T08:00:00-05:00',
             lastLogin: null,
+            canApprove: true,
           },
         ],
       });
