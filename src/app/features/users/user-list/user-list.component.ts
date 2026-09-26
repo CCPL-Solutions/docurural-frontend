@@ -27,6 +27,7 @@ import {
   ToggleStatusDialogData,
   ToggleStatusDialogResult,
 } from '../toggle-status-dialog/toggle-status-dialog.component';
+import { ApproverBadgeComponent } from './components/approver-badge.component';
 import { RoleBadgeComponent } from './components/role-badge.component';
 import { StatusBadgeComponent } from './components/status-badge.component';
 import { UserIdentityComponent } from './components/user-identity.component';
@@ -84,6 +85,7 @@ const SORT_OPTIONS: SortOptionConfig[] = [
     MatMenuModule,
     MatDialogModule,
     MatTooltipModule,
+    ApproverBadgeComponent,
     RoleBadgeComponent,
     StatusBadgeComponent,
     UserIdentityComponent,

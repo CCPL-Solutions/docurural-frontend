@@ -58,6 +58,14 @@ export class ToggleStatusDialogComponent {
       : $localize`:@@users.toggle.hintActivate:El usuario podrá volver a acceder al sistema.`,
   );
 
+  /** Efecto sobre la aprobación de documentos; solo si el usuario tiene el permiso (HU-32). */
+  protected readonly approverNote = computed(() => {
+    if (!this.data.user.canApprove) return null;
+    return this.isDeactivate()
+      ? $localize`:@@users.toggle.approverDeactivate:Dejará de contar como aprobador activo de documentos.`
+      : $localize`:@@users.toggle.approverActivate:Conserva el permiso para aprobar documentos y vuelve a contar como aprobador activo.`;
+  });
+
   protected readonly actionLabel = computed(() =>
     this.isDeactivate()
       ? $localize`:@@users.action.deactivate:Desactivar`

@@ -1,5 +1,6 @@
 import {
   canDeleteDocument,
+  canHoldApprovalPermission,
   canEditDocument,
   canSeeUploadedByFilter,
   canUploadDocument,
@@ -58,5 +59,13 @@ describe('permissions', () => {
     expect(canUploadDocument('ADMIN')).toBe(true);
     expect(canUploadDocument('EDITOR')).toBe(true);
     expect(canUploadDocument('READER')).toBe(false);
+  });
+
+  it('canHoldApprovalPermission: ADMIN y EDITOR, nunca READER ni sin rol', () => {
+    expect(canHoldApprovalPermission('ADMIN')).toBe(true);
+    expect(canHoldApprovalPermission('EDITOR')).toBe(true);
+    expect(canHoldApprovalPermission('READER')).toBe(false);
+    expect(canHoldApprovalPermission(null)).toBe(false);
+    expect(canHoldApprovalPermission(undefined)).toBe(false);
   });
 });

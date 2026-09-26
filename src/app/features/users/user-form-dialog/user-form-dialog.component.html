@@ -198,6 +198,46 @@
       />
     </div>
 
+    <!-- Aprobación de documentos (HU-32) -->
+    <div class="field approval" role="group" aria-labelledby="approval-title">
+      <span class="field__label" id="approval-title" i18n="@@users.form.approval.section"
+        >Aprobación de documentos</span
+      >
+      <label class="approval__card" [class.approval__card--locked]="approvalLocked()">
+        <input
+          class="approval__checkbox"
+          id="canApprove"
+          type="checkbox"
+          formControlName="canApprove"
+          aria-describedby="canApprove-hint"
+        />
+        <span class="approval__text">
+          <span class="approval__label" i18n="@@users.form.approval.label"
+            >Puede aprobar documentos</span
+          >
+          <span class="approval__hint">
+            @if (approvalLocked()) {
+              <mat-icon class="approval__lock" aria-hidden="true">lock</mat-icon>
+            }
+            <span id="canApprove-hint">{{ approvalHint() }}</span>
+          </span>
+        </span>
+      </label>
+      @if (showRevokeWarning()) {
+        <app-alert
+          class="approval__warning"
+          variant="warning"
+          title="Se retirará el permiso de aprobación."
+          i18n-title="@@users.form.approval.revokeTitle"
+        >
+          <ng-container i18n="@@users.form.approval.revokeBody"
+            >Al cambiar el rol a Lector, {{ data.user?.fullName }} dejará de poder aprobar
+            documentos cuando guarde los cambios.</ng-container
+          >
+        </app-alert>
+      }
+    </div>
+
     <div class="dialog-footer">
       <app-button variant="secondary" type="button" [disabled]="loading()" (click)="cancel()">
         <ng-container i18n="@@common.cancel">Cancelar</ng-container>

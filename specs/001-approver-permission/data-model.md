@@ -40,7 +40,7 @@ sesión (FR-017).
 | Elemento | Tipo | Origen | Regla |
 |----------|------|--------|-------|
 | `form.controls.canApprove` | `FormControl<boolean>` | `fb.nonNullable`, `false` | En edición se rellena con `user.canApprove`. |
-| `selectedRole` (signal) | `Role \| ''` | `toSignal(role.valueChanges)` | Deriva ayuda, aviso y habilitación. |
+| `selectedRole` (signal) | `Role \| null` | `computed` sobre `toSignal(role.valueChanges)`; `null` sin rol | Deriva ayuda, aviso y habilitación. |
 | `rememberedCanApprove` | `boolean` (campo privado) | Valor al entrar en READER | Se restaura al salir de READER (FR-006). |
 | `approvalHint` | `computed` | rol + autoedición | Texto por rol (FR-003) o de autoedición (FR-008). |
 | `showRevokeWarning` | `computed` | edición, no autoedición, `user.canApprove`, rol READER | FR-005. |

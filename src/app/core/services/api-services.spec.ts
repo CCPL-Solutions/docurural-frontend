@@ -166,6 +166,7 @@ describe('servicios de la API', () => {
           password: 'x',
           confirmPassword: 'x',
           role: 'READER',
+          canApprove: false,
         })
         .subscribe();
       service.update(3, { fullName: 'Ana', email: 'a@b.co', role: 'EDITOR' }).subscribe();

@@ -7,6 +7,24 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- Añadido el **permiso para aprobar documentos** (HU-32): la casilla "Puede aprobar documentos" en
+  los formularios de crear y editar usuario, con una ayuda según el rol. Se bloquea para los
+  lectores y en la autoedición (el formulario no envía el propio permiso). Al cambiar a Lector a un
+  aprobador, avisa antes de guardar, recupera el valor si se vuelve a otro rol y confirma la
+  retirada en el toast.
+- Añadida la etiqueta "Aprobador" en el listado de usuarios (tabla y tarjetas), atenuada y
+  explicada para lectores de pantalla si el usuario está inactivo.
+- Añadida una nota sobre la aprobación en la confirmación de activar y desactivar a un aprobador.
+- Añadida la variante `accent` de `<app-badge>` y la utilidad global `.visually-hidden`
+  (`src/styles/_a11y.scss`).
+
+### Changed
+
+- Un 400 sin errores de campo al guardar un usuario muestra el mensaje del backend en lugar del
+  genérico.
+
 ## [1.0.1] - 2026-09-23
 
 ### Added

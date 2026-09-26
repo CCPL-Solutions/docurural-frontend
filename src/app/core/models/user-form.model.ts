@@ -8,6 +8,7 @@ export interface CreateUserRequest {
   password: string;
   confirmPassword: string;
   role: Role;
+  canApprove: boolean;
 }
 
 export interface UpdateUserRequest {
@@ -16,6 +17,8 @@ export interface UpdateUserRequest {
   role: Role;
   password?: string;
   confirmPassword?: string;
+  /** Si se omite, el backend conserva el valor actual (autoedición). */
+  canApprove?: boolean;
 }
 
 export interface CreateUserResponse extends User {
@@ -24,6 +27,8 @@ export interface CreateUserResponse extends User {
 
 export interface UpdateUserResponse extends AuthenticatedUser {
   status: UserStatus;
+  /** Valor efectivo tras guardar: el backend lo retira al cambiar el rol a READER. */
+  canApprove: boolean;
   message: string;
 }
 

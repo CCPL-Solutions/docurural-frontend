@@ -4309,6 +4309,114 @@
           <context context-type="linenumber">17</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="users.toggle.approverDeactivate" datatype="html">
+        <source>Dejará de contar como aprobador activo de documentos.</source>
+        <target state="final">They will no longer count as an active document approver.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/toggle-status-dialog/toggle-status-dialog.component.ts</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.toggle.approverActivate" datatype="html">
+        <source>Conserva el permiso para aprobar documentos y vuelve a contar como aprobador activo.</source>
+        <target state="final">They keep the permission to approve documents and count as an active approver again.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/toggle-status-dialog/toggle-status-dialog.component.ts</context>
+          <context context-type="linenumber">66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.section" datatype="html">
+        <source>Aprobación de documentos</source>
+        <target state="final">Document approval</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
+          <context context-type="linenumber">204,206</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.label" datatype="html">
+        <source>Puede aprobar documentos</source>
+        <target state="final">Can approve documents</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
+          <context context-type="linenumber">216,218</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.revokeTitle" datatype="html">
+        <source>Se retirará el permiso de aprobación.</source>
+        <target state="final">The approval permission will be removed.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
+          <context context-type="linenumber">230,231</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.revokeBody" datatype="html">
+        <source>Al cambiar el rol a Lector, <x id="INTERPOLATION" equiv-text="{{ data.user?.fullName }}"/> dejará de poder aprobar documentos cuando guarde los cambios.</source>
+        <target state="final">When the role changes to Reader, <x id="INTERPOLATION" equiv-text="{{ data.user?.fullName }}"/> will no longer be able to approve documents once you save the changes.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
+          <context context-type="linenumber">234,235</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.hintSelf" datatype="html">
+        <source>No puede cambiar su propio permiso de aprobación.</source>
+        <target state="final">You cannot change your own approval permission.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">161</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.hintAdmin" datatype="html">
+        <source>El rol Administrador no incluye este permiso: márquelo solo si esta persona debe aprobar.</source>
+        <target state="final">The Administrator role does not include this permission: check it only if this person must approve.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">165</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.hintEditor" datatype="html">
+        <source>Podrá revisar y aprobar los documentos enviados a aprobación.</source>
+        <target state="final">They will be able to review and approve documents submitted for approval.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">168</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.hintReader" datatype="html">
+        <source>Los lectores no pueden aprobar documentos.</source>
+        <target state="final">Readers cannot approve documents.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">171</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.toast.updated.approvalRevoked" datatype="html">
+        <source>Se retiró el permiso para aprobar documentos.</source>
+        <target state="final">The permission to approve documents was removed.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">245</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.list.approverInactive" datatype="html">
+        <source>Inactivo: no cuenta como aprobador activo</source>
+        <target state="final">Inactive: does not count as an active approver</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-list/components/approver-badge.component.ts</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-list/components/approver-badge.component.ts</context>
+          <context context-type="linenumber">22,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.list.approverBadge" datatype="html">
+        <source>Aprobador</source>
+        <target state="final">Approver</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-list/components/approver-badge.component.ts</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

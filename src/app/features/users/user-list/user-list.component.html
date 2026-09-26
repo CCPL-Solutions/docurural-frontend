@@ -97,7 +97,11 @@
         @for (user of filteredUsers(); track user.id) {
           <tr [class.row--muted]="isMuted(user)">
             <td>
-              <app-user-identity [user]="user" [muted]="isMuted(user)" />
+              <app-user-identity [user]="user" [muted]="isMuted(user)">
+                @if (user.canApprove) {
+                  <app-approver-badge [inactive]="isMuted(user)" />
+                }
+              </app-user-identity>
             </td>
             <td>
               <span class="badge-wrap">
@@ -141,6 +145,9 @@
               <app-role-badge [role]="user.role" />
             </span>
             <app-status-badge [status]="user.status" />
+            @if (user.canApprove) {
+              <app-approver-badge [inactive]="isMuted(user)" />
+            }
           </div>
           <app-user-row-actions
             [user]="user"

@@ -1,0 +1,16 @@
+// Utilidades de accesibilidad globales.
+
+// Texto que leen los lectores de pantalla pero no se ve. Material solo carga `cdk-visually-hidden`
+// con los componentes que lo usan, así que no se puede dar por disponible en toda la app.
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

@@ -14,6 +14,9 @@
 @use './styles/list-view';
 @use './styles/confirmation-dialog';
 
+// Utilidades de accesibilidad (.visually-hidden).
+@use './styles/a11y';
+
 // ─── Tema Angular Material ──────────────────────────────────────────────────
 // El proyecto mantiene su propio sistema visual basado en --color-* (azul
 // institucional #2E6DA4). El mat.theme() siguiente sólo se usa para que los

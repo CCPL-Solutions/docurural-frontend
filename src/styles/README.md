@@ -29,6 +29,7 @@ Los componentes no necesitan `@use` ni `@include` para usarlos.
 | `_dropzone.scss`            | `.dropzone` + modificadores `--dragover/filled/error` + subclases                 |
 | `_confirmation-dialog.scss` | `.dialog` shell para dialogs de confirmación con div personalizado                |
 | `_list-view.scss`           | `.action-bar`, `.sort-trigger`, `.counter`, `.desktop/mobile-only`, `.title-link` |
+| `_a11y.scss`                | `.visually-hidden`: texto solo para lectores de pantalla                          |
 
 ### Mixins por archivo (requieren `@use`)
 

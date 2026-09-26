@@ -7,7 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
@@ -19,17 +19,19 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { AuthService } from '@core/services/auth.service';
 import { UsersService } from '@core/services/users.service';
 import { NotificationService } from '@core/services/notification.service';
+import { canHoldApprovalPermission, isAdmin, isEditor } from '@core/auth/permissions';
 import { Role, ROLE_LABELS } from '@core/models/role.model';
-import { AuthenticatedUser, User } from '@core/models/user.model';
-import { UserStatus } from '@core/models/user-status.model';
+import { User } from '@core/models/user.model';
 import {
   CreateUserRequest,
   MAX_EMAIL_LENGTH,
   MAX_FULL_NAME_LENGTH,
   MIN_FULL_NAME_LENGTH,
   UpdateUserRequest,
+  UpdateUserResponse,
 } from '@core/models/user-form.model';
 import { applyFieldErrors } from '@shared/forms/apply-field-errors';
+import { toApiError } from '@shared/http/api-error';
 import { trimmedMinLength } from '@shared/forms/validators';
 import { passwordMatchValidator } from './validators/password-match.validator';
 import { passwordComplexityValidator } from './validators/password-complexity.validator';
@@ -45,8 +47,18 @@ export interface UserFormDialogData {
 
 export type UserFormDialogResult =
   | { kind: 'created'; user: User }
-  | { kind: 'updated'; user: AuthenticatedUser & { status: UserStatus } }
+  | { kind: 'updated'; user: Omit<UpdateUserResponse, 'message'> }
   | { kind: 'cancelled' };
+
+/** Valor del control de rol como `Role`; `null` mientras no se ha elegido ninguno. */
+function toRole(value: string): Role | null {
+  return value === '' ? null : (value as Role);
+}
+
+/** El rol elegido no admite el permiso de aprobar (hoy, solo READER). Sin rol no bloquea. */
+function blocksApproval(role: Role | null): boolean {
+  return role !== null && !canHoldApprovalPermission(role);
+}
 
 @Component({
   selector: 'app-user-form-dialog',
@@ -130,18 +142,62 @@ export class UserFormDialogComponent implements OnInit {
           ? [passwordComplexityValidator()]
           : [Validators.required, passwordComplexityValidator()],
       ],
+      canApprove: [false],
     },
     { validators: passwordMatchValidator() },
   );
 
+  private readonly roleValue = toSignal(this.form.controls.role.valueChanges, {
+    initialValue: this.form.controls.role.value,
+  });
+  /** Rol elegido en el formulario; `null` mientras no se elige. */
+  protected readonly selectedRole = computed(() => toRole(this.roleValue()));
+
+  /** Valor de la casilla antes de pasar a un rol que no admite el permiso; se restaura al salir. */
+  private rememberedCanApprove = false;
+
+  protected readonly approvalHint = computed(() => {
+    if (this.isSelfEdit()) {
+      return $localize`:@@users.form.approval.hintSelf:No puede cambiar su propio permiso de aprobación.`;
+    }
+    const role = this.selectedRole();
+    if (isAdmin(role)) {
+      return $localize`:@@users.form.approval.hintAdmin:El rol Administrador no incluye este permiso: márquelo solo si esta persona debe aprobar.`;
+    }
+    if (isEditor(role)) {
+      return $localize`:@@users.form.approval.hintEditor:Podrá revisar y aprobar los documentos enviados a aprobación.`;
+    }
+    if (blocksApproval(role)) {
+      return $localize`:@@users.form.approval.hintReader:Los lectores no pueden aprobar documentos.`;
+    }
+    return '';
+  });
+
+  /** La casilla está bloqueada por una regla (autoedición o rol), no solo mientras se guarda. */
+  protected readonly approvalLocked = computed(
+    () => this.isSelfEdit() || blocksApproval(this.selectedRole()),
+  );
+
+  /** Aviso antes de guardar: el usuario tenía el permiso y el rol elegido lo retira (FR-005). */
+  protected readonly showRevokeWarning = computed(
+    () =>
+      this.isEdit() &&
+      !this.isSelfEdit() &&
+      this.data.user?.canApprove === true &&
+      blocksApproval(this.selectedRole()),
+  );
+
   ngOnInit(): void {
     if (this.isEdit() && this.data.user) {
-      const { fullName, email, role } = this.data.user;
-      this.form.patchValue({ fullName, email, role });
+      const { fullName, email, role, canApprove } = this.data.user;
+      this.form.patchValue({ fullName, email, role, canApprove });
     }
     if (this.isSelfEdit()) {
       this.form.controls.role.disable();
     }
+    this.syncApproverControl();
+    // Tras el relleno inicial, para que el patchValue no dispare la restauración.
+    this.watchRoleForApproval();
   }
 
   protected onSubmit(): void {
@@ -157,15 +213,21 @@ export class UserFormDialogComponent implements OnInit {
 
     if (this.isEdit() && this.data.user) {
       const raw = this.form.getRawValue();
+      const role = raw.role as Role;
       const req: UpdateUserRequest = {
         fullName: raw.fullName,
         email: raw.email,
-        role: raw.role as Role,
+        role,
       };
       if (raw.password) {
         req.password = raw.password;
         req.confirmPassword = raw.confirmPassword;
       }
+      // En la autoedición se omite: el backend conserva el valor y nadie cambia su propio permiso.
+      if (!this.isSelfEdit()) {
+        req.canApprove = this.approvalToSend(role, raw.canApprove);
+      }
+      const wasApprover = this.data.user.canApprove;
 
       this.usersService
         .update(this.data.user.id, req)
@@ -175,9 +237,13 @@ export class UserFormDialogComponent implements OnInit {
         )
         .subscribe({
           next: (res) => {
+            const approvalRevoked =
+              wasApprover && !res.canApprove && !canHoldApprovalPermission(role);
             this.notifications.success(
               $localize`:@@users.toast.updated.title:Usuario actualizado`,
-              $localize`:@@users.toast.updated.description:Los cambios se guardaron correctamente.`,
+              approvalRevoked
+                ? $localize`:@@users.toast.updated.approvalRevoked:Se retiró el permiso para aprobar documentos.`
+                : $localize`:@@users.toast.updated.description:Los cambios se guardaron correctamente.`,
             );
             this.dialogRef.close({ kind: 'updated', user: res });
           },
@@ -185,12 +251,14 @@ export class UserFormDialogComponent implements OnInit {
         });
     } else {
       const raw = this.form.getRawValue();
+      const role = raw.role as Role;
       const req: CreateUserRequest = {
         fullName: raw.fullName,
         email: raw.email,
         password: raw.password,
         confirmPassword: raw.confirmPassword,
-        role: raw.role as Role,
+        role,
+        canApprove: this.approvalToSend(role, raw.canApprove),
       };
 
       this.usersService
@@ -220,7 +288,48 @@ export class UserFormDialogComponent implements OnInit {
   private unlockForm(): void {
     this.form.enable();
     if (this.isSelfEdit()) this.form.controls.role.disable();
+    this.syncApproverControl();
     this.dialogRef.disableClose = false;
+  }
+
+  /** Nunca se envía el permiso concedido a un rol que no lo admite (FR-009). */
+  private approvalToSend(role: Role, checked: boolean): boolean {
+    return canHoldApprovalPermission(role) && checked;
+  }
+
+  /** Única decisión sobre si la casilla está habilitada: autoedición o rol que no la admite. */
+  private syncApproverControl(): void {
+    const control = this.form.controls.canApprove;
+    const locked = this.isSelfEdit() || blocksApproval(toRole(this.form.controls.role.value));
+    if (locked) {
+      control.disable({ emitEvent: false });
+    } else {
+      control.enable({ emitEvent: false });
+    }
+  }
+
+  /**
+   * Al pasar a un rol que no admite el permiso, desmarca la casilla y recuerda su valor; al volver a
+   * uno que sí, lo restaura (FR-006). Puente con el FormControl: no escribe en signals (EST-05).
+   */
+  private watchRoleForApproval(): void {
+    const approval = this.form.controls.canApprove;
+    this.rememberedCanApprove = approval.value;
+    let wasBlocked = blocksApproval(toRole(this.form.controls.role.value));
+
+    this.form.controls.role.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        const blocked = blocksApproval(toRole(value));
+        if (blocked && !wasBlocked) {
+          this.rememberedCanApprove = approval.value;
+          approval.setValue(false);
+        } else if (!blocked && wasBlocked) {
+          approval.setValue(this.rememberedCanApprove);
+        }
+        wasBlocked = blocked;
+        this.syncApproverControl();
+      });
   }
 
   private handleError(err: HttpErrorResponse): void {
@@ -228,9 +337,11 @@ export class UserFormDialogComponent implements OnInit {
     this.unlockForm();
     switch (err.status) {
       case HttpStatusCode.BadRequest:
+        // Sin errores de campo, el mensaje del backend explica el rechazo (p. ej., lector con permiso).
         if (!applyFieldErrors(this.form, err)) {
           this.submitError.set(
-            $localize`:@@common.error.invalidData:Los datos enviados no son válidos. Revise el formulario.`,
+            toApiError(err)?.message ??
+              $localize`:@@common.error.invalidData:Los datos enviados no son válidos. Revise el formulario.`,
           );
         }
         break;

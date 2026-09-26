@@ -34,3 +34,11 @@ export function canDeleteDocument(role: Role): boolean {
 export function canUploadDocument(role: Role): boolean {
   return isAdmin(role) || isEditor(role);
 }
+
+/**
+ * Solo ADMIN y EDITOR pueden tener el permiso de aprobar documentos (HU-32). El rol no lo otorga:
+ * indica si la casilla se puede marcar.
+ */
+export function canHoldApprovalPermission(role: Role | null | undefined): boolean {
+  return isAdmin(role) || isEditor(role);
+}

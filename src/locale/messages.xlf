@@ -327,7 +327,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">102</context>
+          <context context-type="linenumber">114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="login.password.hide" datatype="html">
@@ -338,7 +338,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">103</context>
+          <context context-type="linenumber">115</context>
         </context-group>
       </trans-unit>
       <trans-unit id="login.error.credentials" datatype="html">
@@ -628,7 +628,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.ts</context>
-          <context context-type="linenumber">54</context>
+          <context context-type="linenumber">55</context>
         </context-group>
       </trans-unit>
       <trans-unit id="sort.nameDesc" datatype="html">
@@ -639,7 +639,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.ts</context>
-          <context context-type="linenumber">60</context>
+          <context context-type="linenumber">61</context>
         </context-group>
       </trans-unit>
       <trans-unit id="sort.newest" datatype="html">
@@ -654,7 +654,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.ts</context>
-          <context context-type="linenumber">66</context>
+          <context context-type="linenumber">67</context>
         </context-group>
       </trans-unit>
       <trans-unit id="sort.oldest" datatype="html">
@@ -669,7 +669,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.ts</context>
-          <context context-type="linenumber">72</context>
+          <context context-type="linenumber">73</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.error.listLoad" datatype="html">
@@ -684,7 +684,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.ts</context>
-          <context context-type="linenumber">157</context>
+          <context context-type="linenumber">159</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.error.checkConnection" datatype="html">
@@ -715,7 +715,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.ts</context>
-          <context context-type="linenumber">158</context>
+          <context context-type="linenumber">160</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.toast.statusUpdated" datatype="html">
@@ -726,7 +726,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.ts</context>
-          <context context-type="linenumber">192</context>
+          <context context-type="linenumber">194</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.closeForm" datatype="html">
@@ -897,11 +897,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/toggle-status-dialog/toggle-status-dialog.component.html</context>
-          <context context-type="linenumber">25,26</context>
+          <context context-type="linenumber">28,29</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">203,204</context>
+          <context context-type="linenumber">243,244</context>
         </context-group>
       </trans-unit>
       <trans-unit id="categories.form.titleEdit" datatype="html">
@@ -919,7 +919,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">93</context>
+          <context context-type="linenumber">105</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.saving" datatype="html">
@@ -934,7 +934,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">94</context>
+          <context context-type="linenumber">106</context>
         </context-group>
       </trans-unit>
       <trans-unit id="categories.form.submitRaise" datatype="html">
@@ -956,7 +956,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">88</context>
+          <context context-type="linenumber">100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="categories.form.submitCreate" datatype="html">
@@ -985,7 +985,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">180</context>
+          <context context-type="linenumber">246</context>
         </context-group>
       </trans-unit>
       <trans-unit id="categories.toast.created.title" datatype="html">
@@ -1025,7 +1025,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">233</context>
+          <context context-type="linenumber">344</context>
         </context-group>
       </trans-unit>
       <trans-unit id="categories.form.error.editForbidden" datatype="html">
@@ -1133,7 +1133,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/toggle-status-dialog/toggle-status-dialog.component.ts</context>
-          <context context-type="linenumber">63</context>
+          <context context-type="linenumber">71</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/components/user-row-actions.component.ts</context>
@@ -1155,7 +1155,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/toggle-status-dialog/toggle-status-dialog.component.ts</context>
-          <context context-type="linenumber">64</context>
+          <context context-type="linenumber">72</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/components/user-row-actions.component.ts</context>
@@ -1247,7 +1247,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">248</context>
+          <context context-type="linenumber">359</context>
         </context-group>
       </trans-unit>
       <trans-unit id="categories.toggle.error.notFound" datatype="html">
@@ -3299,22 +3299,36 @@
           <context context-type="linenumber">58</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="users.toggle.approverDeactivate" datatype="html">
+        <source>Dejará de contar como aprobador activo de documentos.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/toggle-status-dialog/toggle-status-dialog.component.ts</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.toggle.approverActivate" datatype="html">
+        <source>Conserva el permiso para aprobar documentos y vuelve a contar como aprobador activo.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/toggle-status-dialog/toggle-status-dialog.component.ts</context>
+          <context context-type="linenumber">66</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="users.toggle.errorSelf" datatype="html">
         <source>No puede desactivar su propia cuenta.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/toggle-status-dialog/toggle-status-dialog.component.ts</context>
-          <context context-type="linenumber">99</context>
+          <context context-type="linenumber">107</context>
         </context-group>
       </trans-unit>
       <trans-unit id="common.error.unexpected" datatype="html">
         <source>Ocurrió un error inesperado. Por favor, inténtelo de nuevo.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/toggle-status-dialog/toggle-status-dialog.component.ts</context>
-          <context context-type="linenumber">104</context>
+          <context context-type="linenumber">112</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">253</context>
+          <context context-type="linenumber">364</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.fullName" datatype="html">
@@ -3391,18 +3405,46 @@
           <context context-type="linenumber">157,158</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="users.form.approval.section" datatype="html">
+        <source>Aprobación de documentos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
+          <context context-type="linenumber">204,206</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.label" datatype="html">
+        <source>Puede aprobar documentos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
+          <context context-type="linenumber">216,218</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.revokeTitle" datatype="html">
+        <source>Se retirará el permiso de aprobación.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
+          <context context-type="linenumber">230,231</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.revokeBody" datatype="html">
+        <source>Al cambiar el rol a Lector, <x id="INTERPOLATION" equiv-text="{{ data.user?.fullName }}"/> dejará de poder aprobar documentos cuando guarde los cambios.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
+          <context context-type="linenumber">234,235</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="users.form.titleEdit" datatype="html">
         <source>Editar usuario</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">83</context>
+          <context context-type="linenumber">95</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.titleCreate" datatype="html">
         <source>Nuevo usuario</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">84</context>
+          <context context-type="linenumber">96</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.html</context>
@@ -3417,56 +3459,91 @@
         <source>Crear usuario</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">89</context>
+          <context context-type="linenumber">101</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.confirmPassword.show" datatype="html">
         <source>Mostrar confirmación</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">104</context>
+          <context context-type="linenumber">116</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.confirmPassword.hide" datatype="html">
         <source>Ocultar confirmación</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">105</context>
+          <context context-type="linenumber">117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.hintSelf" datatype="html">
+        <source>No puede cambiar su propio permiso de aprobación.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">161</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.hintAdmin" datatype="html">
+        <source>El rol Administrador no incluye este permiso: márquelo solo si esta persona debe aprobar.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">165</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.hintEditor" datatype="html">
+        <source>Podrá revisar y aprobar los documentos enviados a aprobación.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">168</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.form.approval.hintReader" datatype="html">
+        <source>Los lectores no pueden aprobar documentos.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">171</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.toast.updated.title" datatype="html">
         <source>Usuario actualizado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">179</context>
+          <context context-type="linenumber">243</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.toast.updated.approvalRevoked" datatype="html">
+        <source>Se retiró el permiso para aprobar documentos.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
+          <context context-type="linenumber">245</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.toast.created.title" datatype="html">
         <source>Usuario creado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">205</context>
+          <context context-type="linenumber">273</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.toast.created.description" datatype="html">
         <source>Ya puede iniciar sesión con sus credenciales.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">206</context>
+          <context context-type="linenumber">274</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.error.emailConflict" datatype="html">
         <source>Ya existe un usuario registrado con este correo electrónico.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">239</context>
+          <context context-type="linenumber">350</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.error.emailTaken" datatype="html">
         <source>Este correo ya está registrado.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.ts</context>
-          <context context-type="linenumber">242</context>
+          <context context-type="linenumber">353</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.password.minLength" datatype="html">
@@ -3572,6 +3649,24 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form.messages.ts</context>
           <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.list.approverInactive" datatype="html">
+        <source>Inactivo: no cuenta como aprobador activo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-list/components/approver-badge.component.ts</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-list/components/approver-badge.component.ts</context>
+          <context context-type="linenumber">22,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="users.list.approverBadge" datatype="html">
+        <source>Aprobador</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/users/user-list/components/approver-badge.component.ts</context>
+          <context context-type="linenumber">19,20</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.row.editAriaLabel" datatype="html">
@@ -3680,7 +3775,7 @@
         <source>Nunca</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.html</context>
-          <context context-type="linenumber">115,117</context>
+          <context context-type="linenumber">119,121</context>
         </context-group>
       </trans-unit>
       <trans-unit id="sortTrigger.ariaLabel" datatype="html">

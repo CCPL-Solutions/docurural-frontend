@@ -69,3 +69,12 @@
     background: var(--color-error);
   }
 }
+
+.badge--accent {
+  background: var(--color-purple-light);
+  color: var(--color-purple-text);
+
+  .badge__dot {
+    background: var(--color-purple);
+  }
+}
