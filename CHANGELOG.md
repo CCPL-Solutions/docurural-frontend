@@ -24,6 +24,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 - Un 400 sin errores de campo al guardar un usuario muestra el mensaje del backend en lugar del
   genérico.
+- El formulario de usuario usa la estructura de diálogo con scroll (`.dialog-form` y
+  `.dialog-fields`): en móvil los campos se desplazan y los botones quedan siempre visibles.
 
 ## [1.0.1] - 2026-09-23
 

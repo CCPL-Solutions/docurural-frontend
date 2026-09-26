@@ -288,7 +288,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">65,66</context>
+          <context context-type="linenumber">67,68</context>
         </context-group>
       </trans-unit>
       <trans-unit id="login.password.label" datatype="html">
@@ -802,7 +802,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">111,113</context>
+          <context context-type="linenumber">115,117</context>
         </context-group>
       </trans-unit>
       <trans-unit id="categories.form.description.placeholder" datatype="html">
@@ -901,7 +901,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">243,244</context>
+          <context context-type="linenumber">249,250</context>
         </context-group>
       </trans-unit>
       <trans-unit id="categories.form.titleEdit" datatype="html">
@@ -3335,28 +3335,28 @@
         <source>Nombre completo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">23,24</context>
+          <context context-type="linenumber">25,26</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.fullName.placeholder" datatype="html">
         <source>Nombre y apellidos</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">38,39</context>
+          <context context-type="linenumber">40,41</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.email" datatype="html">
         <source>Correo electrónico</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">52,53</context>
+          <context context-type="linenumber">54,55</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.role" datatype="html">
         <source>Rol</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">77,78</context>
+          <context context-type="linenumber">81,82</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-list/user-list.component.html</context>
@@ -3367,70 +3367,70 @@
         <source>No puede cambiar su propio rol</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">83,84</context>
+          <context context-type="linenumber">87,88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.role.placeholder" datatype="html">
         <source> Seleccione un rol </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">96,98</context>
+          <context context-type="linenumber">100,102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.password" datatype="html">
         <source>Contraseña</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">109,110</context>
+          <context context-type="linenumber">113,114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.password.keepHint" datatype="html">
         <source>Déjelo en blanco para mantener la contraseña actual.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">145,148</context>
+          <context context-type="linenumber">149,152</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.password.rulesHint" datatype="html">
         <source>Mínimo 12 caracteres, con una mayúscula, una minúscula, un número y un símbolo.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">149,151</context>
+          <context context-type="linenumber">153,155</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.confirmPassword" datatype="html">
         <source>Confirmar contraseña</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">157,158</context>
+          <context context-type="linenumber">161,162</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.approval.section" datatype="html">
         <source>Aprobación de documentos</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">204,206</context>
+          <context context-type="linenumber">208,210</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.approval.label" datatype="html">
         <source>Puede aprobar documentos</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">216,218</context>
+          <context context-type="linenumber">220,222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.approval.revokeTitle" datatype="html">
         <source>Se retirará el permiso de aprobación.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">230,231</context>
+          <context context-type="linenumber">234,235</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.approval.revokeBody" datatype="html">
         <source>Al cambiar el rol a Lector, <x id="INTERPOLATION" equiv-text="{{ data.user?.fullName }}"/> dejará de poder aprobar documentos cuando guarde los cambios.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/users/user-form-dialog/user-form-dialog.component.html</context>
-          <context context-type="linenumber">234,235</context>
+          <context context-type="linenumber">238,239</context>
         </context-group>
       </trans-unit>
       <trans-unit id="users.form.titleEdit" datatype="html">
