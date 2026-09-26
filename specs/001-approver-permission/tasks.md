@@ -168,8 +168,9 @@ flujos, y el plan los detalla en research R12. Patrón zoneless: _act → `await
 - [X] T033 Ejecutar `npm run lint`, `npm run check:styles`, `npm run test:ci` (sin bajar umbrales) y `npm run format:check`; corregir lo que falle
 - [X] T034 Ejecutar `npm run build` (ambos idiomas, `i18nMissingTranslation: error`) y `npm run e2e:ci`
 - [X] T035 En Windows, regenerar la captura del listado con `npm run e2e -- --update-snapshots` (cambia a propósito por la etiqueta "Aprobador") y revisar el diff de `e2e/visual.spec.ts-snapshots/`
-- [ ] T036 Validar manualmente los 14 escenarios de `specs/001-approver-permission/quickstart.md` contra el backend `feature/hu-32`, incluida la comprobación de red (autoedición sin `canApprove`) y la revisión de UI-08 (cuerpo ≥ 16 px en ayuda y aviso)
+- [X] T036 Validar manualmente los 14 escenarios de `specs/001-approver-permission/quickstart.md` contra el backend `feature/hu-32`, incluida la comprobación de red (autoedición sin `canApprove`) y la revisión de UI-08 (cuerpo ≥ 16 px en ayuda y aviso)
 - [X] T037 Corrección tras la validación en Desarrollo: en móvil el formulario de usuario no hacía scroll y los botones quedaban fuera de la vista. Envolver los campos de `src/app/features/users/user-form-dialog/user-form-dialog.component.html` en `<form class="dialog-form">` y `<div class="dialog-fields">` (patrón de `_dialog-shell.scss`), con `.dialog-footer` fuera del área con scroll
+- [X] T038 Segunda corrección tras la validación en Desarrollo: en móvil el último botón seguía tapado porque `max-height` en `vh` incluye las barras del navegador. En `src/styles/_dialog-shell.scss`, añadir `max-height` en `dvh` tras la de `vh` (88dvh y, en `bp.sm`, 96dvh)
 
 ---
 

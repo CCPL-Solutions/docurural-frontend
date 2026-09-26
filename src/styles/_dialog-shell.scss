@@ -10,7 +10,10 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  // `dvh` descuenta las barras del navegador móvil; `vh` las incluye y el pie queda tapado.
+  // La línea con `vh` es la alternativa para navegadores sin `dvh`.
   max-height: 88vh;
+  max-height: 88dvh;
   overflow: hidden;
 }
 
@@ -154,6 +157,7 @@
   .dialog-container {
     padding: var(--space-3);
     max-height: 96vh;
+    max-height: 96dvh;
   }
 
   .dialog-header {

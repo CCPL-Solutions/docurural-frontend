@@ -27,6 +27,12 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - El formulario de usuario usa la estructura de diálogo con scroll (`.dialog-form` y
   `.dialog-fields`): en móvil los campos se desplazan y los botones quedan siempre visibles.
 
+### Fixed
+
+- La altura máxima de los diálogos (`.dialog-container`) usa `dvh`, con `vh` como alternativa: en
+  los navegadores móviles, `vh` incluía las barras del navegador y el pie del diálogo quedaba
+  tapado.
+
 ## [1.0.1] - 2026-09-23
 
 ### Added
