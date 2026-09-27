@@ -55,7 +55,9 @@ el contrato ya implementado en `docurural-backend` (rama `feature/hu-31`, commit
   activeApprovers() < 2`, donde `originalRequiresApproval` es `false` en la creación.
 - **Aviso de alcance** (tras guardar, solo en la edición):
   `res.requiresApproval !== data.category.requiresApproval`. Usa el valor que devuelve el servidor,
-  que es el guardado de verdad.
+  que es el guardado de verdad. Equivale al "valor enviado" de FR-003, porque el frontend siempre
+  envía el campo (R1) y el servidor guarda lo que recibe; si alguna vez difirieran, manda lo
+  guardado.
 - **Rationale**: son las mismas condiciones que usa el backend para `approverWarning` y
   `approvalScopeNotice` (contrato, tabla de `PUT`), calculadas en el cliente.
 
@@ -68,7 +70,9 @@ el contrato ya implementado en `docurural-backend` (rama `feature/hu-31`, commit
   visible: `info(title, description?, options?: { queue?: boolean })` (y el mismo parámetro en
   `success`, `warning` y `error`, que comparten `show`). Con `queue: true`, si hay un toast
   abierto, el nuevo se abre cuando aquel se cierra (`afterDismissed`); si no hay ninguno, se abre
-  enseguida. Sin la opción, el comportamiento actual no cambia.
+  enseguida. Sin la opción, el comportamiento actual no cambia. Un toast sin `queue` descarta los
+  toasts encolados pendientes (no se muestran) y se abre enseguida, como hoy. Así un aviso nuevo,
+  por ejemplo un error, nunca queda tapado por un aviso de alcance que llega tarde.
 - **Efecto**: el toast de éxito se ve sus 5 s habituales (o hasta que el usuario lo cierra) y a
   continuación aparece el de alcance.
 - **Rationale**: API-08 exige que `NotificationService` sea el único mecanismo de toasts; una

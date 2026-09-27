@@ -155,9 +155,10 @@ que muestran "Sí" y "No" respectivamente, en la vista de tabla y en la de tarje
 - **Error al guardar**: si el guardado falla, el formulario conserva el valor del interruptor y la
   advertencia de aprobadores (si aplica); no aparece el aviso de alcance, y el error se comunica
   como el resto de errores del formulario.
-- **Rol no autorizado**: si el servidor rechaza la operación con acceso denegado ("No tiene permisos
-  para realizar esta acción"), se muestra ese mensaje y no se guarda nada. En la práctica, la
-  pantalla de categorías ya es exclusiva del administrador.
+- **Rol no autorizado o categoría inactiva**: si el servidor rechaza la operación con acceso
+  denegado, el formulario lo comunica con su mensaje de error habitual para ese caso, no guarda nada
+  y conserva los valores introducidos. En la práctica, la pantalla de categorías ya es exclusiva del
+  administrador.
 - **Categoría inactiva**: la edición de categorías inactivas sigue las reglas actuales de HU-17; esta
   HU no las cambia.
 - **Avisos devueltos por el servidor tras guardar**: la advertencia de aprobadores ya se mostró en
@@ -213,8 +214,9 @@ que muestran "Sí" y "No" respectivamente, en la vista de tabla y en la de tarje
 - **FR-013**: El interruptor, su texto de ayuda y los avisos DEBEN ser accesibles: el interruptor
   asociado a su etiqueta y a su ayuda, su estado (Sí/No) anunciado a las tecnologías de apoyo, y los
   avisos anunciados cuando aparecen.
-- **FR-014**: Si el servidor rechaza la operación, el formulario DEBE mostrar su mensaje de error
-  como el resto de errores del formulario, sin perder los valores introducidos.
+- **FR-014**: Si el servidor rechaza la operación, el formulario DEBE comunicar el error con sus
+  mensajes habituales (los mismos que hoy para cada tipo de error), sin perder los valores
+  introducidos, incluido el del interruptor.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -236,8 +238,8 @@ que muestran "Sí" y "No" respectivamente, en la vista de tabla y en la de tarje
   el aviso de alcance justo después de guardar; en ninguna otra operación lo ve.
 - **SC-003**: En el 100 % de las activaciones con menos de dos aprobadores activos, el administrador
   ve la advertencia antes de guardar, y en el 100 % de los casos puede guardar igualmente.
-- **SC-004**: Un administrador identifica qué categorías requieren aprobación en cada página del
-  listado sin abrir ningún formulario.
+- **SC-004**: Un administrador identifica qué categorías requieren aprobación en el listado sin
+  abrir ningún formulario.
 - **SC-005**: Todos los textos nuevos aparecen traducidos en la versión en inglés, sin textos en
   español sueltos.
 
@@ -255,7 +257,9 @@ que muestran "Sí" y "No" respectivamente, en la vista de tabla y en la de tarje
   `approverWarning`, que el frontend no usa (FR-008).
 - **Recuento de aprobadores**: se obtiene del listado de usuarios existente, que ya incluye el
   estado, el rol y el permiso de aprobar (`canApprove`, HU-32) de cada usuario; no hace falta un
-  endpoint nuevo. La consulta solo es necesaria cuando el administrador activa el interruptor.
+  endpoint nuevo. La consulta solo es necesaria si el administrador puede activar la aprobación, es
+  decir, al crear una categoría o al editar una que no la requiere; en ese caso se hace al abrir el
+  formulario, para que la advertencia aparezca en cuanto se active el interruptor.
 - **Aviso de alcance en la creación**: no se muestra, porque una categoría nueva no tiene documentos
   existentes; el backend tampoco lo devuelve al crear.
 - **Consulta por el rol EDITOR**: el backend ya permite al EDITOR consultar el listado y el detalle
