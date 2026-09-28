@@ -13,11 +13,14 @@ import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AlertComponent } from '@shared/components/alert/alert.component';
 import { ButtonComponent, ButtonVariant } from '@shared/components/button/button.component';
 import { SensitivityRadioComponent } from '@shared/sensitivity/sensitivity-radio.component';
+import { isActiveApprover } from '@core/auth/permissions';
 import { CategoriesService } from '@core/services/categories.service';
 import { NotificationService } from '@core/services/notification.service';
+import { UsersService } from '@core/services/users.service';
 import {
   Category,
   MAX_CATEGORY_DESCRIPTION_LENGTH,
@@ -42,6 +45,9 @@ import { CATEGORY_FORM_MESSAGES } from './category-form.messages';
 
 export type CategoryFormDialogMode = 'create' | 'edit';
 
+// Con menos aprobadores, quien sube un documento no tiene otro aprobador que lo revise (HU-31).
+const MIN_ACTIVE_APPROVERS = 2;
+
 export interface CategoryFormDialogData {
   mode: CategoryFormDialogMode;
   category?: Category;
@@ -60,6 +66,7 @@ export type CategoryFormDialogResult =
     ReactiveFormsModule,
     MatIconModule,
     MatDialogModule,
+    MatSlideToggleModule,
     AlertComponent,
     ButtonComponent,
     SensitivityRadioComponent,
@@ -75,6 +82,7 @@ export class CategoryFormDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly categoriesService = inject(CategoriesService);
+  private readonly usersService = inject(UsersService);
   private readonly notifications = inject(NotificationService);
 
   protected readonly loading = signal(false);
@@ -94,6 +102,8 @@ export class CategoryFormDialogComponent implements OnInit {
     ],
     description: ['', [Validators.maxLength(MAX_CATEGORY_DESCRIPTION_LENGTH)]],
     defaultSensitivityLevel: ['INTERNAL' as SensitivityLevel, [Validators.required]],
+    // HU-31: en No por defecto al crear (FR-001).
+    requiresApproval: [false],
   });
 
   private readonly nameValue = toSignal(this.form.controls.name.valueChanges, { initialValue: '' });
@@ -103,6 +113,25 @@ export class CategoryFormDialogComponent implements OnInit {
   private readonly sensitivityValue = toSignal(
     this.form.controls.defaultSensitivityLevel.valueChanges,
     { initialValue: this.form.controls.defaultSensitivityLevel.value },
+  );
+
+  protected readonly requiresApprovalValue = toSignal(
+    this.form.controls.requiresApproval.valueChanges,
+    { initialValue: this.form.controls.requiresApproval.value },
+  );
+
+  /** Valor de "Requiere aprobación" antes de editar (`false` al crear). */
+  private readonly originalRequiresApproval = this.data.category?.requiresApproval ?? false;
+
+  /** Aprobadores activos; `null` mientras no se sabe (consulta en curso, fallida o no hecha). */
+  private readonly activeApprovers = signal<number | null>(null);
+
+  /** Advertencia no bloqueante al activar la aprobación con menos de dos aprobadores (FR-004). */
+  protected readonly showApproverWarning = computed(
+    () =>
+      this.requiresApprovalValue() &&
+      !this.originalRequiresApproval &&
+      (this.activeApprovers() ?? MIN_ACTIVE_APPROVERS) < MIN_ACTIVE_APPROVERS,
   );
 
   protected readonly messages = CATEGORY_FORM_MESSAGES;
@@ -171,14 +200,30 @@ export class CategoryFormDialogComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.isEdit() && this.data.category) {
-      const { name, description, defaultSensitivityLevel } = this.data.category;
+      const { name, description, defaultSensitivityLevel, requiresApproval } = this.data.category;
       this.form.patchValue({
         name,
         description: description ?? '',
         defaultSensitivityLevel: defaultSensitivityLevel ?? 'INTERNAL',
+        requiresApproval,
       });
       this.previousLevel.set(defaultSensitivityLevel ?? 'INTERNAL');
     }
+    if (!this.originalRequiresApproval) this.loadActiveApprovers();
+  }
+
+  /**
+   * Cuenta los aprobadores activos solo si la aprobación se puede activar (research R3). Un error
+   * se ignora: la advertencia es opcional y un toast de error confundiría en un formulario válido.
+   */
+  private loadActiveApprovers(): void {
+    this.usersService
+      .list()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.activeApprovers.set(res.users.filter(isActiveApprover).length),
+        error: () => this.activeApprovers.set(null),
+      });
   }
 
   protected onSubmit(): void {
@@ -205,6 +250,7 @@ export class CategoryFormDialogComponent implements OnInit {
       name: raw.name.trim(),
       description: raw.description.trim() || null,
       defaultSensitivityLevel: raw.defaultSensitivityLevel,
+      requiresApproval: raw.requiresApproval,
     };
 
     const request$ =
@@ -229,12 +275,16 @@ export class CategoryFormDialogComponent implements OnInit {
         $localize`:@@categories.toast.updated.title:Categoría actualizada`,
         $localize`:@@users.toast.updated.description:Los cambios se guardaron correctamente.`,
       );
+      if (res.requiresApproval !== this.originalRequiresApproval) {
+        this.notifyApprovalScope(res.requiresApproval);
+      }
       const updated: Category = {
         ...this.data.category,
         name: res.name,
         description: res.description,
         status: res.status,
         defaultSensitivityLevel: res.defaultSensitivityLevel,
+        requiresApproval: res.requiresApproval,
       };
       this.dialogRef.close({ kind: 'updated', category: updated });
     } else {
@@ -244,6 +294,21 @@ export class CategoryFormDialogComponent implements OnInit {
       );
       this.dialogRef.close({ kind: 'created', category: res as CreateCategoryResponse });
     }
+  }
+
+  /**
+   * Aviso de alcance (HU-31, FR-003): va detrás del toast de éxito, encolado para no reemplazarlo.
+   * El texto es el de la interfaz, no el `approvalScopeNotice` del backend (solo en español).
+   */
+  private notifyApprovalScope(requiresApproval: boolean): void {
+    const title = requiresApproval
+      ? $localize`:@@categories.toast.approvalOn.title:Aprobación activada`
+      : $localize`:@@categories.toast.approvalOff.title:Aprobación desactivada`;
+    this.notifications.info(
+      title,
+      $localize`:@@categories.toast.approvalScope.description:Este cambio solo afecta a los documentos que se carguen desde ahora. Los documentos existentes conservan su estado actual.`,
+      { queue: true },
+    );
   }
 
   private handleError(err: HttpErrorResponse): void {

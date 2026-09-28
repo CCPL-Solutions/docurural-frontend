@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-27
 
-**Status**: Draft
+**Status**: Implemented (validada el 2026-09-27)
 
 **Input**: User description: "HU-31 — Configuración de aprobación por categoría (RF-07, prioridad
 Alta, v2.0 — Flujo de aprobación). Como administrador del sistema, quiero indicar qué categorías

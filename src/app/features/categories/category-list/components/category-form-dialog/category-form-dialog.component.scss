@@ -142,3 +142,69 @@
     flex-shrink: 0;
   }
 }
+
+// ── Requiere aprobación (HU-31) ──────────────────────────────────────────────
+// Etiqueta, ayuda y advertencia a --text-base (UI-08): no se reutilizan field__hint ni
+// level-banner__text, que usan un token menor.
+.approval-field {
+  margin-top: var(--space-5);
+  margin-bottom: 0;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-divider);
+
+  &__row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  &__icon {
+    @include icon.size(16px);
+    color: var(--color-text-secondary);
+  }
+
+  &__hint {
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
+    line-height: var(--lh-snug);
+  }
+
+  &__control {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+
+  &__state {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+
+    &--on {
+      color: var(--color-primary-dark);
+    }
+  }
+
+  &__warning {
+    display: block;
+    margin-top: var(--space-3);
+  }
+}

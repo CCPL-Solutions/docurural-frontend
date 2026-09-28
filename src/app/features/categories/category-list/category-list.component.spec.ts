@@ -8,7 +8,7 @@ import { CategoriesService } from '@core/services/categories.service';
 import { NotificationService } from '@core/services/notification.service';
 import { CategoryListComponent } from './category-list.component';
 
-const category = (id: number, name: string): Category => ({
+const category = (id: number, name: string, overrides: Partial<Category> = {}): Category => ({
   id,
   name,
   description: null,
@@ -17,6 +17,8 @@ const category = (id: number, name: string): Category => ({
   createdAt: '2026-01-01T00:00:00Z',
   createdBy: 'Ana Pérez',
   defaultSensitivityLevel: 'INTERNAL',
+  requiresApproval: false,
+  ...overrides,
 });
 const page = (...categories: Category[]): CategoryListResponse => ({
   totalCategories: categories.length,
@@ -84,5 +86,45 @@ describe('CategoryListComponent', () => {
     responses[1].next(page(category(1, 'Actas')));
 
     expect(component['totalCategories']()).toBe(1);
+  });
+  it('muestra "Requiere aprobación" en la tabla y en las tarjetas (HU-31)', async () => {
+    const { fixture } = await render();
+    responses[0].next(
+      page(
+        category(1, 'Actas', { requiresApproval: true }),
+        category(2, 'Informes'),
+        category(3, 'Boletines', { requiresApproval: true, status: 'INACTIVE' }),
+      ),
+    );
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+
+    const headers = [...host.querySelectorAll('thead th')].map((th) => th.textContent?.trim());
+    const col = headers.indexOf('Requiere aprobación');
+    expect(headers[col - 1]).toBe('Sensibilidad por defecto');
+    expect(headers[col + 1]).toBe('Documentos');
+
+    const rowValues = [...host.querySelectorAll('tbody tr')].map((row) =>
+      row.querySelectorAll('td')[col].textContent?.trim(),
+    );
+    expect(rowValues).toEqual(['Sí', 'No', 'Sí']);
+
+    const cardBadges = [...host.querySelectorAll('.category-card app-category-approval-badge')];
+    // Solo los nodos de texto: fuera quedan el nombre del icono (mat-icon) y los comentarios.
+    const cardText = (badge: Element) =>
+      [...badge.querySelector('.badge')!.childNodes]
+        .filter((node) => node.nodeType === Node.TEXT_NODE)
+        .map((node) => node.textContent)
+        .join('')
+        .trim();
+    expect(cardBadges.map(cardText)).toEqual([
+      'Aprobación: Sí',
+      'Aprobación: No',
+      'Aprobación: Sí',
+    ]);
+
+    // La categoría inactiva conserva "Sí", atenuado (variante neutra).
+    const inactiveBadge = host.querySelectorAll('tbody tr')[2].querySelector('.badge');
+    expect(inactiveBadge?.classList).toContain('badge--neutral');
   });
 });

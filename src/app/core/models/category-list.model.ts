@@ -16,6 +16,8 @@ export interface CreateCategoryRequest {
   name: string;
   description: string | null;
   defaultSensitivityLevel: SensitivityLevel;
+  /** Se envía siempre (HU-31, research R1). */
+  requiresApproval: boolean;
 }
 
 export interface CreateCategoryResponse {
@@ -25,6 +27,7 @@ export interface CreateCategoryResponse {
   status: CategoryStatus;
   createdAt: string;
   defaultSensitivityLevel: SensitivityLevel;
+  requiresApproval: boolean;
   message: string;
 }
 
@@ -32,6 +35,8 @@ export interface UpdateCategoryRequest {
   name: string;
   description: string | null;
   defaultSensitivityLevel: SensitivityLevel;
+  /** Se envía siempre (HU-31, research R1). */
+  requiresApproval: boolean;
 }
 
 export interface UpdateCategoryResponse {
@@ -40,6 +45,7 @@ export interface UpdateCategoryResponse {
   description: string | null;
   status: CategoryStatus;
   defaultSensitivityLevel: SensitivityLevel;
+  requiresApproval: boolean;
   message: string;
 }
 

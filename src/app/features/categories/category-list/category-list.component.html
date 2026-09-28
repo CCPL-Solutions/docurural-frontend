@@ -74,6 +74,7 @@
         <col class="col-category" />
         <col class="col-description" />
         <col class="col-sensitivity" />
+        <col class="col-approval" />
         <col class="col-documents" />
         <col class="col-status" />
         <col class="col-created" />
@@ -88,6 +89,7 @@
               >Sensibilidad por defecto</span
             >
           </th>
+          <th i18n="@@categories.field.requiresApproval">Requiere aprobación</th>
           <th class="th-right" i18n="@@layout.nav.documents">Documentos</th>
           <th i18n="@@users.list.col.status">Estado</th>
           <th i18n="@@users.list.col.createdAt">Fecha de creación</th>
@@ -113,6 +115,12 @@
             </td>
             <td>
               <app-sensitivity-badge [level]="category.defaultSensitivityLevel" size="sm" />
+            </td>
+            <td>
+              <app-category-approval-badge
+                [requiresApproval]="category.requiresApproval"
+                [muted]="isMuted(category)"
+              />
             </td>
             <td class="td-right">
               <span class="doc-count-pill" [class.doc-count-pill--muted]="isMuted(category)">
@@ -152,6 +160,11 @@
           <div class="category-card__meta">
             <app-category-status-badge [status]="category.status" />
             <app-sensitivity-badge [level]="category.defaultSensitivityLevel" size="sm" />
+            <app-category-approval-badge
+              [requiresApproval]="category.requiresApproval"
+              size="sm"
+              [muted]="isMuted(category)"
+            />
             <span class="doc-count-pill" [class.doc-count-pill--muted]="isMuted(category)">
               <mat-icon aria-hidden="true">description</mat-icon>
               <ng-container i18n="@@categories.list.docCountShort"

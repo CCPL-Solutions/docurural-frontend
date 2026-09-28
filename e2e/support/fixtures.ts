@@ -37,6 +37,7 @@ const CATEGORIES = [
     createdAt: '2026-01-10T09:00:00-05:00',
     createdBy: 'Ana Pérez',
     defaultSensitivityLevel: 'INTERNAL',
+    requiresApproval: true,
   },
   {
     id: 2,
@@ -47,6 +48,7 @@ const CATEGORIES = [
     createdAt: '2026-01-11T09:00:00-05:00',
     createdBy: 'Ana Pérez',
     defaultSensitivityLevel: 'RESTRICTED',
+    requiresApproval: false,
   },
 ];
 

@@ -29,6 +29,7 @@ import { CategorySortBy, CategorySortDir } from '@core/models/category-list.mode
 import { CategoryStatusBadgeComponent } from './components/category-status-badge.component';
 import { CategoryIconBadgeComponent } from './components/category-icon-badge.component';
 import { CategoryRowActionsComponent } from './components/category-row-actions.component';
+import { CategoryApprovalBadgeComponent } from './components/category-approval-badge.component';
 import { SensitivityBadgeComponent } from '@shared/sensitivity/sensitivity-badge.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
@@ -85,6 +86,7 @@ const SORT_OPTIONS: SortOptionConfig[] = [
     CategoryStatusBadgeComponent,
     CategoryIconBadgeComponent,
     CategoryRowActionsComponent,
+    CategoryApprovalBadgeComponent,
     SensitivityBadgeComponent,
     PageHeaderComponent,
     EmptyStateComponent,
