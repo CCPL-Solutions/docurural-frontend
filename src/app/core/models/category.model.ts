@@ -10,6 +10,8 @@ export interface Category {
   createdAt: string;
   createdBy: string;
   defaultSensitivityLevel: SensitivityLevel;
+  /** Requiere aprobación (HU-31). Siempre presente en las respuestas; `false` en las categorías anteriores a la HU. */
+  requiresApproval: boolean;
 }
 
 // Límites de validación compartidos con el backend (FRM-02).

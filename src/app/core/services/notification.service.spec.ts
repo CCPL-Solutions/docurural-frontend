@@ -1,16 +1,25 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject } from 'rxjs';
 import { ToastComponent } from '@shared/components/toast/toast.component';
 import { NotificationService } from './notification.service';
 
 describe('NotificationService', () => {
   const snackBar = { dismiss: vi.fn(), openFromComponent: vi.fn() };
   let service: NotificationService;
+  // Cierre de cada toast abierto, en orden de apertura (MatSnackBarRef.afterDismissed).
+  let dismissals: Subject<void>[];
 
   beforeEach(() => {
+    dismissals = [];
     snackBar.dismiss.mockReset();
     snackBar.openFromComponent.mockReset();
+    snackBar.openFromComponent.mockImplementation(() => {
+      const dismissed = new Subject<void>();
+      dismissals.push(dismissed);
+      return { afterDismissed: () => dismissed.asObservable() };
+    });
     TestBed.configureTestingModule({
       providers: [{ provide: MatSnackBar, useValue: snackBar }],
     });
@@ -87,5 +96,48 @@ describe('NotificationService', () => {
     expect(snackBar.dismiss.mock.invocationCallOrder[1]).toBeLessThan(
       snackBar.openFromComponent.mock.invocationCallOrder[1],
     );
+  });
+  describe('opción queue (HU-31)', () => {
+    const titles = () =>
+      snackBar.openFromComponent.mock.calls.map(([, config]) => config.data.title as string);
+    // Deja resolver la promesa del renderer (import dinámico) antes de comprobar lo que no ocurre.
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
+
+    it('abre el toast encolado solo cuando se cierra el visible, sin cerrarlo antes', async () => {
+      service.success('Uno');
+      service.info('Dos', undefined, { queue: true });
+
+      await vi.waitFor(() => expect(titles()).toEqual(['Uno']));
+      await flush();
+      expect(titles()).toEqual(['Uno']);
+      expect(snackBar.dismiss).toHaveBeenCalledTimes(1);
+
+      dismissals[0].next();
+      dismissals[0].complete();
+
+      await vi.waitFor(() => expect(titles()).toEqual(['Uno', 'Dos']));
+      expect(snackBar.dismiss).toHaveBeenCalledTimes(1);
+    });
+
+    it('abre el toast encolado enseguida si no hay ninguno abierto', async () => {
+      service.info('Dos', undefined, { queue: true });
+
+      await vi.waitFor(() => expect(titles()).toEqual(['Dos']));
+    });
+
+    it('un toast sin queue descarta el encolado pendiente', async () => {
+      service.success('Uno');
+      service.info('Dos', undefined, { queue: true });
+      service.error('Tres');
+
+      await vi.waitFor(() => expect(titles()).toEqual(['Uno', 'Tres']));
+      dismissals[0].next();
+      dismissals[0].complete();
+      dismissals[1].next();
+      dismissals[1].complete();
+      await flush();
+
+      expect(titles()).toEqual(['Uno', 'Tres']);
+    });
   });
 });

@@ -1,0 +1,5 @@
+@use 'icons' as icon;
+
+.approval-badge__icon {
+  @include icon.size(12px);
+}

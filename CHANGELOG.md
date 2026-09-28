@@ -19,6 +19,17 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Añadida una nota sobre la aprobación en la confirmación de activar y desactivar a un aprobador.
 - Añadida la variante `accent` de `<app-badge>` y la utilidad global `.visually-hidden`
   (`src/styles/_a11y.scss`).
+- Añadida la **configuración de aprobación por categoría** (HU-31): el interruptor "Requiere
+  aprobación" (Sí/No) en los formularios de crear y editar categoría, en No por defecto. Al
+  activarlo con menos de dos aprobadores activos, una advertencia no bloqueante bajo el
+  interruptor. Tras guardar una edición que cambia el valor, un toast informativo con el alcance
+  del cambio, detrás del toast de éxito.
+- Añadida la columna "Requiere aprobación" en el listado de categorías (Sí/No) y la etiqueta
+  "Aprobación: Sí/No" en las tarjetas, atenuadas en las categorías inactivas.
+- Añadida la opción `queue` de `NotificationService`: el toast espera a que se cierre el visible
+  en lugar de reemplazarlo; un toast posterior sin la opción lo descarta.
+- Añadida la función `isActiveApprover` en `core/auth/permissions.ts` y el estilo `.app-switch`
+  para `mat-slide-toggle` con los tokens del sistema de diseño.
 
 ### Changed
 

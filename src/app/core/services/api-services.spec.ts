@@ -38,6 +38,7 @@ describe('servicios de la API', () => {
         name: 'Actas',
         description: null,
         defaultSensitivityLevel: 'INTERNAL' as const,
+        requiresApproval: false,
       };
       service.create(payload).subscribe();
       service.update(7, payload).subscribe();

@@ -1,4 +1,5 @@
 import { Role } from '@core/models/role.model';
+import { User } from '@core/models/user.model';
 
 // Único punto donde se decide qué puede hacer cada rol. Las comparaciones con 'ADMIN' o 'EDITOR'
 // fuera de este archivo están prohibidas (D33).
@@ -41,4 +42,12 @@ export function canUploadDocument(role: Role): boolean {
  */
 export function canHoldApprovalPermission(role: Role | null | undefined): boolean {
   return isAdmin(role) || isEditor(role);
+}
+
+/**
+ * Aprobador activo: activo, con el permiso de aprobar y con un rol que puede tenerlo. Misma
+ * definición que `countActiveApprovers` del backend (HU-31).
+ */
+export function isActiveApprover(user: User): boolean {
+  return user.status === 'ACTIVE' && user.canApprove && canHoldApprovalPermission(user.role);
 }

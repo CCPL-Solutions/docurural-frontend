@@ -148,3 +148,54 @@
   padding: 0;
   overflow-y: auto;
 }
+
+// ── mat-slide-toggle con apariencia del sistema de diseño (HU-31) ────────────
+// Aplicar la clase .app-switch al mat-slide-toggle (con hideIcon). Tamaño del diseño aproximado
+// con tokens: pista 40 × 24 y manija de 20, que se sitúa con su margen horizontal.
+.app-switch {
+  // Tamaño
+  --mat-slide-toggle-track-width: var(--space-8);
+  --mat-slide-toggle-track-height: var(--space-6);
+  --mat-slide-toggle-track-shape: var(--radius-full);
+  --mat-slide-toggle-handle-shape: var(--radius-full);
+  --mat-slide-toggle-selected-handle-size: var(--space-5);
+  --mat-slide-toggle-unselected-handle-size: var(--space-5);
+  --mat-slide-toggle-pressed-handle-size: var(--space-5);
+  --mat-slide-toggle-unselected-handle-horizontal-margin: 0 var(--space-0-5);
+  --mat-slide-toggle-unselected-pressed-handle-horizontal-margin: 0 var(--space-0-5);
+  --mat-slide-toggle-selected-handle-horizontal-margin: 0
+    calc(var(--space-8) - var(--space-5) - var(--space-0-5));
+  --mat-slide-toggle-selected-pressed-handle-horizontal-margin: 0
+    calc(var(--space-8) - var(--space-5) - var(--space-0-5));
+  --mat-slide-toggle-track-outline-width: 0;
+  --mat-slide-toggle-disabled-unselected-track-outline-width: 0;
+
+  // Encendido
+  --mat-slide-toggle-selected-track-color: var(--color-primary);
+  --mat-slide-toggle-selected-hover-track-color: var(--color-primary);
+  --mat-slide-toggle-selected-focus-track-color: var(--color-primary);
+  --mat-slide-toggle-selected-pressed-track-color: var(--color-primary-dark);
+  --mat-slide-toggle-selected-handle-color: var(--color-bg-card);
+  --mat-slide-toggle-selected-hover-handle-color: var(--color-bg-card);
+  --mat-slide-toggle-selected-focus-handle-color: var(--color-bg-card);
+  --mat-slide-toggle-selected-pressed-handle-color: var(--color-bg-card);
+
+  // Apagado
+  --mat-slide-toggle-unselected-track-color: var(--color-border-strong);
+  --mat-slide-toggle-unselected-hover-track-color: var(--color-border-strong);
+  --mat-slide-toggle-unselected-focus-track-color: var(--color-border-strong);
+  --mat-slide-toggle-unselected-pressed-track-color: var(--color-text-muted);
+  --mat-slide-toggle-unselected-handle-color: var(--color-bg-card);
+  --mat-slide-toggle-unselected-hover-handle-color: var(--color-bg-card);
+  --mat-slide-toggle-unselected-focus-handle-color: var(--color-bg-card);
+  --mat-slide-toggle-unselected-pressed-handle-color: var(--color-bg-card);
+
+  // Deshabilitado (mientras se guarda)
+  --mat-slide-toggle-disabled-selected-track-color: var(--color-primary);
+  --mat-slide-toggle-disabled-unselected-track-color: var(--color-border-strong);
+  --mat-slide-toggle-disabled-selected-handle-color: var(--color-bg-card);
+  --mat-slide-toggle-disabled-unselected-handle-color: var(--color-bg-card);
+  --mat-slide-toggle-disabled-selected-handle-opacity: 1;
+  --mat-slide-toggle-disabled-unselected-handle-opacity: 1;
+  --mat-slide-toggle-disabled-track-opacity: 0.5;
+}

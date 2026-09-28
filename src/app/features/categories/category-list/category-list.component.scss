@@ -48,18 +48,21 @@
   @include dt.styles();
 }
 
-// Las columnas de contenido corto (documentos, estado, fecha y acciones) tienen ancho fijo: en
-// porcentaje, a 1280 px con el menú lateral se cortaban los botones y se solapaban las cabeceras.
-// Los porcentajes suman un 50 % para que, con los 460 px fijos, la tabla quepa sin ensancharse
-// (table-layout: fixed).
+// Las columnas de contenido corto (aprobación, documentos, estado, fecha y acciones) tienen ancho
+// fijo: en porcentaje, a 1280 px con el menú lateral se cortaban los botones y se solapaban las
+// cabeceras. Los porcentajes suman un 39 % para que, con los 570 px fijos, la tabla quepa sin
+// ensancharse (table-layout: fixed).
 .col-category {
-  width: 19%;
+  width: 17%;
 }
 .col-description {
-  width: 16%;
+  width: 10%;
 }
 .col-sensitivity {
-  width: 15%;
+  width: 12%;
+}
+.col-approval {
+  width: 110px;
 }
 .col-documents {
   width: 110px;

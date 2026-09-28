@@ -206,6 +206,55 @@
           [messages]="messages.defaultSensitivityLevel"
         />
       </div>
+
+      <!-- Requiere aprobación (HU-31) -->
+      <div class="field approval-field">
+        <div class="approval-field__row">
+          <div class="approval-field__text">
+            <span class="approval-field__label" id="requiresApproval-label">
+              <mat-icon class="approval-field__icon" aria-hidden="true">approval</mat-icon>
+              <ng-container i18n="@@categories.field.requiresApproval"
+                >Requiere aprobación</ng-container
+              >
+            </span>
+            <span
+              class="approval-field__hint"
+              id="requiresApproval-hint"
+              i18n="@@categories.form.approval.hint"
+              >Los documentos de esta categoría pasarán por el flujo de aprobación.</span
+            >
+          </div>
+          <div class="approval-field__control">
+            <span
+              class="approval-field__state"
+              [class.approval-field__state--on]="requiresApprovalValue()"
+              aria-hidden="true"
+            >
+              @if (requiresApprovalValue()) {
+                <ng-container i18n="@@categories.approval.yes">Sí</ng-container>
+              } @else {
+                <ng-container i18n="@@categories.approval.no">No</ng-container>
+              }
+            </span>
+            <mat-slide-toggle
+              class="app-switch"
+              formControlName="requiresApproval"
+              hideIcon
+              aria-labelledby="requiresApproval-label"
+              aria-describedby="requiresApproval-hint"
+            />
+          </div>
+        </div>
+        @if (showApproverWarning()) {
+          <app-alert
+            class="approval-field__warning"
+            variant="warning"
+            i18n="@@categories.form.approval.fewApprovers"
+            >Hay menos de dos usuarios con permiso de aprobar. Los documentos que cargue un
+            aprobador no podrán ser aprobados por él mismo.</app-alert
+          >
+        }
+      </div>
     </div>
     <!-- /dialog-fields -->
 

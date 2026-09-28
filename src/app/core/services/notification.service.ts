@@ -1,6 +1,6 @@
 import { Injectable, Injector, inject } from '@angular/core';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
-import type { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import type { MatSnackBar, MatSnackBarConfig, MatSnackBarRef } from '@angular/material/snack-bar';
 import type {
   ToastComponent,
   ToastData,
@@ -13,6 +13,14 @@ interface ToastRenderer {
   toast: typeof ToastComponent;
 }
 
+export interface ToastOptions {
+  /**
+   * Espera a que se cierre el toast visible en lugar de reemplazarlo (HU-31: el aviso de alcance
+   * se muestra después del toast de éxito). Un toast posterior sin `queue` descarta el encolado.
+   */
+  queue?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private readonly injector = inject(Injector);
@@ -22,20 +30,24 @@ export class NotificationService {
   // los módulos de Material que usa el snackbar (tarea 4.10).
   private renderer?: Promise<ToastRenderer>;
 
-  info(title: string, description?: string): void {
-    this.show('info', title, description);
+  // Toast visible y, si lo hay, el que espera a que se cierre (research R5 de la HU-31).
+  private current?: MatSnackBarRef<ToastComponent>;
+  private pending?: MatSnackBarConfig<ToastData>;
+
+  info(title: string, description?: string, options?: ToastOptions): void {
+    this.show('info', title, description, options);
   }
 
-  success(title: string, description?: string): void {
-    this.show('success', title, description);
+  success(title: string, description?: string, options?: ToastOptions): void {
+    this.show('success', title, description, options);
   }
 
-  warning(title: string, description?: string): void {
-    this.show('warning', title, description);
+  warning(title: string, description?: string, options?: ToastOptions): void {
+    this.show('warning', title, description, options);
   }
 
-  error(title: string, description?: string): void {
-    this.show('error', title, description);
+  error(title: string, description?: string, options?: ToastOptions): void {
+    this.show('error', title, description, options);
   }
 
   /**
@@ -48,7 +60,7 @@ export class NotificationService {
     void readApiError(err).then((apiError) => this.error(title, apiError?.message ?? fallback));
   }
 
-  private show(type: ToastType, title: string, description?: string): void {
+  private show(type: ToastType, title: string, description?: string, options?: ToastOptions): void {
     const config: MatSnackBarConfig<ToastData> = {
       data: { type, title, description },
       duration: 5000,
@@ -58,9 +70,27 @@ export class NotificationService {
     };
 
     // Los avisos se muestran en el orden en que se piden: comparten la misma promesa.
-    void this.loadRenderer().then(({ snackBar, toast }) => {
-      snackBar.dismiss();
-      snackBar.openFromComponent(toast, config);
+    void this.loadRenderer().then((renderer) => {
+      if (options?.queue && this.current) {
+        this.pending = config;
+        return;
+      }
+      // Un aviso normal reemplaza al visible y descarta el encolado, que ya llegaría tarde.
+      this.pending = undefined;
+      renderer.snackBar.dismiss();
+      this.open(renderer, config);
+    });
+  }
+
+  private open({ snackBar, toast }: ToastRenderer, config: MatSnackBarConfig<ToastData>): void {
+    const ref = snackBar.openFromComponent(toast, config);
+    this.current = ref;
+    ref.afterDismissed().subscribe(() => {
+      if (this.current !== ref) return;
+      this.current = undefined;
+      const next = this.pending;
+      this.pending = undefined;
+      if (next) this.open({ snackBar, toast }, next);
     });
   }
 

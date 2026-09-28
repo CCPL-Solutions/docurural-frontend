@@ -610,6 +610,18 @@
           <context context-type="linenumber">134,136</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="categories.field.requiresApproval" datatype="html">
+        <source>Requiere aprobación</source>
+        <target state="final">Requires approval</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/category-list.component.html</context>
+          <context context-type="linenumber">92,93</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-form-dialog/category-form-dialog.component.html</context>
+          <context context-type="linenumber">217,219</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="layout.nav.documents" datatype="html">
         <source>Documentos</source>
         <target state="final">Documents</target>
@@ -806,6 +818,46 @@
           <context context-type="linenumber">192</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="categories.approval.cardYes" datatype="html">
+        <source>Aprobación: Sí</source>
+        <target state="final">Approval: Yes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-approval-badge.component.ts</context>
+          <context context-type="linenumber">15,17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="categories.approval.cardNo" datatype="html">
+        <source>Aprobación: No</source>
+        <target state="final">Approval: No</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-approval-badge.component.ts</context>
+          <context context-type="linenumber">17,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="categories.approval.yes" datatype="html">
+        <source>Sí</source>
+        <target state="final">Yes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-approval-badge.component.ts</context>
+          <context context-type="linenumber">21,23</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-form-dialog/category-form-dialog.component.html</context>
+          <context context-type="linenumber">234,235</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="categories.approval.no" datatype="html">
+        <source>No</source>
+        <target state="final">No</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-approval-badge.component.ts</context>
+          <context context-type="linenumber">23,26</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-form-dialog/category-form-dialog.component.html</context>
+          <context context-type="linenumber">236,238</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="common.closeForm" datatype="html">
         <source>Cerrar formulario</source>
         <target state="final">Close form</target>
@@ -960,6 +1012,22 @@
           <context context-type="linenumber">193,196</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="categories.form.approval.hint" datatype="html">
+        <source>Los documentos de esta categoría pasarán por el flujo de aprobación.</source>
+        <target state="final">Documents in this category will go through the approval workflow.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-form-dialog/category-form-dialog.component.html</context>
+          <context context-type="linenumber">224,227</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="categories.form.approval.fewApprovers" datatype="html">
+        <source>Hay menos de dos usuarios con permiso de aprobar. Los documentos que cargue un aprobador no podrán ser aprobados por él mismo.</source>
+        <target state="final">There are fewer than two users with approval permission. Documents uploaded by an approver cannot be approved by that same person.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-form-dialog/category-form-dialog.component.html</context>
+          <context context-type="linenumber">253,257</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="common.cancel" datatype="html">
         <source>Cancelar</source>
         <target state="final">Cancel</target>
@@ -1102,6 +1170,30 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/categories/category-list/components/category-form-dialog/category-form-dialog.component.ts</context>
           <context context-type="linenumber">243</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="categories.toast.approvalOn.title" datatype="html">
+        <source>Aprobación activada</source>
+        <target state="final">Approval enabled</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-form-dialog/category-form-dialog.component.ts</context>
+          <context context-type="linenumber">305</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="categories.toast.approvalOff.title" datatype="html">
+        <source>Aprobación desactivada</source>
+        <target state="final">Approval disabled</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-form-dialog/category-form-dialog.component.ts</context>
+          <context context-type="linenumber">306</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="categories.toast.approvalScope.description" datatype="html">
+        <source>Este cambio solo afecta a los documentos que se carguen desde ahora. Los documentos existentes conservan su estado actual.</source>
+        <target state="final">This change only affects documents uploaded from now on. Existing documents keep their current status.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/categories/category-list/components/category-form-dialog/category-form-dialog.component.ts</context>
+          <context context-type="linenumber">309</context>
         </context-group>
       </trans-unit>
       <trans-unit id="categories.form.error.duplicate" datatype="html">
